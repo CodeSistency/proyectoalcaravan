@@ -27,8 +27,16 @@ class MainActivity : AppCompatActivity() {
                 LoginViewModel::class.java
             )
 
+//        binding.loginBtn.setOnClickListener{
+//            viewModel.getAllUsers()
+//        }
+
+//        binding.loginBtn.setOnClickListener{
+//            viewModel.goToActivity(applicationContext)
+//        }
+
         binding.loginBtn.setOnClickListener{
-            viewModel.getAllUsers()
+            viewModel.goToFragment(this)
         }
     }
 }

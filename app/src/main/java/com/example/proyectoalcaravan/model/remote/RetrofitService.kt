@@ -1,14 +1,32 @@
 package com.example.proyectoalcaravan.model.remote
 
+import com.example.proyectoalcaravan.model.User
 import com.example.proyectoalcaravan.model.UserList
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface RetrofitService {
     @GET("users")
-    fun getAllUsers(): Call<UserList>
+    fun getAllUsers(): Call<List<User>>
+
+    @POST("users")
+    fun createUser(@Body user: User): Call<User>
+
+    @PUT("users/{id}")
+    fun updateUser(@Path("id") userId: Int, @Body user: User): Call<User>
+
+    @DELETE("users/{id}")
+    fun deleteUser(@Path("id") userId: Int): Call<Void>
+
+    @GET("users/{id}")
+    fun getUserById(@Path("id") userId: Int): Call<User>
 
     companion object {
 
