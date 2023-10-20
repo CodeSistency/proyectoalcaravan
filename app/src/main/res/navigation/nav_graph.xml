@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/login">
+    <fragment
+        android:id="@+id/registerStepOne2"
+        android:name="com.example.proyectoalcaravan.RegisterStepOne"
+        android:label="fragment_register_step_one"
+        tools:layout="@layout/fragment_register_step_one" >
+        <action
+            android:id="@+id/action_registerStepOne2_to_registerStepTwo2"
+            app:destination="@id/registerStepTwo2" />
+    </fragment>
+    <fragment
+        android:id="@+id/registerStepTwo2"
+        android:name="com.example.proyectoalcaravan.RegisterStepTwo"
+        android:label="fragment_register_step_two"
+        tools:layout="@layout/fragment_register_step_two" >
+        <action
+            android:id="@+id/action_registerStepTwo2_to_googleMapsFragment"
+            app:destination="@id/googleMapsFragment" />
+    </fragment>
+    <activity
+        android:id="@+id/studentActivity"
+        android:name="com.example.proyectoalcaravan.StudentActivity"
+        android:label="StudentActivity" />
+    <fragment
+        android:id="@+id/login"
+        android:name="com.example.proyectoalcaravan.Login"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_login_to_registerStepOne2"
+            app:destination="@id/registerStepOne2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_pop_enter_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/googleMapsFragment"
+        android:name="com.example.proyectoalcaravan.GoogleMapsFragment"
+        android:label="fragment_google_maps"
+        tools:layout="@layout/fragment_google_maps" />
+</navigation>

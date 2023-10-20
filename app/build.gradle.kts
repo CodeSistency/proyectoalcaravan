@@ -60,12 +60,23 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.3.1")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.3.1")
 
-
+    //Fragment
     implementation ("androidx.fragment:fragment-ktx:1.5.3")
+
+    //Navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:2.5.3")
+
 
     //liveData
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    implementation("androidx.databinding:databinding-runtime:8.1.2")
+
+    //Google maps
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

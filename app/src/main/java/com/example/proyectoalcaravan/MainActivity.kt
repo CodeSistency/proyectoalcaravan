@@ -34,9 +34,9 @@ class MainActivity : AppCompatActivity() {
 //        binding.loginBtn.setOnClickListener{
 //            viewModel.goToActivity(applicationContext)
 //        }
-
-        binding.loginBtn.setOnClickListener{
-            viewModel.goToFragment(this)
-        }
+//
+//        binding.goToRegister.setOnClickListener{
+//            viewModel.goToRegisterStepOne(this)
+//        }
     }
 }

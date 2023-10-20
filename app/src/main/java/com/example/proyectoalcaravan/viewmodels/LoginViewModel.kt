@@ -4,8 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.ObservableField
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.proyectoalcaravan.MainActivity
+import com.example.proyectoalcaravan.ProfesorActivity
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.RegisterStepOne
 import com.example.proyectoalcaravan.StudentActivity
@@ -17,8 +21,29 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class LoginViewModel(private val repository: MainRepository): ViewModel() {
+
     val userList = MutableLiveData<List<User>>()
     val errorMessage = MutableLiveData<String>()
+
+    //Data to Register
+
+    val email = MutableLiveData<String>()
+    val password = MutableLiveData<String>()
+
+    val latitude = MutableLiveData<Double>()
+    val longitude = MutableLiveData<Double>()
+
+
+    fun isFormValid(): Boolean {
+        val email = email.value
+        val password = password.value
+
+        val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        val isPasswordValid = password?.length ?: 0 >= 5 && password?.any { it.isDigit() } ?: false
+
+        return isEmailValid && isPasswordValid
+    }
+
 
     fun goToActivity(context: Context) {
         val intent = Intent(context, StudentActivity::class.java).apply {
@@ -27,12 +52,37 @@ class LoginViewModel(private val repository: MainRepository): ViewModel() {
         context.startActivity(intent)
     }
 
-    fun goToFragment(activity: AppCompatActivity) {
+    fun goToStudent(context: Context) {
+        val intent = Intent(context, StudentActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
+    }
+
+    fun goToProfesor(context: Context) {
+        val intent = Intent(context, ProfesorActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        context.startActivity(intent)
+    }
+
+
+    fun goToRegisterStepOne(activity: AppCompatActivity) {
         val fragment = RegisterStepOne()
         val transaction = activity.supportFragmentManager.beginTransaction()
         transaction.replace(R.id.mainActivity, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
+    }
+
+//    fun goToRegisterStepTwo(context: RegisterStepOne) {
+//        val intent = Intent(context, MainActivity::class.java)
+//        intent.putExtra("fragment", "RegisterStepTwo")
+//        context.startActivity(intent)
+//    }
+
+    fun navigateRegister() {
+
     }
 
     fun getAllUsers() {
