@@ -1,4 +1,4 @@
-package com.example.proyectoalcaravan.model
+package com.example.proyectoalcaravan.model.remote
 
 data class Actividad(
     val calification: Int,

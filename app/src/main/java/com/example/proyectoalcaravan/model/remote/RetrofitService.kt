@@ -1,7 +1,5 @@
 package com.example.proyectoalcaravan.model.remote
 
-import com.example.proyectoalcaravan.model.User
-import com.example.proyectoalcaravan.model.UserList
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

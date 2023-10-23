@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.example.proyectoalcaravan.databinding.ActivityMainBinding
+import com.example.proyectoalcaravan.model.local.AppDatabase
 import com.example.proyectoalcaravan.model.remote.RetrofitService
 import com.example.proyectoalcaravan.repository.MainRepository
 import com.example.proyectoalcaravan.viewmodels.LoginViewModel
@@ -16,6 +17,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewModel: LoginViewModel
 
     private val retrofitService = RetrofitService.getInstance()
+    private val databaseInstance = AppDatabase
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -28,7 +28,7 @@
         android:label="StudentActivity" />
     <fragment
         android:id="@+id/login"
-        android:name="com.example.proyectoalcaravan.Login"
+        android:name="com.example.proyectoalcaravan.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -36,10 +36,21 @@
             app:destination="@id/registerStepOne2"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_pop_enter_anim" />
+        <action
+            android:id="@+id/action_login_to_studentActivity"
+            app:destination="@id/studentActivity" />
+        <action
+            android:id="@+id/action_login_to_profesorActivity"
+            app:destination="@id/profesorActivity" />
     </fragment>
     <fragment
         android:id="@+id/googleMapsFragment"
         android:name="com.example.proyectoalcaravan.GoogleMapsFragment"
         android:label="fragment_google_maps"
         tools:layout="@layout/fragment_google_maps" />
+    <activity
+        android:id="@+id/profesorActivity"
+        android:name="com.example.proyectoalcaravan.ProfesorActivity"
+        android:label="activity_student"
+        tools:layout="@layout/activity_student" />
 </navigation>

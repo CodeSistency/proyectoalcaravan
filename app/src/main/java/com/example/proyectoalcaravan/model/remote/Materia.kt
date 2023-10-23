@@ -1,4 +1,5 @@
-package com.example.proyectoalcaravan.model
+package com.example.proyectoalcaravan.model.remote
+
 
 data class Materia(
     val id: Int,

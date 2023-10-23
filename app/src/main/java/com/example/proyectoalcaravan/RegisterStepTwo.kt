@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepTwoBinding
-import com.example.proyectoalcaravan.model.User
 import com.example.proyectoalcaravan.viewmodels.LoginViewModel
 
 // TODO: Rename parameter arguments, choose names that match
@@ -44,26 +43,26 @@ class RegisterStepTwo : Fragment() {
         //Data
 
 
-        binding.Registrar.setOnClickListener {
-            // Access the values from the ViewModel
-            val email = viewModel.email.value
-            val password = viewModel.password.value
-
-            val nombre = binding.etNombre.text.toString()
-            val apellido = binding.etApellido.text.toString()
-            val cedula = binding.etCedula.text.toString().toIntOrNull()
-            val telefono = binding.etTelefono.text.toString().toIntOrNull()
-            val foto = binding.etFoto.text.toString()
-
-
-
-            if (email != null && password != null) {
-                val user = User(email = email, password = password, firstName = nombre, lastName = apellido, cedula = cedula, phone = telefono, imageProfile = foto)
-                viewModel.createUser(user)
-            } else {
-                // Handle the case when the values are not available
-            }
-        }
+//        binding.Registrar.setOnClickListener {
+//            // Access the values from the ViewModel
+//            val email = viewModel.email.value
+//            val password = viewModel.password.value
+//
+//            val nombre = binding.etNombre.text.toString()
+//            val apellido = binding.etApellido.text.toString()
+//            val cedula = binding.etCedula.text.toString().toIntOrNull()
+//            val telefono = binding.etTelefono.text.toString().toIntOrNull()
+//            val foto = binding.etFoto.text.toString()
+//
+//
+//
+//            if (email != null && password != null) {
+//                val user = User(email = email, password = password, firstName = nombre, lastName = apellido, cedula = cedula, phone = telefono, imageProfile = foto, birthday = "a", )
+//                viewModel.createUser(user)
+//            } else {
+//                // Handle the case when the values are not available
+//            }
+//        }
 
         binding.btnUbicacion.setOnClickListener{
             view.findNavController().navigate(R.id.action_registerStepTwo2_to_googleMapsFragment)

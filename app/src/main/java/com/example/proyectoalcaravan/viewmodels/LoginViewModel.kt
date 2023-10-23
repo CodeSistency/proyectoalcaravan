@@ -4,23 +4,25 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.ObservableField
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.proyectoalcaravan.MainActivity
+import androidx.lifecycle.viewModelScope
 import com.example.proyectoalcaravan.ProfesorActivity
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.RegisterStepOne
 import com.example.proyectoalcaravan.StudentActivity
-import com.example.proyectoalcaravan.model.User
-import com.example.proyectoalcaravan.model.UserList
+import com.example.proyectoalcaravan.model.local.AppDatabase
+import com.example.proyectoalcaravan.model.local.UserDB
+import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.repository.MainRepository
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class LoginViewModel(private val repository: MainRepository): ViewModel() {
+
+
 
     val userList = MutableLiveData<List<User>>()
     val errorMessage = MutableLiveData<String>()
@@ -85,7 +87,11 @@ class LoginViewModel(private val repository: MainRepository): ViewModel() {
 
     }
 
+
+
     fun getAllUsers() {
+
+        Log.e("Lista de usuarios", "fmksdkfp")
         val response = repository.getAllUsers()
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
@@ -93,6 +99,7 @@ class LoginViewModel(private val repository: MainRepository): ViewModel() {
                     userList.postValue(response.body())
                     Log.e("Lista de usuarios", response.body().toString())
                 } else {
+                    Log.e("Lista de usuarios", response.body().toString())
                     errorMessage.postValue("Error: ${response.code()}")
                 }
             }
@@ -173,5 +180,14 @@ class LoginViewModel(private val repository: MainRepository): ViewModel() {
                 errorMessage.postValue(t.message)
             }
         })
+    }
+    
+    //Room
+    fun createUserDB(user: UserDB) {
+        viewModelScope.launch {
+            val pr= User()
+//            UserDB()...Rellenar datos, para pasar de user a userdb
+//            repository.userDao.insertUser(user)
+        }
     }
 }
