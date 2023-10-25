@@ -15,6 +15,7 @@ import com.example.proyectoalcaravan.model.local.AppDatabase
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.repository.MainRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -22,9 +23,9 @@ import retrofit2.Response
 
 class LoginViewModel(private val repository: MainRepository): ViewModel() {
 
+    var currentUser = MutableLiveData<User>()
 
-
-    val userList = MutableLiveData<List<User>>()
+    var userList = MutableLiveData<List<User>>()
     val errorMessage = MutableLiveData<String>()
 
     //Data to Register
@@ -91,7 +92,7 @@ class LoginViewModel(private val repository: MainRepository): ViewModel() {
 
     fun getAllUsers() {
 
-        Log.e("Lista de usuarios", "fmksdkfp")
+//        Log.e("Lista de usuarios", "fmksdkfp")
         val response = repository.getAllUsers()
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
@@ -184,10 +185,12 @@ class LoginViewModel(private val repository: MainRepository): ViewModel() {
     
     //Room
     fun createUserDB(user: UserDB) {
-        viewModelScope.launch {
-            val pr= User()
-//            UserDB()...Rellenar datos, para pasar de user a userdb
-//            repository.userDao.insertUser(user)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.createUserDB(user)
+            } catch (e: Exception) {
+                Log.e("UserDatabase error", "Error creating user: ${e.message}")
+            }
         }
     }
 }

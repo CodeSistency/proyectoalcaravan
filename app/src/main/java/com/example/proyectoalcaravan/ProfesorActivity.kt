@@ -9,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 
 class ProfesorActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -18,6 +19,7 @@ class ProfesorActivity : ComponentActivity() {
 
     @Composable
     fun Profesor(){
+
         Button(onClick = { /*TODO*/ }) {
             Text(text = "Vista Profesor compose")
         }

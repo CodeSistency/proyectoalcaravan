@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.databinding.FragmentLoginBinding
+import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.LoginViewModel
 
@@ -52,23 +53,18 @@ class LoginFragment : Fragment() {
 
             val isUserValid = isUserValid(email, password)
 
-            isUserValid?.let {
-                Log.e("UserDatabase created", "User: ${isUserValid.toString()}")
-//                viewModel.createUserDB(isUserValid)
-                view.findNavController().navigate(R.id.action_login_to_studentActivity)
-            } ?: run {
+            if (isUserValid != null) {
+                viewModel.createUserDB(UserDB(isUserValid.id ?: 0, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
+
+                if (isUserValid.rol == "student"){
+                    view.findNavController().navigate(R.id.action_login_to_studentActivity)
+                } else {
+                    view.findNavController().navigate(R.id.action_login_to_profesorActivity)
+
+                }
+            } else {
                 Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
             }
-
-
-//            if (isUserValid) {
-
-////                Log.e("UserDatabase created", "User: ${isUserValid.toString()}")
-////                viewModel.createUserDB(isUserValid)
-////                view.findNavController().navigate(R.id.action_login_to_studentActivity)
-//            } else {
-//                Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
-//            }
 
         }
 
@@ -89,6 +85,7 @@ class LoginFragment : Fragment() {
         // Iterate over the userList to check if there is a matching user with the given email and password
         for (user in userList) {
             if (user.email == email && user.password == password) {
+                viewModel.currentUser.value = user
                 return user
             }
         }

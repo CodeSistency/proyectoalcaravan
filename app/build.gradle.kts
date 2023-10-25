@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+//    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -26,6 +28,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -40,6 +43,18 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
     }
+
+//    java {
+//        toolchain {
+//            languageVersion.set(JavaLanguageVersion.of(8))
+//
+//        }
+//    }
+
+
+
+
+
 }
 
 dependencies {
@@ -47,8 +62,14 @@ dependencies {
     //Room
     val room_version = "2.5.0"
 
+
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    // To use Kotlin annotation processing tool (kapt)
+//    kapt("androidx.room:room-compiler:$room_version")
+
+    ksp("androidx.room:room-compiler:2.5.0")
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
