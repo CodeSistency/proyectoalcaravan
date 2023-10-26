@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+    <!-- TODO: Update blank fragment layout -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    tools:context=".views.ImagePickerDialogFragment"
+    android:padding="16dp">
+
+        <ImageButton
+            android:id="@+id/btnGallery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_gallery"
+            android:background="@android:color/transparent"
+            android:padding="16dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+             />
+
+        <ImageButton
+            android:id="@+id/btnCamera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_camera"
+            android:background="@android:color/transparent"
+            android:padding="16dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+             />
+
+    </LinearLayout>
+

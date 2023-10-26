@@ -144,6 +144,25 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <ImageButton
+        android:id="@+id/btnImagePicker"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/ic_photo"
+        app:layout_constraintTop_toBottomOf="@+id/Atras"
+        />
+    <ImageView
+        android:id="@+id/profileImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/Atras"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginHorizontal="40dp"
+        android:src="@drawable/ic_photo"/>
+
+
 
     <Button
         android:id="@+id/btnUbicacion"

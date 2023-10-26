@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,14 +14,14 @@ import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.databinding.FragmentLoginBinding
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
-import com.example.proyectoalcaravan.viewmodels.LoginViewModel
+import com.example.proyectoalcaravan.viewmodels.MainViewModel
 
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<LoginViewModel>()
+    private val viewModel by activityViewModels<MainViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -57,9 +56,9 @@ class LoginFragment : Fragment() {
                 viewModel.createUserDB(UserDB(isUserValid.id ?: 0, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
 
                 if (isUserValid.rol == "student"){
-                    view.findNavController().navigate(R.id.action_login_to_studentActivity)
+                    view.findNavController().navigate(R.id.action_login_to_studentFragment)
                 } else {
-                    view.findNavController().navigate(R.id.action_login_to_profesorActivity)
+                    view.findNavController().navigate(R.id.action_login_to_profesorFragment)
 
                 }
             } else {

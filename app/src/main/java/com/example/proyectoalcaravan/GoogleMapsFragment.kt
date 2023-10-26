@@ -9,11 +9,8 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import com.example.proyectoalcaravan.databinding.FragmentGoogleMapsBinding
-import com.example.proyectoalcaravan.viewmodels.LoginViewModel
+import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -21,15 +18,15 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import android.Manifest
+import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 
 
 class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private var _binding: FragmentGoogleMapsBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<LoginViewModel>()
+    private val viewModel by activityViewModels<MainViewModel>()
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -45,7 +42,7 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.e("ubicacion", "p0.toString()")
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
@@ -89,19 +86,19 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
 
     override fun onMapReady(googleMap: GoogleMap) {
 
-//        val sanJuan = LatLng(-67.3864898, 9.9003223)
-//        googleMap.addMarker(
-//            MarkerOptions()
-//                .position(sanJuan)
-//                .title("Marker in San Juan")
-//        )
+
 
         map = googleMap
-        enableMyLocation()
-        addMarker(LatLng(9.8891078, -67.3939925))
-        map.setOnPoiClickListener { poi ->
-            addMarker(poi.latLng)
+        map.setOnMapClickListener {
+            addMarker(it)
         }
+//        map.setOnPoiClickListener { poi ->
+//            Log.e("loca", poi.toString())
+//            addMarker(poi.latLng)
+//        }
+        val defaultPosition = LatLng(9.8891078, -67.3939925)
+        moveCamera(defaultPosition)
+
     }
 
     private fun enableMyLocation() {
@@ -115,16 +112,12 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
             )
         }
     }
-//    private fun addMarker(latLng: LatLng) {
-//        map.clear()
-//        map.addMarker(MarkerOptions().position(latLng))
-//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM))
-//    }
+
 private fun addMarker(latLng: LatLng) {
 
-    val sanJuan = LatLng(9.91152, -67.35381)
     map.clear()
     map.addMarker(MarkerOptions().position(latLng))
+
 
 }
 
@@ -147,7 +140,11 @@ private fun addMarker(latLng: LatLng) {
     }
 
     override fun onMapClick(p0: LatLng) {
-        TODO("Not yet implemented")
+//        addMarker()
+        Log.e("log", "$p0")
+        saveLocation()
     }
+
+
 
 }

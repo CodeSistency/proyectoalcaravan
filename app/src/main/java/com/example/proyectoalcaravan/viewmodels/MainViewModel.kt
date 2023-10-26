@@ -7,11 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.proyectoalcaravan.ProfesorActivity
+import com.example.proyectoalcaravan.views.profesor.ProfesorActivity
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.RegisterStepOne
-import com.example.proyectoalcaravan.StudentActivity
-import com.example.proyectoalcaravan.model.local.AppDatabase
+import com.example.proyectoalcaravan.views.student.StudentActivity
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.repository.MainRepository
@@ -21,7 +20,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class LoginViewModel(private val repository: MainRepository): ViewModel() {
+class MainViewModel(private val repository: MainRepository): ViewModel() {
 
     var currentUser = MutableLiveData<User>()
 
@@ -37,6 +36,7 @@ class LoginViewModel(private val repository: MainRepository): ViewModel() {
     val longitude = MutableLiveData<Double>()
 
 
+    val profileImage = MutableLiveData<String>()
     fun isFormValid(): Boolean {
         val email = email.value
         val password = password.value

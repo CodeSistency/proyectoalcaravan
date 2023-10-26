@@ -22,10 +22,6 @@
             android:id="@+id/action_registerStepTwo2_to_googleMapsFragment"
             app:destination="@id/googleMapsFragment" />
     </fragment>
-    <activity
-        android:id="@+id/studentActivity"
-        android:name="com.example.proyectoalcaravan.StudentActivity"
-        android:label="StudentActivity" />
     <fragment
         android:id="@+id/login"
         android:name="com.example.proyectoalcaravan.LoginFragment"
@@ -37,20 +33,46 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_pop_enter_anim" />
         <action
-            android:id="@+id/action_login_to_studentActivity"
-            app:destination="@id/studentActivity" />
+            android:id="@+id/action_login_to_studentFragment"
+            app:destination="@id/studentFragment" />
         <action
-            android:id="@+id/action_login_to_profesorActivity"
-            app:destination="@id/profesorActivity" />
+            android:id="@+id/action_login_to_profesorFragment"
+            app:destination="@id/profesorFragment" />
     </fragment>
     <fragment
         android:id="@+id/googleMapsFragment"
         android:name="com.example.proyectoalcaravan.GoogleMapsFragment"
         android:label="fragment_google_maps"
         tools:layout="@layout/fragment_google_maps" />
-    <activity
-        android:id="@+id/profesorActivity"
-        android:name="com.example.proyectoalcaravan.ProfesorActivity"
-        android:label="activity_student"
-        tools:layout="@layout/activity_student" />
+    <fragment
+        android:id="@+id/studentFragment"
+        android:name="com.example.proyectoalcaravan.views.student.StudentFragment"
+        android:label="fragment_student"
+        tools:layout="@layout/fragment_student" >
+        <action
+            android:id="@+id/action_studentFragment_to_profileFragment"
+            app:destination="@id/profileFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@animator/nav_default_enter_anim"
+            app:popExitAnim="@animator/nav_default_enter_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/profesorFragment"
+        android:name="com.example.proyectoalcaravan.views.profesor.ProfesorFragment"
+        android:label="fragment_profesor"
+        tools:layout="@layout/fragment_profesor" >
+        <action
+            android:id="@+id/action_profesorFragment_to_profileFragment"
+            app:destination="@id/profileFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@animator/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_enter_anim"
+            app:popExitAnim="@anim/nav_default_enter_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.proyectoalcaravan.views.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>

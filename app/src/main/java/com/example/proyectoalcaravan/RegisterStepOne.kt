@@ -11,13 +11,13 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepOneBinding
-import com.example.proyectoalcaravan.viewmodels.LoginViewModel
+import com.example.proyectoalcaravan.viewmodels.MainViewModel
 
 
 class RegisterStepOne : Fragment() {
     private var _binding: FragmentRegisterStepOneBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<LoginViewModel>()
+    private val viewModel by activityViewModels<MainViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

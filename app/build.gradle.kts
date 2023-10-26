@@ -59,6 +59,8 @@ android {
 
 dependencies {
 
+    implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0")
+    implementation("com.google.android.gms:play-services-vision:20.1.3")
     //Room
     val room_version = "2.5.0"
 
@@ -79,6 +81,21 @@ dependencies {
     //Jetpack
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation("androidx.compose.material:material:1.4.3")
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+    implementation ("androidx.compose.ui:ui")
+    implementation ("androidx.compose.foundation:foundation")
+    implementation ("androidx.compose.foundation:foundation-layout")
+    implementation("androidx.compose:compose-bom:2022.10.00")
+    implementation ("androidx.compose.runtime:runtime")
+    implementation ("androidx.compose.ui:ui-tooling")
+
+    //QRS
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation ("com.google.zxing:core:3.4.1")
+
+    //Neumorphism
+    implementation ("io.github.sridhar-sp:neumorphic:0.0.6")
+
 
     //Retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
@@ -94,6 +111,14 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:2.5.3")
+
+    //Image Picker
+    implementation ("com.github.dhaval2404:imagepicker:2.1")
+//    implementation ("com.github.dhaval2404:imagepicker:1.7.1")
+
+
+    //QRS
+    implementation("com.simonsickle:composed-barcodes:1.1.1")
 
 
     //liveData

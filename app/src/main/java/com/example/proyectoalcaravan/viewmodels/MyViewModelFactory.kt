@@ -7,8 +7,8 @@ import com.example.proyectoalcaravan.repository.MainRepository
 class MyViewModelFactory constructor(private val repository: MainRepository) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            LoginViewModel(repository) as T
+        return if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            MainViewModel(repository) as T
         } else {
             throw IllegalArgumentException("ViewModel Not Found")
         }

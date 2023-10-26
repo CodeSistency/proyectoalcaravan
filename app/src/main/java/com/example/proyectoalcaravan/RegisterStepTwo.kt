@@ -1,6 +1,10 @@
 package com.example.proyectoalcaravan
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Base64
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +12,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepTwoBinding
-import com.example.proyectoalcaravan.viewmodels.LoginViewModel
+import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.ImagePickerDialogFragment
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -23,7 +28,7 @@ private const val ARG_PARAM2 = "param2"
 class RegisterStepTwo : Fragment() {
     private var _binding: FragmentRegisterStepTwoBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<LoginViewModel>()
+    private val viewModel by activityViewModels<MainViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,11 +73,27 @@ class RegisterStepTwo : Fragment() {
             view.findNavController().navigate(R.id.action_registerStepTwo2_to_googleMapsFragment)
         }
 
+        binding.btnImagePicker.setOnClickListener {
+            val dialog = ImagePickerDialogFragment()
+            dialog.show(childFragmentManager, "image_picker_dialog")
+        }
+
+        binding.profileImage.setImageBitmap(viewModel?.profileImage?.value?.let { decodePicString(it) })
+
 
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun decodePicString (encodedString: String): Bitmap {
+
+        val imageBytes = Base64.decode(encodedString, Base64.DEFAULT)
+        val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        Log.e("bitmap", "${decodedImage.width} ${decodedImage.height}")
+
+        return decodedImage
     }
 }

@@ -1,4 +1,4 @@
-package com.example.proyectoalcaravan
+package com.example.proyectoalcaravan.views.student
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,21 +7,28 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
 
-class ProfesorActivity : ComponentActivity() {
-
+class StudentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            Profesor()
+//        setContentView(R.layout.activity_student)
+
+//        val studentView = findViewById<ComposeView>(R.id.compose_student)
+
+//        studentView.setContent {
+//            student()
+//        }
+
+        setContent{
+            student()
         }
     }
 
     @Composable
-    fun Profesor(){
-
+    fun student(){
         Button(onClick = { /*TODO*/ }) {
-            Text(text = "Vista Profesor compose")
+            Text(text = "Vista estudiante compose")
         }
     }
 }
