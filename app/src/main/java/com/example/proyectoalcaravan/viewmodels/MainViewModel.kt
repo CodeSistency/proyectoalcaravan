@@ -12,6 +12,7 @@ import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.RegisterStepOne
 import com.example.proyectoalcaravan.views.student.StudentActivity
 import com.example.proyectoalcaravan.model.local.UserDB
+import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.repository.MainRepository
 import kotlinx.coroutines.Dispatchers
@@ -31,9 +32,13 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
     val email = MutableLiveData<String>()
     val password = MutableLiveData<String>()
-
     val latitude = MutableLiveData<Double>()
     val longitude = MutableLiveData<Double>()
+    val birthday = MutableLiveData<String>("Fecha")
+    val rol = MutableLiveData<String>()
+    val genero = MutableLiveData<String>()
+    val listOfActivities = MutableLiveData<List<Actividad?>>(listOf())
+
 
 
     val profileImage = MutableLiveData<String>()

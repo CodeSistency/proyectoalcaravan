@@ -1,30 +1,22 @@
 package com.example.proyectoalcaravan
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Base64
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepTwoBinding
+import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.DatePickerFragment
 import com.example.proyectoalcaravan.views.ImagePickerDialogFragment
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [RegisterStepTwo.newInstance] factory method to
- * create an instance of this fragment.
- */
 class RegisterStepTwo : Fragment() {
     private var _binding: FragmentRegisterStepTwoBinding? = null
     private val binding get() = _binding!!
@@ -38,36 +30,45 @@ class RegisterStepTwo : Fragment() {
         return binding.root
     }
 
+//    val args: registerStepTwo2Args by navArgs()
+//    val updateString = args.update
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        arguments?.let {
-//            viewModel = it.getParcelable("loginViewModel")!!
-//        }
+//        val args: RegisterStepTwoArgs by navArgs()
+//        val updateString = args.update
 
         //Data
 
+        binding.Registrar.setOnClickListener {
+            // Access the values from the ViewModel
+            val email = viewModel.email.value
+            val password = viewModel.password.value
+            val birthday = viewModel.birthday.value
 
-//        binding.Registrar.setOnClickListener {
-//            // Access the values from the ViewModel
-//            val email = viewModel.email.value
-//            val password = viewModel.password.value
-//
-//            val nombre = binding.etNombre.text.toString()
-//            val apellido = binding.etApellido.text.toString()
-//            val cedula = binding.etCedula.text.toString().toIntOrNull()
-//            val telefono = binding.etTelefono.text.toString().toIntOrNull()
-//            val foto = binding.etFoto.text.toString()
-//
-//
-//
-//            if (email != null && password != null) {
-//                val user = User(email = email, password = password, firstName = nombre, lastName = apellido, cedula = cedula, phone = telefono, imageProfile = foto, birthday = "a", )
-//                viewModel.createUser(user)
-//            } else {
-//                // Handle the case when the values are not available
-//            }
-//        }
+            val nombre = binding.etNombre.text.toString()
+            val apellido = binding.etApellido.text.toString()
+            val cedula = binding.etCedula.text.toString().toIntOrNull()
+            val telefono = binding.etTelefono.text.toString().toLongOrNull()
+
+
+
+
+            if (email != null && password != null) {
+                val user = User(email = email, password = password, firstName = nombre, lastName = apellido, cedula = cedula, phone = telefono, imageProfile = "", birthday = birthday, lat = "", listActivities = viewModel.listOfActivities.value, lgn = "", rol = viewModel.rol.value, gender = viewModel.genero.value  )
+                viewModel.createUser(user)
+            } else {
+                // Handle the case when the values are not available
+            }
+        }
+
+
+
+        binding.fechaNacimientoTextInputLayout.setOnClickListener{
+            val newFragment = DatePickerFragment()
+            newFragment.show(childFragmentManager, "datePicker")
+        }
 
         binding.btnUbicacion.setOnClickListener{
             view.findNavController().navigate(R.id.action_registerStepTwo2_to_googleMapsFragment)
@@ -78,22 +79,63 @@ class RegisterStepTwo : Fragment() {
             dialog.show(childFragmentManager, "image_picker_dialog")
         }
 
-        binding.profileImage.setImageBitmap(viewModel?.profileImage?.value?.let { decodePicString(it) })
+        //Spinners para seleccionar sexo y rol
+        val genderSpinner = binding.genderSpinner
+        val roleSpinner = binding.roleSpinner
+
+        // Create an ArrayAdapter using a string array and a default spinner layout
+        val genderAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.gender_array, android.R.layout.simple_spinner_item)
+        val roleAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.role_array, android.R.layout.simple_spinner_item)
+
+        // Specify the layout to use when the list of choices appears
+        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        // Apply the adapter to the spinner
+        genderSpinner.adapter = genderAdapter
+        roleSpinner.adapter = roleAdapter
+
+        genderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedGender = parent?.getItemAtPosition(position) as String
+                viewModel.genero.observe(viewLifecycleOwner){
+                    viewModel.genero.value = selectedGender
+                }
+
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Handle the case when nothing is selected
+            }
+        }
+
+        viewModel.birthday.observe(viewLifecycleOwner){date->
+            binding.fechaNacimientoTextInputLayout.text = date
+        }
+
+        roleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedRole = parent?.getItemAtPosition(position) as String
+                viewModel.rol.observe(viewLifecycleOwner){
+                    viewModel.rol.value = selectedRole
+                }
+
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Handle the case when nothing is selected
+            }
+        }
 
 
-    }
+        }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
-    private fun decodePicString (encodedString: String): Bitmap {
 
-        val imageBytes = Base64.decode(encodedString, Base64.DEFAULT)
-        val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        Log.e("bitmap", "${decodedImage.width} ${decodedImage.height}")
-
-        return decodedImage
-    }
 }

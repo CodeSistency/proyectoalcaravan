@@ -3,6 +3,9 @@ plugins {
     id("org.jetbrains.kotlin.android")
 //    id("kotlin-kapt")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
+//    id("androidx.navigation.safeargs")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -11,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.proyectoalcaravan"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -61,6 +64,7 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0")
     implementation("com.google.android.gms:play-services-vision:20.1.3")
+    implementation("com.google.firebase:firebase-storage:20.3.0")
     //Room
     val room_version = "2.5.0"
 
@@ -88,6 +92,7 @@ dependencies {
     implementation("androidx.compose:compose-bom:2022.10.00")
     implementation ("androidx.compose.runtime:runtime")
     implementation ("androidx.compose.ui:ui-tooling")
+    implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
 
     //QRS
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
@@ -112,14 +117,22 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:2.5.3")
 
+
     //Image Picker
     implementation ("com.github.dhaval2404:imagepicker:2.1")
-//    implementation ("com.github.dhaval2404:imagepicker:1.7.1")
 
+    // CameraX
+    implementation ("androidx.camera:camera-camera2:1.0.2")
+    implementation ("androidx.camera:camera-lifecycle:1.0.2")
+    implementation ("androidx.camera:camera-view:1.0.0-alpha31")
 
+    // Zxing
+    implementation ("com.google.zxing:core:3.3.3")
     //QRS
     implementation("com.simonsickle:composed-barcodes:1.1.1")
 
+    //Charts
+    implementation ("co.yml:ycharts:2.1.0")
 
     //liveData
     implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")

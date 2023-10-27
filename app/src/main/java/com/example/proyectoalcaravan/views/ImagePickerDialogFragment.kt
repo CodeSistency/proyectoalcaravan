@@ -33,7 +33,7 @@ class ImagePickerDialogFragment : DialogFragment() {
         val inflater = requireActivity().layoutInflater
         val dialogView = inflater.inflate(R.layout.fragment_image_picker_dialog, null)
 
-        imagePicker = view?.findViewById(R.id.profileImage)
+//        imagePicker = view?.findViewById(R.id.profileImage)
 
 
         val btnGallery = dialogView.findViewById<ImageButton>(R.id.btnGallery)

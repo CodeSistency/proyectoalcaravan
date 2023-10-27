@@ -21,6 +21,10 @@
         <action
             android:id="@+id/action_registerStepTwo2_to_googleMapsFragment"
             app:destination="@id/googleMapsFragment" />
+        <argument
+            android:name="update"
+            app:argType="boolean"
+            android:defaultValue="true" />
     </fragment>
     <fragment
         android:id="@+id/login"
@@ -56,6 +60,9 @@
             app:exitAnim="@anim/nav_default_enter_anim"
             app:popEnterAnim="@animator/nav_default_enter_anim"
             app:popExitAnim="@animator/nav_default_enter_anim" />
+        <action
+            android:id="@+id/action_studentFragment_to_registerStepTwo2"
+            app:destination="@id/registerStepTwo2" />
     </fragment>
     <fragment
         android:id="@+id/profesorFragment"
@@ -74,5 +81,16 @@
         android:id="@+id/profileFragment"
         android:name="com.example.proyectoalcaravan.views.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_registerStepTwo2"
+            app:destination="@id/registerStepTwo2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_enter_anim"
+            app:popExitAnim="@anim/nav_default_enter_anim" >
+
+        </action>
+
+    </fragment>
 </navigation>

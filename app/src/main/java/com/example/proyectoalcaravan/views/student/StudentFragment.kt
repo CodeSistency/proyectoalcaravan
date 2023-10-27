@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
@@ -47,6 +48,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
@@ -59,6 +61,7 @@ import com.example.proyectoalcaravan.R
 
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.qrScanner.QrCodeScanner
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
 import kotlinx.coroutines.launch
@@ -176,7 +179,7 @@ class StudentFragment : Fragment() {
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_filter),
+                    painter = painterResource(R.drawable.ic_filters),
                     contentDescription = "Filter",
                     tint = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
                 )
@@ -262,11 +265,17 @@ class StudentFragment : Fragment() {
                 ) {
                     Title()
                     IconButton(onClick = { scope.launch { state.show() }}) {
+                        val iconPainter: Painter = painterResource(R.drawable.qr_detailed_svgrepo_com)
                         Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = "QR Code"
+
+                            painter = iconPainter,
+                            contentDescription = "QR Code",
+                            modifier = Modifier.size(20.dp)
+
                         )
                     }
+
+
                 }
 
             },
@@ -286,8 +295,10 @@ class StudentFragment : Fragment() {
 
                         if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
                             Barcode(
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                                    .fillMaxSize().padding(10.dp, 10.dp, 10.dp, 40.dp),
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .fillMaxSize()
+                                    .padding(10.dp, 10.dp, 10.dp, 40.dp),
                                 resolutionFactor = 10, // Optionally, increase the resolution of the generated image
                                 type = BarcodeType.QR_CODE, // pick the type of barcode you want to render
                                 value = viewModel.currentUser.value?.cedula.toString() // The textual representation of this code
