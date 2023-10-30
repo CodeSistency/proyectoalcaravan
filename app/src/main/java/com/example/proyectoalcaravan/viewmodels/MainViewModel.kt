@@ -2,6 +2,7 @@ package com.example.proyectoalcaravan.viewmodels
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +14,7 @@ import com.example.proyectoalcaravan.RegisterStepOne
 import com.example.proyectoalcaravan.views.student.StudentActivity
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.Actividad
+import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.repository.MainRepository
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +28,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var currentUser = MutableLiveData<User>()
 
     var userList = MutableLiveData<List<User>>()
+    var materiasList = MutableLiveData<List<Materia>>()
+
     val errorMessage = MutableLiveData<String>()
 
     //Data to Register
@@ -41,7 +45,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
 
-    val profileImage = MutableLiveData<String>()
+    val profileImage = MutableLiveData<Uri>()
     fun isFormValid(): Boolean {
         val email = email.value
         val password = password.value
@@ -94,10 +98,9 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
 
-
+ //Metodos Retrofit para users
     fun getAllUsers() {
 
-//        Log.e("Lista de usuarios", "fmksdkfp")
         val response = repository.getAllUsers()
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
@@ -183,6 +186,29 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             }
 
             override fun onFailure(call: Call<User>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+    //Metodos retrofit para materias:
+
+    fun getAllMaterias() {
+
+//        Log.e("Lista de usuarios", "fmksdkfp")
+        val response = repository.getAllMaterias()
+        response.enqueue(object : Callback<List<Materia>> {
+            override fun onResponse(call: Call<List<Materia>>, response: Response<List<Materia>>) {
+                if (response.isSuccessful) {
+                    materiasList.postValue(response.body())
+                    Log.e("Lista de usuarios", response.body().toString())
+                } else {
+                    Log.e("Lista de usuarios", response.body().toString())
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<Materia>>, t: Throwable) {
                 errorMessage.postValue(t.message)
             }
         })

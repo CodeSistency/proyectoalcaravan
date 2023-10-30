@@ -8,14 +8,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.magnifier
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -24,14 +31,19 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import co.yml.charts.axis.AxisData
@@ -50,6 +62,11 @@ import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
 
@@ -119,6 +136,117 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    @Composable
+    fun ProfileCard(currentUser: User?) {
+        Column {
+
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(
+                    Color.Blue.copy(alpha = 0.8F),
+                    shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
+
+                    )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Profile Image
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(Color.White),
+
+                ) {
+                    // You can use CoilImage or Image with your image source
+//                    CoilImage(
+//                        data = "Your Image URL or Resource",
+//                        contentDescription = "Profile Image",
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier.fillMaxSize()
+//                    )
+
+                    Image(imageVector = Icons.Default.AccountCircle,
+                        contentDescription = "user",
+
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentScale = ContentScale.Crop
+
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                        text = currentUser?.firstName.toString(),
+                        style = MaterialTheme.typography.h6,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = currentUser?.lastName.toString(),
+                        style = MaterialTheme.typography.body1,
+                        color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
+                    )
+                // Other Composables (Name, Bio, etc.)
+                // Add your other composables here
+
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+        }
+    }
+
+    @Composable
+    fun SmallMap() {
+        val context = LocalContext.current
+
+        Card(
+            modifier = Modifier
+                .padding(30.dp)
+                .fillMaxSize()
+        ) {
+
+
+        // Create a MapView composable
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            factory = { MapView(context) }
+        ) { mapView ->
+            mapView.onCreate(null)
+            mapView.onResume()
+
+            mapView.getMapAsync { googleMap ->
+                // Customize the map as needed
+                googleMap.uiSettings.isZoomControlsEnabled = true
+
+                // Add a marker to the map (you can customize this part)
+                val markerOptions = MarkerOptions()
+                    .position(LatLng(37.7749, -122.4194)) // Replace with your desired location
+                    .title("Marker Title")
+                googleMap.addMarker(markerOptions)
+
+                // Move the camera to the desired location
+                val cameraPosition = CameraPosition.Builder()
+                    .target(LatLng(25.77427, -80.19366)) // Replace with your desired location
+                    .zoom(3f) // Zoom level
+                    .build()
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+            }
+        }
+        }
+    }
 
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
@@ -126,7 +254,7 @@ class ProfileFragment : Fragment() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "Profile") },
+                    title = { Text(text = "Perfil") },
                     backgroundColor = MaterialTheme.colors.primary,
                     navigationIcon = {
                         IconButton(onClick = { view?.findNavController()?.popBackStack()
@@ -149,79 +277,94 @@ class ProfileFragment : Fragment() {
                 )
             }
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-//                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // User Photo
-                Image(
-                    painter = painterResource(R.drawable.ic_profile),
-                    contentDescription = "User Photo",
-                    modifier = Modifier
-                        .size(120.dp)
-                        .padding(vertical = 16.dp),
-                    contentScale = ContentScale.Crop
-                )
+            LazyColumn{
+                item {
+                    ProfileCard(currentUser)
 
-                // User Information
-                Text(
-                    text = currentUser?.firstName.toString(),
-                    style = MaterialTheme.typography.h6,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = currentUser?.lastName.toString(),
-                    style = MaterialTheme.typography.body1,
-                    color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
-                )
-                if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
-                    Barcode(
+                }
+                item {
+                    Column {
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Text(text = "Email: ${currentUser?.email.toString()}",
+                            style = MaterialTheme.typography.h6,
+                            modifier = Modifier.padding(10.dp),
+                            color = Color.DarkGray
+                        )
+
+
+
+                        Text(text = "Cedula: ${currentUser?.cedula.toString()}",
+                            style = MaterialTheme.typography.h6,
+                            modifier = Modifier.padding(10.dp),
+                            color = Color.DarkGray
+                        )
+
+
+                        Text(text = "Telefono: ${currentUser?.phone.toString()}",
+
+                            style = MaterialTheme.typography.h6,
+                            modifier = Modifier.padding(10.dp),
+                            color = Color.DarkGray
+
+                        )
+
+                    }
+                    SmallMap()
+                    LineChart(
                         modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .fillMaxSize()
-                            .padding(10.dp, 10.dp, 10.dp, 40.dp),
-                        resolutionFactor = 10, // Optionally, increase the resolution of the generated image
-                        type = BarcodeType.QR_CODE, // pick the type of barcode you want to render
-                        value = viewModel.currentUser.value?.cedula.toString() // The textual representation of this code
+                            .fillMaxWidth()
+                            .height(300.dp),
+                        lineChartData = lineChartData
                     )
                 }
-
-            }
-            Column {
-                Box(modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth()){
-                    Text(text = "Cedula:${currentUser?.email.toString()}")
-                }
-                Box(modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth()){
-                    Text(text = "Cedula:${currentUser?.cedula.toString()}")
-                }
-                Box(modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth()){
-                    Text(text = "Telefono:${currentUser?.phone.toString()}")
-                }
-            }
-
-//            Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(16.dp),
-////                verticalArrangement = Arrangement.Center,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-//                LineChart(
+//                Column(
 //                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(300.dp),
-//                    lineChartData = lineChartData
-//                )
+//                        .fillMaxSize()
+//                        .padding(16.dp),
+////                verticalArrangement = Arrangement.Center,
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    // User Photo
+//                    Image(
+//                        painter = painterResource(R.drawable.ic_profile),
+//                        contentDescription = "User Photo",
+//                        modifier = Modifier
+//                            .size(120.dp)
+//                            .padding(vertical = 16.dp),
+//                        contentScale = ContentScale.Crop
+//                    )
+//
+//                    // User Information
+//                    Text(
+//                        text = currentUser?.firstName.toString(),
+//                        style = MaterialTheme.typography.h6,
+//                        modifier = Modifier.padding(bottom = 8.dp)
+//                    )
+//                    Text(
+//                        text = currentUser?.lastName.toString(),
+//                        style = MaterialTheme.typography.body1,
+//                        color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
+//                    )
 //            }
+
+
+//                if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
+//                    Barcode(
+//                        modifier = Modifier
+//                            .align(Alignment.CenterHorizontally)
+//                            .fillMaxSize()
+//                            .padding(10.dp, 10.dp, 10.dp, 40.dp),
+//                        resolutionFactor = 10, // Optionally, increase the resolution of the generated image
+//                        type = BarcodeType.QR_CODE, // pick the type of barcode you want to render
+//                        value = viewModel.currentUser.value?.cedula.toString() // The textual representation of this code
+//                    )
+//                }
+
+            }
+
+
+
         }
     }
 }

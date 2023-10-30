@@ -6,18 +6,22 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.ColumnScopeInstance.weight
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
@@ -48,12 +52,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
@@ -111,12 +117,7 @@ class StudentFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 StudentContent()
-//                MyFragmentContent(viewModel)
-//                Button(onClick = { checkCamaraPermissions() }) {
-//                    Text(text = "Scanner")
-//                }
-//
-//                Text(text = "${textResult}")
+
             }
         }
     }
@@ -255,6 +256,9 @@ class StudentFragment : Fragment() {
         )
         val scope = rememberCoroutineScope()
 
+        var isModalVisible by remember { mutableStateOf(false) }
+
+
         Scaffold(
             topBar = {
                 Row(
@@ -287,6 +291,50 @@ class StudentFragment : Fragment() {
             ) {
                 SearchBar()
                 ListContent()
+                if (isModalVisible) {
+                    Dialog(
+                        onDismissRequest = { isModalVisible = false },
+                        content = {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Card(
+                                    elevation = 4.dp
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .background(Color.White)
+                                            .width(500.dp)
+                                            .height(800.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
+                                            Barcode(
+                                                modifier = Modifier
+                                                    .align(Alignment.CenterHorizontally)
+                                                    .fillMaxSize()
+                                                    .padding(10.dp, 10.dp, 10.dp, 40.dp),
+                                                resolutionFactor = 10, // Optionally, increase the resolution of the generated image
+                                                type = BarcodeType.QR_CODE, // pick the type of barcode you want to render
+                                                value = viewModel.currentUser.value?.cedula.toString() // The textual representation of this code
+                                            )
+                                        }
+                                        Button(onClick = { isModalVisible = false }) {
+                                            Text(text = "Cancelar")
+
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    )
+                }
 
                 ModalBottomSheetLayout(sheetState = state,
 

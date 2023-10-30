@@ -8,10 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,8 +23,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
@@ -35,9 +40,11 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
@@ -51,13 +58,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
@@ -110,10 +121,15 @@ class ProfesorFragment : Fragment() {
 
     @Composable
     fun SearchBar() {
-        Row {
-            OutlinedTextField(
+        Row(
+            modifier = Modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+//            OutlinedTextField(
+            TextField(
                 modifier = Modifier
                     .weight(1f)
+                    .background(Color.White)
 //                    .padding(end = 8.dp),
                     .padding(12.dp),
 
@@ -136,12 +152,13 @@ class ProfesorFragment : Fragment() {
 
             IconButton(
                 onClick = { /* Handle filter icon button click */ },
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(4.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_filters),
                     contentDescription = "Filter",
-                    tint = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
+                    tint = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -151,18 +168,106 @@ class ProfesorFragment : Fragment() {
 
     @Composable
     fun ListItem(item: User) {
-        // Replace with your list item implementation
-        // You can use Card, ListItem, or any other Composable to represent a single item in the list
+
+        var isModalVisible by remember { mutableStateOf(false) }
+
+
         Card(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            elevation = 4.dp
+                .fillMaxWidth()
+                .padding(2.dp)
+                .clip(shape = MaterialTheme.shapes.medium)
+                .background(Color.LightGray)
+                .border(1.dp, Color.White, shape = MaterialTheme.shapes.medium),
+            elevation = 4.dp,
         ) {
-            Text(text = item.firstName.toString(), modifier = Modifier.padding(16.dp))
-//            Text(text = item.firstName, modifier = Modifier.padding(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Circular user image
+//                CoilImage(
+//                    data = user.imageUrl,
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .size(80.dp)
+//                        .clip(CircleShape)
+//                )
+                Image(imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "user",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // User information
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = item.firstName.toString(),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = item.lastName.toString(),
+                        fontSize = 16.sp,
+                        color = Color.Gray,
+                    )
+                }
+
+                // Delete button
+                IconButton(
+                    onClick = { isModalVisible = true },
+                    modifier = Modifier
+                        .size(38.dp)
+//                        .background(Color.Red, CircleShape)
+                ) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color.Red)
+                }
+            }
+
+            if (isModalVisible) {
+                Dialog(
+                    onDismissRequest = { isModalVisible = false },
+                    content = {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Column(
+                                modifier = Modifier.background(Color.White)
+                                    .width(500.dp)
+                                    .height(300.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(text = "Estas seguro que deseas eliminar este usuario")
+                                Button(onClick = {  },
+
+                                    ) {
+                                    Text(text = "Eliminar")
+                                }
+                                Button(onClick = { isModalVisible = false }) {
+                                    Text(text = "Cancelar")
+
+                                }
+                            }
+                        }
+                    }
+                )
+            }
 
         }
+
     }
 
     @Composable
@@ -190,7 +295,7 @@ class ProfesorFragment : Fragment() {
             )
             BottomNavigationItem(
                 selected = false,
-                onClick = { /* Handle bottom navigation item click */ },
+                onClick = { view?.findNavController()?.navigate(R.id.action_profesorFragment_to_materiaFragment) },
                 icon = {
                     Icon(imageVector = Icons.Default.DateRange, contentDescription = "Actividades")
                 }
@@ -224,12 +329,14 @@ class ProfesorFragment : Fragment() {
     @Composable
     fun ProfesorContent() {
 //        var isBottomSheetOpen by remember { mutableStateOf(false) }
-        var skipHalfExpanded by remember { mutableStateOf(true) }
+        var skipHalfExpanded by remember { mutableStateOf(false) }
         val state = rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
             skipHalfExpanded = skipHalfExpanded
         )
         val scope = rememberCoroutineScope()
+
+        var isModalVisible by remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
@@ -240,12 +347,13 @@ class ProfesorFragment : Fragment() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Title()
-                    IconButton(onClick = { scope.launch { state.show() }}) {
+                    IconButton(onClick = { isModalVisible = true}) {
+//                    IconButton(onClick = { scope.launch { state.show() }}) {
                         val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
                         Icon(
                             painter = iconPainter,
                             contentDescription = "QR Code",
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(40.dp)
                         )
                     }
 
@@ -261,6 +369,30 @@ class ProfesorFragment : Fragment() {
                 SearchBar()
 
                 ListContent(userList = viewModel.userList)
+
+                if (isModalVisible) {
+                    Dialog(
+                        onDismissRequest = { isModalVisible = false },
+                        content = {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                QrCodeScanner()
+
+
+                                Button(onClick = { isModalVisible = false }) {
+                                        Text(text = "Cancelar")
+
+
+                                }
+                            }
+                        }
+                    )
+                }
 
                 ModalBottomSheetLayout(sheetState = state,
 

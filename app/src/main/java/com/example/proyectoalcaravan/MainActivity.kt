@@ -28,8 +28,6 @@ class MainActivity : AppCompatActivity() {
         val repository = MainRepository(retrofitService, userDao)
         viewModel = ViewModelProvider(this, MyViewModelFactory(repository)).get(MainViewModel::class.java)
 
-        // Rest of your code
     }
 
-    // Rest of your code
 }

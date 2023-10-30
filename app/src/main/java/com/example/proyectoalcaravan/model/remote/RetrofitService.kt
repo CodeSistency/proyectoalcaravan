@@ -26,6 +26,11 @@ interface RetrofitService {
     @GET("users/{id}")
     fun getUserById(@Path("id") userId: Int): Call<User>
 
+    //Clases
+
+    @GET("class")
+    fun getAllMaterias(): Call<List<Materia>>
+
     companion object {
 
         var retrofitService: RetrofitService? = null

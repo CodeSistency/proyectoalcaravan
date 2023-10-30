@@ -8,6 +8,7 @@ import retrofit2.Call
 
 class MainRepository(private val retrofitService: RetrofitService, val userDao: UserDao) {
 
+    //Usuarios Retrofit
     fun getAllUsers() = retrofitService.getAllUsers()
 
     fun createUser(user: User): Call<User> = retrofitService.createUser(user)
@@ -17,6 +18,9 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
     fun deleteUser(userId: Int): Call<Void> = retrofitService.deleteUser(userId)
 
     fun getUserById(userId: Int): Call<User> = retrofitService.getUserById(userId)
+
+    //Clases retrofit
+    fun getAllMaterias() = retrofitService.getAllMaterias()
 
     //Room
 

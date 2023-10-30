@@ -15,6 +15,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LifecycleOwner
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentImagePickerDialogBinding
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
@@ -65,12 +66,19 @@ class ImagePickerDialogFragment : DialogFragment() {
             Log.e("selected image", selectedImageUri.toString())
             if (selectedImageUri != null) {
                 // Convert the selected image to base64
-                val base64Image = imageUriToBase64(selectedImageUri)
-                viewModel.profileImage.value = base64Image
-                Log.e("base64", viewModel.profileImage.value!!)
+//                val base64Image = imageUriToBase64(selectedImageUri)
+//                viewModel.profileImage.value = base64Image
+//                Log.e("base64", viewModel.profileImage.value!!)
                 // Display the image or do whatever you need with the base64 data
 //                imagePicker?.setImageURI(selectedImageUri)
-                imagePicker?.setImageBitmap(decodePicString(base64Image))
+//                imagePicker?.setImageBitmap(decodePicString(base64Image))
+                Log.e("imageUri", selectedImageUri.toString())
+
+
+
+                    viewModel.profileImage.postValue(selectedImageUri)
+                    Log.e("imageUri", selectedImageUri.toString())
+
             }
         } else if (resultCode == RESULT_ERROR) {
             val error = data?.extras

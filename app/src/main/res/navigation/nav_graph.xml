@@ -76,6 +76,13 @@
             app:exitAnim="@animator/nav_default_enter_anim"
             app:popEnterAnim="@anim/nav_default_enter_anim"
             app:popExitAnim="@anim/nav_default_enter_anim" />
+        <action
+            android:id="@+id/action_profesorFragment_to_materiaFragment"
+            app:destination="@id/materiaFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_enter_anim"
+            app:popExitAnim="@anim/nav_default_enter_anim" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
@@ -93,4 +100,9 @@
         </action>
 
     </fragment>
+    <fragment
+        android:id="@+id/materiaFragment"
+        android:name="com.example.proyectoalcaravan.views.MateriaFragment"
+        android:label="fragment_materia"
+        tools:layout="@layout/fragment_materia" />
 </navigation>
