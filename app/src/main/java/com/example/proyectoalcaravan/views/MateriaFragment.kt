@@ -73,7 +73,7 @@ class MateriaFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.getAllMaterias()
+//        viewModel.getAllMaterias()
     }
 
 
@@ -84,6 +84,8 @@ class MateriaFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
+            viewModel.getAllMaterias()
+            viewModel.getAllUsers()
             setContent {
                 MateriaContent()
 
@@ -265,7 +267,7 @@ class MateriaFragment : Fragment() {
 
 
         Column {
-            Header(titulo = "Materia")
+            viewModel.currentMateria.value?.let { Header(titulo = it.name) }
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -315,7 +317,7 @@ class MateriaFragment : Fragment() {
             }
 
             if (button1) {
-                ListContentUsers(userList = viewModel.userList)
+//                ListContentUsers(userList = viewModel.userList)
             } else {
 //                ListContent()
             }
@@ -363,7 +365,7 @@ class MateriaFragment : Fragment() {
                                         .fillMaxWidth()
                                 ) {
 
-                                        ListContentUsers(userList = viewModel.userList)
+//                                        ListContentUsers(userList = viewModel.userList)
 
                                 }
                                 Button(

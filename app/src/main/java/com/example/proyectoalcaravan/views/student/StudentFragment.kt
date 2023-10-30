@@ -268,7 +268,9 @@ class StudentFragment : Fragment() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Title()
-                    IconButton(onClick = { scope.launch { state.show() }}) {
+                    IconButton(onClick = { isModalVisible = true}) {
+
+//                    IconButton(onClick = { scope.launch { state.show() }}) {
                         val iconPainter: Painter = painterResource(R.drawable.qr_detailed_svgrepo_com)
                         Icon(
 
@@ -303,16 +305,10 @@ class StudentFragment : Fragment() {
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Card(
+                                    modifier = Modifier.fillMaxSize(),
                                     elevation = 4.dp
                                 ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .background(Color.White)
-                                            .width(500.dp)
-                                            .height(800.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
+
                                         if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
                                             Barcode(
                                                 modifier = Modifier
@@ -328,7 +324,7 @@ class StudentFragment : Fragment() {
                                             Text(text = "Cancelar")
 
                                         }
-                                    }
+
                                 }
 
                             }

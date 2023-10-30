@@ -63,6 +63,9 @@
         <action
             android:id="@+id/action_studentFragment_to_registerStepTwo2"
             app:destination="@id/registerStepTwo2" />
+        <action
+            android:id="@+id/action_studentFragment_to_clasesFragment"
+            app:destination="@id/clasesFragment" />
     </fragment>
     <fragment
         android:id="@+id/profesorFragment"
@@ -77,8 +80,8 @@
             app:popEnterAnim="@anim/nav_default_enter_anim"
             app:popExitAnim="@anim/nav_default_enter_anim" />
         <action
-            android:id="@+id/action_profesorFragment_to_materiaFragment"
-            app:destination="@id/materiaFragment"
+            android:id="@+id/action_profesorFragment_to_clasesFragment"
+            app:destination="@id/clasesFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_enter_anim"
             app:popEnterAnim="@anim/nav_default_enter_anim"
@@ -105,4 +108,13 @@
         android:name="com.example.proyectoalcaravan.views.MateriaFragment"
         android:label="fragment_materia"
         tools:layout="@layout/fragment_materia" />
+    <fragment
+        android:id="@+id/clasesFragment"
+        android:name="com.example.proyectoalcaravan.views.ClasesFragment"
+        android:label="fragment_clases"
+        tools:layout="@layout/fragment_clases" >
+        <action
+            android:id="@+id/action_clasesFragment_to_materiaFragment"
+            app:destination="@id/materiaFragment" />
+    </fragment>
 </navigation>

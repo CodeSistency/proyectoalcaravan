@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,6 +27,7 @@ import retrofit2.Response
 class MainViewModel(private val repository: MainRepository): ViewModel() {
 
     var currentUser = MutableLiveData<User>()
+    var currentMateria = MutableLiveData<Materia>()
 
     var userList = MutableLiveData<List<User>>()
     var materiasList = MutableLiveData<List<Materia>>()
@@ -50,12 +52,78 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         val email = email.value
         val password = password.value
 
-        val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        val isPasswordValid = password?.length ?: 0 >= 5 && password?.any { it.isDigit() } ?: false
+        val pattern = "^(?=.*[0-9])(?=.*[a-zA-Z]).{6,}$".toRegex()
 
-        return isEmailValid && isPasswordValid
+        var isEmailValid = false
+        var isPasswordValid = false
+
+        if (email != null){
+            isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        }
+
+        if (password.isNullOrEmpty()){
+             isPasswordValid = false
+        }else {
+            isPasswordValid = pattern.matches(password.toString())
+        }
+
+
+
+        var validado = false
+
+        if(isEmailValid && isPasswordValid) {
+            for (user in userList.value!!) {
+                println(user)
+                if (user.email == email ) {
+
+                    validado = false
+
+                } else {
+                    validado = true
+                }
+            }
+
+        }
+
+
+        return validado
     }
 
+//    fun isUserValid(email: String, password: String): User? {
+//        val userList = viewModel.userList.value ?: return null
+//
+//        // Iterate over the userList to check if there is a matching user with the given email and password
+//        for (user in userList) {
+//            if (user.email == email && user.password == password) {
+//                viewModel.currentUser.value = user
+//                return user
+//            }
+//        }
+//
+//        return null
+
+
+    fun makeCall(number: Long, context: Context) {
+
+
+        val phoneNumber = "1234567890" // Replace with the actual phone number you want to call
+        val uri = Uri.parse("tel:$number")
+        val callIntent = Intent(Intent.ACTION_DIAL, uri)
+
+        try {
+
+            // Launch the Phone app's dialer with a phone
+            // number to dial a call.
+            context.startActivity(callIntent)
+
+        } catch (s: SecurityException) {
+
+            // show() method display the toast with
+            // exception message.
+            Toast.makeText(context, "An error occurred", Toast.LENGTH_LONG)
+                .show()
+        }
+    }
 
     fun goToActivity(context: Context) {
         val intent = Intent(context, StudentActivity::class.java).apply {

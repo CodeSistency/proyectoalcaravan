@@ -38,8 +38,8 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
         return binding.root
 
 
-
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.e("ubicacion", "p0.toString()")
@@ -80,6 +80,9 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
 
     private fun saveLocation() {
         val latLng = map.cameraPosition.target
+        Log.e("latitude", "${latLng.latitude}")
+        Log.e("longitudee", "${latLng.longitude}")
+
         viewModel.latitude.value = latLng.latitude
         viewModel.longitude.value = latLng.longitude
     }
@@ -87,9 +90,12 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
     override fun onMapReady(googleMap: GoogleMap) {
 
 
-
         map = googleMap
         map.setOnMapClickListener {
+            Log.e("latitudee", "${it.latitude}")
+            Log.e("longitudee", "${it.longitude}")
+            viewModel.latitude.postValue(it.latitude)
+            viewModel.longitude.postValue(it.longitude)
             addMarker(it)
         }
 //        map.setOnPoiClickListener { poi ->
@@ -102,7 +108,11 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
     }
 
     private fun enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             map.isMyLocationEnabled = true
         } else {
             ActivityCompat.requestPermissions(
@@ -113,15 +123,19 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
         }
     }
 
-private fun addMarker(latLng: LatLng) {
+    private fun addMarker(latLng: LatLng) {
 
-    map.clear()
-    map.addMarker(MarkerOptions().position(latLng))
+        map.clear()
+        map.addMarker(MarkerOptions().position(latLng))
 
 
-}
+    }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 enableMyLocation()
@@ -144,7 +158,6 @@ private fun addMarker(latLng: LatLng) {
         Log.e("log", "$p0")
         saveLocation()
     }
-
 
 
 }

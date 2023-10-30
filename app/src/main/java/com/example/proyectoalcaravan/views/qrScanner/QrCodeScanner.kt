@@ -65,15 +65,15 @@ fun QrCodeScanner() {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = code,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(62.dp)
-                .background(Color.Blue)
-        )
+//        Text(
+//            text = code,
+//            fontSize = 20.sp,
+//            fontWeight = FontWeight.Bold,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(62.dp)
+//                .background(Color.Blue)
+//        )
         if (hasCamPermission) {
             AndroidView(
                 factory = { context ->
@@ -110,7 +110,9 @@ fun QrCodeScanner() {
                     }
                     previewView
                 },
-                modifier = Modifier.weight(1f)
+//                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxSize()
+
             )
 
         }

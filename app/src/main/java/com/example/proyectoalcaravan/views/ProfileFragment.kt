@@ -207,7 +207,7 @@ class ProfileFragment : Fragment() {
     }
 
     @Composable
-    fun SmallMap() {
+    fun SmallMap(currentUser: User?) {
         val context = LocalContext.current
 
         Card(
@@ -239,7 +239,7 @@ class ProfileFragment : Fragment() {
 
                 // Move the camera to the desired location
                 val cameraPosition = CameraPosition.Builder()
-                    .target(LatLng(25.77427, -80.19366)) // Replace with your desired location
+                    .target(LatLng(currentUser?.lat ?: 0.078867, currentUser?.lgn ?: 0.078867)) // Replace with your desired location
                     .zoom(3f) // Zoom level
                     .build()
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
@@ -310,7 +310,7 @@ class ProfileFragment : Fragment() {
                         )
 
                     }
-                    SmallMap()
+                    SmallMap(currentUser)
                     LineChart(
                         modifier = Modifier
                             .fillMaxWidth()

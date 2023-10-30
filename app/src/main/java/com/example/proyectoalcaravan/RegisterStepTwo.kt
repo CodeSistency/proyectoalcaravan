@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepTwoBinding
+import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.DatePickerFragment
@@ -74,6 +75,9 @@ class RegisterStepTwo : Fragment() {
 //        }
 
         binding.Registrar.setOnClickListener {
+            val userList = viewModel.userList.value
+            var validado = true
+
             val email = viewModel.email.value
             val password = viewModel.password.value
             val birthday = viewModel.birthday.value
@@ -81,9 +85,51 @@ class RegisterStepTwo : Fragment() {
             val apellido = binding.etApellido.text.toString()
             val cedula = binding.etCedula.text.toString().toIntOrNull()
             val telefono = binding.etTelefono.text.toString().toLongOrNull()
+            val lgn = viewModel.longitude.value
+            val lat = viewModel.latitude.value
+            val imageUri = viewModel.profileImage.value
 
-            if (email != null && password != null) {
-                var user = User(
+            if (lat != null) {
+                if (lgn != null) {
+                    if (email.isNullOrEmpty() || password.isNullOrEmpty() || nombre.isEmpty() || apellido.isEmpty() ||
+                        cedula == null || birthday.isNullOrEmpty() || lat == null || lgn == null || imageUri == null) {
+                        showToast("Llena todos los campos")
+                        validado = false
+                    }
+                }
+            }
+
+            if (validado) {
+                // Check if firstName and lastName contain numbers
+                if (nombre.any { it.isDigit() } || apellido.any { it.isDigit() }) {
+                    showToast("El nombre y el apellido no pueden contener números")
+                    validado = false
+                }
+            }
+
+//            if (validado) {
+//                // Check if lat and lgn are within valid ranges or meet specific criteria
+//                if (lat < MIN_LAT_VALUE || lat > MAX_LAT_VALUE || lgn < MIN_LGN_VALUE || lgn > MAX_LGN_VALUE) {
+//                    showToast("Ubicación no válida")
+//                    validado = false
+//                }
+//            }
+
+            if (validado) {
+                if (userList != null) {
+                    for (user in userList) {
+                        if (user.cedula == cedula) {
+                            showToast("Esta cedula ya existe")
+                            validado = false
+                            break
+                        }
+                    }
+                }
+            }
+
+            if (validado) {
+                // All fields are valid, proceed with uploading the image and creating the user
+                val user = User(
                     email = email,
                     password = password,
                     firstName = nombre,
@@ -92,47 +138,45 @@ class RegisterStepTwo : Fragment() {
                     phone = telefono,
                     imageProfile = "", // Initialize with an empty string
                     birthday = birthday,
-                    lat = "",
+                    lat = viewModel.latitude.value,
                     listActivities = viewModel.listOfActivities.value,
-                    lgn = "",
+                    lgn = viewModel.longitude.value,
                     rol = viewModel.rol.value,
                     gender = viewModel.genero.value
                 )
 
-                // Get the selected image URI
-                val imageUri = viewModel.profileImage.value
+                // Define a reference to Firebase Storage
+                val storageRef = storage.reference.child("${user.email}.jpg")
 
-                if (imageUri != null) {
-                    // Define a reference to Firebase Storage
-                    val storageRef = storage.reference.child("${user.email}.jpg")
+                // Upload the image to Firebase Storage
+                val uploadTask = storageRef.putFile(imageUri!!)
 
-                    // Upload the image to Firebase Storage
-                    val uploadTask = storageRef.putFile(imageUri)
+                uploadTask.addOnSuccessListener { taskSnapshot ->
+                    // The image has been successfully uploaded
+                    storageRef.downloadUrl.addOnSuccessListener { uri ->
+                        val downloadUri = uri.toString()
+                        user.imageProfile = downloadUri
+                        viewModel.createUser(user)
+                        viewModel.createUserDB(UserDB(user.id ?: 0, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
 
-                    uploadTask.addOnSuccessListener { taskSnapshot ->
-                        // The image has been successfully uploaded
-                        val downloadUri = taskSnapshot.metadata?.reference?.downloadUrl
-                        if (downloadUri != null) {
-                            user.imageProfile = downloadUri.toString()
-                            viewModel.createUser(user)
-                        } else {
-                            showToast("Failed to retrieve download URL.")
-                        }
                     }.addOnFailureListener { exception ->
-                        // Handle the error
-                        if (exception is StorageException) {
-                            // Handle storage-specific errors
-                            Log.e("firebase eror", "Storage Error: ${exception.message}")
-                            showToast("Storage Error: ${exception.message}")
-                        } else {
-                            // Handle other non-storage-related exceptions
-                            showToast("Failed to upload image. Please try again.")
-                        }
+                        // Handle the error while trying to get the download URL
+                        showToast("Fallo para conseguir la URL: ${exception.message}")
                     }
-
+                }.addOnFailureListener { exception ->
+                    // Handle the error during image upload
+                    if (exception is StorageException) {
+                        // Handle storage-specific errors
+                        Log.e("firebase error", "Storage Error: ${exception.message}")
+                        showToast("Storage Error: ${exception.message}")
+                    } else {
+                        // Handle other non-storage-related exceptions
+                        showToast("Subida de la imagen ha fallado. Intente de nuevo")
+                    }
                 }
             }
         }
+
 
         //Pintar imagen
         viewModel.profileImage.observe(viewLifecycleOwner){

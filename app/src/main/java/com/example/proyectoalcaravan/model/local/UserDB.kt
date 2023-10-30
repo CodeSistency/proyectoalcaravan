@@ -17,8 +17,8 @@ data class UserDB(
     @ColumnInfo(name = "password") val password: String?,
     @ColumnInfo(name = "rol") val rol: String?,
     @ColumnInfo(name = "phone") val phone: Long?,
-    @ColumnInfo(name = "lgn") val lgn: String?,
-    @ColumnInfo(name = "lag") val lag: String?,
+    @ColumnInfo(name = "lgn") val lgn: Double?,
+    @ColumnInfo(name = "lag") val lag: Double?,
 //    @ColumnInfo(name = "listActivities") val listActivities: List<Actividad>,
     // Add other columns as per your requirements
 )
