@@ -31,6 +31,25 @@ interface RetrofitService {
     @GET("class")
     fun getAllMaterias(): Call<List<Materia>>
 
+    @GET("class/{id}")
+    fun getClassById(@Path("id") classId: Int): Call<Materia>
+
+    @PUT("class/{id}")
+    fun updateMateria(@Path("id") materiaId: Int, @Body materia: Materia): Call<Materia>
+
+    //Actividades
+    @GET("activities")
+    fun getAllActivities(): Call<List<Actividad>>
+
+    @POST("activities")
+    fun createActivity(@Body actividad: Actividad): Call<Actividad>
+
+    @PUT("activities/{id}")
+    fun updateActivity(@Path("id") actividadId: Int, @Body actividad: Actividad): Call<Actividad>
+
+    @DELETE("activities/{id}")
+    fun deleteActivity(@Path("id") actividadId: Int): Call<Void>
+
     companion object {
 
         var retrofitService: RetrofitService? = null

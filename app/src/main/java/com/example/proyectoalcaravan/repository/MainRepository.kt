@@ -2,6 +2,8 @@ package com.example.proyectoalcaravan.repository
 
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.local.UserDao
+import com.example.proyectoalcaravan.model.remote.Actividad
+import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.RetrofitService
 import com.example.proyectoalcaravan.model.remote.User
 import retrofit2.Call
@@ -21,6 +23,16 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
 
     //Clases retrofit
     fun getAllMaterias() = retrofitService.getAllMaterias()
+
+    fun getMateriaById(materiaId: Int) = retrofitService.getClassById(materiaId)
+    fun updateMateria(materiaId: Int, materia: Materia) = retrofitService.updateMateria(materiaId, materia)
+
+    //Actividades
+    fun getAllActivities() = retrofitService.getAllActivities()
+    fun createActivity(actividad: Actividad): Call<Actividad> = retrofitService.createActivity(actividad)
+    fun updateActivity(actividadId: Int, actividad: Actividad): Call<Actividad> = retrofitService.updateActivity(actividadId, actividad)
+    fun deleteActivity(actividadId: Int): Call<Void> = retrofitService.deleteActivity(actividadId)
+
 
     //Room
 

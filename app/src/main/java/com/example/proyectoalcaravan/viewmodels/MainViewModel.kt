@@ -6,9 +6,11 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.views.profesor.ProfesorActivity
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.RegisterStepOne
@@ -26,11 +28,16 @@ import retrofit2.Response
 
 class MainViewModel(private val repository: MainRepository): ViewModel() {
 
+    //Estados actuales
     var currentUser = MutableLiveData<User>()
     var currentMateria = MutableLiveData<Materia>()
+    var currentActividad = MutableLiveData<Actividad>()
 
+    //Listas de datos
     var userList = MutableLiveData<List<User>>()
     var materiasList = MutableLiveData<List<Materia>>()
+    var materiasUserList = MutableLiveData<List<Materia>>()
+    var activitiesList = MutableLiveData<List<Actividad>>()
 
     val errorMessage = MutableLiveData<String>()
 
@@ -48,6 +55,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
     val profileImage = MutableLiveData<Uri>()
+
     fun isFormValid(): Boolean {
         val email = email.value
         val password = password.value
@@ -67,23 +75,16 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             isPasswordValid = pattern.matches(password.toString())
         }
 
-
-
         var validado = false
 
         if(isEmailValid && isPasswordValid) {
-            for (user in userList.value!!) {
-                println(user)
-                if (user.email == email ) {
-
-                    validado = false
-
-                } else {
-                    validado = true
+            if (!userList.value.isNullOrEmpty()) {
+                for (user in userList.value!!) {
+                    validado = user.email != email
                 }
-            }
+            } else validado = true
+        } else validado = false
 
-        }
 
 
         return validado
@@ -192,6 +193,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         repository.createUser(user).enqueue(object : Callback<User> {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
+                    getAllUsers()
                     // Handle successful response
                     Log.e("Create User", "User created successfully")
                 } else {
@@ -210,6 +212,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         repository.updateUser(userId, user).enqueue(object : Callback<User> {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
+                    getAllUsers()
                     // Handle successful response
                     Log.e("Update User", "User updated successfully")
                 } else {
@@ -228,6 +231,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         repository.deleteUser(userId).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
+                    getAllUsers()
                     // Handle successful response
                     Log.e("Delete User", "User deleted successfully")
                 } else {
@@ -262,8 +266,6 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     //Metodos retrofit para materias:
 
     fun getAllMaterias() {
-
-//        Log.e("Lista de usuarios", "fmksdkfp")
         val response = repository.getAllMaterias()
         response.enqueue(object : Callback<List<Materia>> {
             override fun onResponse(call: Call<List<Materia>>, response: Response<List<Materia>>) {
@@ -281,7 +283,121 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             }
         })
     }
-    
+
+    fun getMateriaById(materiaId: Int) {
+        repository.getMateriaById(materiaId).enqueue(object : Callback<Materia> {
+            override fun onResponse(call: Call<Materia>, response: Response<Materia>) {
+                if (response.isSuccessful) {
+                    // Handle successful response
+                    val user = response.body()
+                    Log.e("Get User by ID", "User: $user")
+                } else {
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Materia>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+    fun updateMateria(materiaId: Int, materia: Materia) {
+        repository.updateMateria(materiaId, materia).enqueue(object : Callback<Materia> {
+            override fun onResponse(call: Call<Materia>, response: Response<Materia>) {
+                if (response.isSuccessful) {
+                    // Handle successful response
+                    Log.e("Update clase", "Clase updated successfully")
+                    getAllMaterias()
+                } else {
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Materia>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+    //Metodos retrofit para actividades:
+
+    fun getAllActivities() {
+        val response = repository.getAllActivities()
+        response.enqueue(object : Callback<List<Actividad>> {
+            override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
+                if (response.isSuccessful) {
+                    activitiesList.postValue(response.body())
+                    Log.e("Lista de actividades", response.body().toString())
+                } else {
+                    Log.e("Lista fallida de actividades", response.body().toString())
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<Actividad>>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+    fun createActivity(actividad: Actividad) {
+        repository.createActivity(actividad).enqueue(object : Callback<Actividad> {
+            override fun onResponse(call: Call<Actividad>, response: Response<Actividad>) {
+                if (response.isSuccessful) {
+                    getAllActivities()
+                    // Handle successful response
+                    Log.e("Create Actividad", "Actividad created successfully")
+                } else {
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Actividad>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+    //UPDATE USER
+    fun updateActivity(actividadId: Int, actividad: Actividad) {
+        repository.updateActivity(actividadId, actividad).enqueue(object : Callback<Actividad> {
+            override fun onResponse(call: Call<Actividad>, response: Response<Actividad>) {
+                if (response.isSuccessful) {
+                    getAllActivities()
+                    // Handle successful response
+                    Log.e("Update Actividad", "Actividad updated successfully")
+                } else {
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Actividad>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+    //DELETE USER
+    fun deleteActivity(actividadId: Int) {
+        repository.deleteActivity(actividadId).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    getAllActivities()
+                    // Handle successful response
+                    Log.e("Delete Actividad", "Actividad deleted successfully")
+                } else {
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+
     //Room
     fun createUserDB(user: UserDB) {
         viewModelScope.launch(Dispatchers.IO) {

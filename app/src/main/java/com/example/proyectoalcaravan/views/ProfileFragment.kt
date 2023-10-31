@@ -240,7 +240,7 @@ class ProfileFragment : Fragment() {
                 // Move the camera to the desired location
                 val cameraPosition = CameraPosition.Builder()
                     .target(LatLng(currentUser?.lat ?: 0.078867, currentUser?.lgn ?: 0.078867)) // Replace with your desired location
-                    .zoom(3f) // Zoom level
+                    .zoom(15f) // Zoom level
                     .build()
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
             }

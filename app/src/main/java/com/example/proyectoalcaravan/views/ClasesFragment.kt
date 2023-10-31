@@ -88,7 +88,7 @@ fun ListItem(item: Materia) {
                     fontWeight = FontWeight.Bold
 
                     )
-                Text(text = "Inscritos: ${item.listStudent.size}",
+                Text(text = "Inscritos: ${item.listStudent?.size}",
                     style = MaterialTheme.typography.h5,
                     modifier = Modifier.padding(bottom = 2.dp),
                     fontSize = 15.sp,

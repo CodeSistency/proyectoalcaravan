@@ -30,7 +30,9 @@ import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.ListItem
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -54,12 +56,15 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.R
+import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
@@ -73,7 +78,7 @@ class MateriaFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        viewModel.getAllMaterias()
+//
     }
 
 
@@ -94,9 +99,9 @@ class MateriaFragment : Fragment() {
     }
 
     @Composable
-    fun ListContentUsers(userList: MutableLiveData<List<User>>) {
-        val users = userList.value ?: emptyList()
-        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
+    fun ListContentUsers(userList: MutableLiveData<List<User>>, selectedUsers: MutableList<User>) {
+        val users by userList.observeAsState(initial = emptyList())
+//        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
 
         LazyColumn {
             items(users) { user ->
@@ -177,84 +182,60 @@ class MateriaFragment : Fragment() {
         }
     }
 
-//    @Composable
-//    fun ListItem (item: Materia) {
-//        Card {
-//            Text(text = item.name)
-//        }
-//    }
-//
-//    @Composable
-//    fun ListContent(materiasList: MutableLiveData<List<Materia>>) {
-////        val materias by materiasList.observeAsState(initial = emptyList())
-//        val materias = materiasList.value ?: emptyList()
-//
-//        LazyColumn {
-//            items(materias) { materia ->
-//                ListItem(item = materia)
-//            }
-//        }
-//
-////        LaunchedEffect(materiasList) {
-////            viewModel.getAllMaterias()
-////        }
-//    }
+    @Composable
+    fun ListItemAsignacion(item: Actividad) {
+        // Replace with your list item implementation
+        // You can use Card, ListItem, or any other Composable to represent a single item in the list
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp),
+            elevation = 4.dp,
 
+            ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(text = item.title,
+                        style = MaterialTheme.typography.h1,
+                        modifier = Modifier.padding(bottom = 2.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
 
-     //Diseno de carta para Materia o asignaciones
-
-//@Composable
-//fun ListItem(item: String, titulo: String, subtitulo: String) {
-//    // Replace with your list item implementation
-//    // You can use Card, ListItem, or any other Composable to represent a single item in the list
-//    Card(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(4.dp),
-//        elevation = 4.dp
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(4.dp),
-//            horizontalArrangement = Arrangement.SpaceBetween,
-//            verticalAlignment = Alignment.CenterVertically
-//        ) {
-//            Column {
-//                Text(text = titulo,
-//                    style = MaterialTheme.typography.h1,
-//                    modifier = Modifier.padding(bottom = 2.dp),
-//                    fontSize = 20.sp,
-//                    fontWeight = FontWeight.Bold
+                    )
+                    Text(text = "Fecha: ${item.date}",
+                        style = MaterialTheme.typography.h5,
+                        modifier = Modifier.padding(bottom = 2.dp),
+                        fontSize = 15.sp,
+                        color = Color.DarkGray
+                    )
+                }
 //
-//                    )
-//                Text(text = subtitulo,
-//                    style = MaterialTheme.typography.h5,
-//                    modifier = Modifier.padding(bottom = 2.dp),
-//                    fontSize = 15.sp,
-//                    color = Color.DarkGray
-//                )
-//            }
-//
-//            Text(text = item,
-////            modifier = Modifier.padding(16.dp),
+//            Text(text = item.id,
+//            modifier = Modifier.padding(16.dp),
 //                color = Color.LightGray
 //            )
-//        }
-//
-//    }
-//}
-//
-//    @Composable
-//    fun ListContent() {
-//        // Replace with your list content
-//        LazyColumn {
-//            items(20) { index ->
-//                ListItem(item = "$index", titulo = "Titulo", subtitulo = "Subtitulo")
-//            }
-//        }
-//    }
+                Text(text = item.id.toString())
+            }
 
+        }
+    }
+
+    @Composable
+    fun ListContentAsignacion(listOfActivities: MutableLiveData<List<Actividad>>) {
+        val actividades = listOfActivities.value ?: emptyList()
+
+        LazyColumn {
+            items(actividades) { actividad ->
+                ListItemAsignacion(item = actividad)
+            }
+        }
+    }
 
 
 
@@ -264,28 +245,56 @@ class MateriaFragment : Fragment() {
         var button1 by remember { mutableStateOf(true) }
         var button2 by remember { mutableStateOf(false) }
         var isModalVisible by remember { mutableStateOf(false) }
+        var isModalAsignacionesVisible by remember { mutableStateOf(false) }
+        var tituloAsignacion by remember { mutableStateOf(String()) }
+        var descripcionAsignacion by remember { mutableStateOf(String()) }
+
+        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
+
+
 
 
         Column {
             viewModel.currentMateria.value?.let { Header(titulo = it.name) }
 
             Row(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Listado",
-                    style = MaterialTheme.typography.body2,
-                    fontSize = 30.sp,
-                )
-                IconButton(onClick = { isModalVisible = true }) {
-//                    val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "QR Code",
-                        modifier = Modifier.size(40.dp)
+                if(button1){
+                    Text(
+                        text = "Listado",
+                        style = MaterialTheme.typography.body2,
+                        fontSize = 30.sp,
                     )
+                    IconButton(onClick = { isModalVisible = true }) {
+//                    val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "QR Code",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                }else{
+                    Text(
+                        text = "Asignaciones",
+                        style = MaterialTheme.typography.body2,
+                        fontSize = 30.sp,
+                    )
+                    IconButton(onClick = { isModalAsignacionesVisible = true }) {
+//                    val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "QR Code",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
                 }
+
+
             }
 
 
@@ -319,7 +328,7 @@ class MateriaFragment : Fragment() {
             if (button1) {
 //                ListContentUsers(userList = viewModel.userList)
             } else {
-//                ListContent()
+                ListContentAsignacion(listOfActivities = viewModel.activitiesList)
             }
 
             if (isModalVisible) {
@@ -327,9 +336,12 @@ class MateriaFragment : Fragment() {
                     onDismissRequest = { isModalVisible = false },
                     content = {
                         Box(
-                            modifier = Modifier.fillMaxSize()
-                                .background(Color.LightGray,
-                                    shape = RoundedCornerShape(16.dp),)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Color(245, 245, 245),
+                                    shape = RoundedCornerShape(16.dp),
+                                )
                                 .border(1.dp, Color.Gray, RoundedCornerShape(16.dp))
                                 .drawWithContent {
                                     drawContent()
@@ -349,7 +361,7 @@ class MateriaFragment : Fragment() {
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Titulo",
+                                        text = "Agregar alumnos",
                                         style = TextStyle(fontSize = 24.sp)
                                     )
                                     Spacer(modifier = Modifier.weight(1F))
@@ -365,11 +377,53 @@ class MateriaFragment : Fragment() {
                                         .fillMaxWidth()
                                 ) {
 
-//                                        ListContentUsers(userList = viewModel.userList)
+                                        ListContentUsers(userList = viewModel.userList, selectedUsers)
 
                                 }
                                 Button(
-                                    onClick = { isModalVisible = false },
+                                    onClick = {
+                                        val currentMateria = viewModel.currentMateria.value
+                                        if (currentMateria != null) {
+                                            val materiaId = currentMateria.id
+                                            val teacherId = currentMateria.idTeacher
+                                            val materiaName = currentMateria.name
+
+                                            for (user in selectedUsers) {
+                                                // Create a modified user object with additional data
+                                                val materiaUser = Materia(
+                                                    id = currentMateria.id,
+                                                    name = currentMateria.name,
+                                                    idTeacher = currentMateria.idTeacher
+                                                )
+                                                val modifiedUser = User(
+                                                    id = user.id, // Replace with the actual property name for the user ID
+                                                    firstName = user.firstName,
+                                                    lastName = user.lastName,
+                                                    email = user.email,
+                                                    password = user.password,
+                                                    gender = user.gender,
+                                                    rol = user.rol,
+                                                    birthday = user.birthday,
+                                                    imageProfile = user.imageProfile,
+                                                    phone = user.phone,
+                                                    cedula = user.cedula,
+                                                    listActivities = user.listActivities,
+                                                    lgn = user.lgn,
+                                                    lat = user.lat,
+                                                    listOfMaterias = user.listOfMaterias?.plus(
+                                                        materiaUser
+                                                    )
+                                                )
+
+                                                // Call viewModel.updateUser for each user in the list
+                                                viewModel.updateUser(user?.id ?: 110, modifiedUser)
+
+                                                // Update the materia with the modified user list
+                                            }
+
+                                            viewModel.updateMateria(materiaId, Materia(materiaId, teacherId, selectedUsers, materiaName))
+                                        }
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp)
@@ -381,6 +435,100 @@ class MateriaFragment : Fragment() {
                     }
                 )
             }
+
+            //Dialog asignaciones
+            if (isModalAsignacionesVisible) {
+
+                Dialog(
+                    onDismissRequest = { isModalVisible = false },
+                    content = {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Color(245, 245, 245),
+                                    shape = RoundedCornerShape(16.dp),
+                                )
+                                .border(1.dp, Color.Gray)
+                                .drawWithContent {
+                                    drawContent()
+
+//                                    drawShadow(16.dp, shape = RoundedCornerShape(16.dp))
+                                },
+                            elevation = 8.dp
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Agregar Asignación",
+                                        style = TextStyle(fontSize = 24.sp)
+                                    )
+                                    Spacer(modifier = Modifier.weight(1F))
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = null,
+                                        modifier = Modifier.clickable { isModalAsignacionesVisible = false }
+                                    )
+                                }
+
+                                    Column {
+
+                                        Text(text = "Titulo")
+                                        OutlinedTextField(value = tituloAsignacion,
+                                            onValueChange = { tituloAsignacion = it},
+                                            placeholder = {
+                                                Text(text = "Nombre de la actividad")
+                                            }
+                                        )
+
+                                        Text(text = "Descripción")
+                                        OutlinedTextField(value = descripcionAsignacion,
+                                            onValueChange = {descripcionAsignacion = it},
+                                            placeholder = {
+                                                Text(text = "Describa la actividad")
+                                            }
+                                        )
+
+                                        Button(onClick = {
+                                            val newFragment = DatePickerFragment()
+                                            newFragment.show(childFragmentManager, "datePicker")
+                                        }) {
+                                            Text(text = "Fecha")
+                                        }
+                                    }
+
+
+                                Button(
+                                    onClick = { viewModel.createActivity(
+                                        Actividad(
+                                            idClass = viewModel.currentMateria.value!!.id,
+                                            title = tituloAsignacion,
+                                            description = descripcionAsignacion,
+                                            date = viewModel.birthday.value,
+
+                                        )
+                                    )},
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(text = "Actualizar")
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+
         }
     }
 }

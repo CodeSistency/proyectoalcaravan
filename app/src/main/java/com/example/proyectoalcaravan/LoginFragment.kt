@@ -40,6 +40,7 @@ class LoginFragment : Fragment() {
 
         viewModel.getAllUsers()
         viewModel.getAllMaterias()
+        viewModel.getAllActivities()
 
         if(viewModel.userList?.value?.isEmpty() == true){
             binding.loginBtn.isEnabled = false

@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -102,7 +103,7 @@ class ProfesorFragment : Fragment() {
     @Composable
     fun Title() {
         // Replace "Your Title" with your actual title string
-        Text(text = "Your Title", style = MaterialTheme.typography.h5)
+        Text(text = "Home", style = MaterialTheme.typography.h5)
     }
 
 
@@ -164,7 +165,7 @@ class ProfesorFragment : Fragment() {
                 .fillMaxWidth()
                 .padding(2.dp)
                 .clip(shape = MaterialTheme.shapes.medium)
-                .background(Color.LightGray)
+                .background(Color(245, 245, 245))
                 .border(1.dp, Color.White, shape = MaterialTheme.shapes.medium),
             elevation = 4.dp,
         ) {
@@ -221,7 +222,7 @@ class ProfesorFragment : Fragment() {
                     }
 
                     IconButton(
-                        onClick = { isModalVisible = true },
+                        onClick = { },
                         modifier = Modifier
                             .size(38.dp)
 //                        .background(Color.Red, CircleShape)
@@ -230,7 +231,7 @@ class ProfesorFragment : Fragment() {
                     }
 
                     IconButton(
-                        onClick = {  },
+                        onClick = {  isModalVisible = true },
                         modifier = Modifier
                             .size(38.dp)
 //                        .background(Color.Red, CircleShape)
@@ -254,24 +255,29 @@ class ProfesorFragment : Fragment() {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Column(
+                            Card(
                                 modifier = Modifier
                                     .background(Color.White)
                                     .width(500.dp)
                                     .height(300.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                                elevation = 8.dp
+
                             ) {
-                                Text(text = "Estas seguro que deseas eliminar este usuario")
-                                Button(onClick = {  },
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(text = "Estas seguro que deseas eliminar este usuario")
+                                    Button(onClick = {  },
 
-                                    ) {
-                                    Text(text = "Eliminar")
-                                }
-                                Button(onClick = { isModalVisible = false }) {
-                                    Text(text = "Cancelar")
+                                        ) {
+                                        Text(text = "Eliminar")
+                                    }
+                                    Button(onClick = { isModalVisible = false }) {
+                                        Text(text = "Cancelar")
 
+                                    }
                                 }
+
                             }
                         }
                     }
@@ -284,7 +290,7 @@ class ProfesorFragment : Fragment() {
 
     @Composable
     fun ListContent(userList: MutableLiveData<List<User>>) {
-        val users = userList.value ?: emptyList()
+        val users by userList.observeAsState(initial = emptyList())
 
         LazyColumn {
             items(users) { user ->

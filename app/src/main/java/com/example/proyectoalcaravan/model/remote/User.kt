@@ -9,12 +9,13 @@ data class User(
     val id: Int? = null,
     var imageProfile: String? = "",
     val lastName: String? = "",
-    val lat: Double?,
-    val lgn: Double?,
+    val lat: Double? =0.0,
+    val lgn: Double?=0.0,
     val listActivities: List<Actividad?>? = listOf(),
     val password: String? = "",
     val phone: Long? = null,
     val rol: String? = "",
+    var listOfMaterias: List<Materia>? = listOf()
 
 
     )

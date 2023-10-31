@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.ColumnScopeInstance.weight
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
@@ -58,12 +60,16 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.R
+import com.example.proyectoalcaravan.model.remote.Materia
 
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
@@ -74,6 +80,7 @@ import kotlinx.coroutines.launch
 
 
 class StudentFragment : Fragment() {
+
 
     private val viewModel by activityViewModels<MainViewModel>()
 
@@ -152,7 +159,7 @@ class StudentFragment : Fragment() {
     @Composable
     fun Title() {
         // Replace "Your Title" with your actual title string
-        Text(text = "Your Title", style = MaterialTheme.typography.h5)
+        Text(text = "Home", style = MaterialTheme.typography.h5)
     }
 
     @Composable
@@ -189,26 +196,65 @@ class StudentFragment : Fragment() {
     }
 
 
+
     @Composable
-    fun ListItem(item: String) {
+    fun ListItem(item: Materia) {
         // Replace with your list item implementation
         // You can use Card, ListItem, or any other Composable to represent a single item in the list
         Card(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
-            elevation = 4.dp
-        ) {
-            Text(text = item, modifier = Modifier.padding(16.dp))
+                .padding(4.dp)
+                .clickable {
+                    viewModel.getMateriaById(item.id)
+                    viewModel.currentMateria.postValue(item)
+                    view
+                        ?.findNavController()
+                        ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                },
+            elevation = 4.dp,
+
+            ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(text = item.name,
+                        style = MaterialTheme.typography.h1,
+                        modifier = Modifier.padding(bottom = 2.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+
+                    )
+                    Text(text = "Inscritos: ${item.listStudent?.size}",
+                        style = MaterialTheme.typography.h5,
+                        modifier = Modifier.padding(bottom = 2.dp),
+                        fontSize = 15.sp,
+                        color = Color.DarkGray
+                    )
+                }
+//
+//            Text(text = item.id,
+//            modifier = Modifier.padding(16.dp),
+//                color = Color.LightGray
+//            )
+                Text(text = item.id.toString())
+            }
+
         }
     }
 
     @Composable
     fun ListContent() {
-        // Replace with your list content
+        val materias = viewModel.currentUser.value?.listOfMaterias ?: emptyList()
+
         LazyColumn {
-            items(40) { index ->
-                ListItem(item = "Item $index")
+            items(materias) { materia ->
+                ListItem(item = materia)
             }
         }
     }
@@ -291,7 +337,7 @@ class StudentFragment : Fragment() {
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                SearchBar()
+//                SearchBar()
                 ListContent()
                 if (isModalVisible) {
                     Dialog(
