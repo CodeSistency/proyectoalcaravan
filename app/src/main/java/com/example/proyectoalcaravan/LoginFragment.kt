@@ -57,7 +57,7 @@ class LoginFragment : Fragment() {
             if (isUserValid != null) {
                 viewModel.createUserDB(UserDB(isUserValid.id ?: 0, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
 
-                if (isUserValid.rol == "student"){
+                if (isUserValid.rol == "estudiante"){
                     view.findNavController().navigate(R.id.action_login_to_studentFragment)
                 } else {
                     view.findNavController().navigate(R.id.action_login_to_profesorFragment)

@@ -1,6 +1,7 @@
 package com.example.proyectoalcaravan
 
 import android.os.Bundle
+import android.text.Editable
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepTwoBinding
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
@@ -28,7 +30,7 @@ class RegisterStepTwo : Fragment() {
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<MainViewModel>()
 //    private val storage = Firebase.storage("https://console.firebase.google.com/project/login-android-e42b8/storage/login-android-e42b8.appspot.com/files")
-
+    val args:RegisterStepTwoArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,6 +75,26 @@ class RegisterStepTwo : Fragment() {
 //                // Handle the case when the values are not available
 //            }
 //        }
+        if (args.update){
+            viewModel.getUserById(args.profile)
+            binding.tvRegistroTitulo.text = "Actualizar"
+
+        }
+
+        if (viewModel.updatedUser.value.isNotNull()){
+            val firstName = viewModel.updatedUser?.value?.firstName ?: ""
+            val lastName = viewModel.updatedUser?.value?.lastName ?: ""
+            val cedula = viewModel.updatedUser?.value?.cedula.toString() // Convert to String
+            val phone = viewModel.updatedUser?.value?.phone.toString() // Convert to String
+
+            binding.etNombre.setText(firstName)
+            binding.etApellido.setText(lastName)
+            binding.etCedula.setText(cedula)
+            binding.etTelefono.setText(phone)
+        } else {
+            Log.e("not reading", "chimbo")
+        }
+
 
         binding.Registrar.setOnClickListener {
             val userList = viewModel.userList.value
@@ -158,7 +180,10 @@ class RegisterStepTwo : Fragment() {
                         user.imageProfile = downloadUri
                         viewModel.createUser(user)
                         viewModel.createUserDB(UserDB(user.id ?: 0, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
-
+                        viewModel.getAllUsers()
+                        view
+                            ?.findNavController()
+                            ?.navigate(R.id.action_registerStepTwo2_to_login)
                     }.addOnFailureListener { exception ->
                         // Handle the error while trying to get the download URL
                         showToast("Fallo para conseguir la URL: ${exception.message}")
@@ -235,7 +260,7 @@ class RegisterStepTwo : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedRole = parent?.getItemAtPosition(position) as String
                 viewModel.rol.observe(viewLifecycleOwner){
-                    viewModel.rol.value = selectedRole
+                    viewModel.rol.postValue(selectedRole)
                 }
 
             }

@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,7 +29,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.ListItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -51,25 +49,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.componentes.Header
-import com.example.proyectoalcaravan.views.qrScanner.QrCodeScanner
 
 class MateriaFragment : Fragment() {
 
@@ -112,6 +109,7 @@ class MateriaFragment : Fragment() {
         // You can use selectedUsers for your further processing.
     }
 
+    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     fun ListItemUser(user: User, selectedUsers: MutableList<User>) {
         var isModalVisible by remember { mutableStateOf(false) }
@@ -133,13 +131,12 @@ class MateriaFragment : Fragment() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Circular user image
-                Image(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "user",
+                GlideImage(
+                    model = user.imageProfile,
+                    contentDescription = "foto",
                     modifier = Modifier
                         .size(60.dp)
-                        .clip(CircleShape)
-                )
+                        .clip(CircleShape)  )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -174,6 +171,102 @@ class MateriaFragment : Fragment() {
                         }
                     }
                 )
+
+
+            }
+
+
+        }
+    }
+
+    @Composable
+    fun ListContentUsersSuscribed(userList: MutableLiveData<Materia>) {
+        val users by userList.observeAsState()
+        val list = users?.listStudent ?: emptyList()
+//        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
+
+        LazyColumn {
+            items(list) { user ->
+                ListItemSuscribedUser(user)
+            }
+        }
+
+        // You can use selectedUsers for your further processing.
+    }
+
+    @OptIn(ExperimentalGlideComposeApi::class)
+    @Composable
+    fun ListItemSuscribedUser(user: User) {
+        var isModalVisible by remember { mutableStateOf(false) }
+
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp)
+                .clip(shape = MaterialTheme.shapes.medium)
+                .background(Color.LightGray)
+                .border(1.dp, Color.White, shape = MaterialTheme.shapes.medium)
+                .clickable { viewModel.currentMateria.value?.id?.let {
+                    viewModel.getActivitiesById(
+                        it
+                    )
+                }
+
+//                    view?.findNavController()?.navigate(R.id.action_materiaFragment_to_asignacionFragment)
+                    view?.findNavController()?.navigate(MateriaFragmentDirections.actionMateriaFragmentToAsignacionFragment(user?.id ?: 100000))
+                           }
+            ,
+            elevation = 4.dp,
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Circular user image
+                GlideImage(
+                    model = user.imageProfile,
+                    contentDescription = "foto",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)  )
+
+//                Image(
+//                    imageVector = Icons.Default.AccountCircle,
+//                    contentDescription = "user",
+//                    modifier = Modifier
+//                        .size(60.dp)
+//                        .clip(CircleShape)
+//                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = user.firstName.toString(),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = user.lastName.toString(),
+                        fontSize = 16.sp,
+                        color = Color.Gray,
+                    )
+                }
+
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier
+                        .size(38.dp)
+//                        .background(Color.Red, CircleShape)
+                ) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color.Gray)
+                }
 
 
             }
@@ -228,7 +321,7 @@ class MateriaFragment : Fragment() {
 
     @Composable
     fun ListContentAsignacion(listOfActivities: MutableLiveData<List<Actividad>>) {
-        val actividades = listOfActivities.value ?: emptyList()
+        val actividades by listOfActivities.observeAsState(initial = emptyList())
 
         LazyColumn {
             items(actividades) { actividad ->
@@ -326,9 +419,9 @@ class MateriaFragment : Fragment() {
             }
 
             if (button1) {
-//                ListContentUsers(userList = viewModel.userList)
+                ListContentUsersSuscribed(userList = viewModel.currentMateria)
             } else {
-                ListContentAsignacion(listOfActivities = viewModel.activitiesList)
+                ListContentAsignacion(listOfActivities = viewModel.activitiesListById)
             }
 
             if (isModalVisible) {
@@ -440,7 +533,7 @@ class MateriaFragment : Fragment() {
             if (isModalAsignacionesVisible) {
 
                 Dialog(
-                    onDismissRequest = { isModalVisible = false },
+                    onDismissRequest = { isModalAsignacionesVisible = false },
                     content = {
                         Card(
                             modifier = Modifier

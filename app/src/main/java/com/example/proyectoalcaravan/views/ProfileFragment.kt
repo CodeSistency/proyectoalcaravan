@@ -59,6 +59,8 @@ import co.yml.charts.ui.linechart.model.LineStyle
 import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
@@ -136,6 +138,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     fun ProfileCard(currentUser: User?) {
         Column {
@@ -174,15 +177,21 @@ class ProfileFragment : Fragment() {
 //                        contentScale = ContentScale.Crop,
 //                        modifier = Modifier.fillMaxSize()
 //                    )
-
-                    Image(imageVector = Icons.Default.AccountCircle,
-                        contentDescription = "user",
-
+                    GlideImage(
+                        model = currentUser?.imageProfile,
+                        contentDescription = "foto",
                         modifier = Modifier
                             .fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Fit                   )
 
-                    )
+//                    Image(imageVector = Icons.Default.AccountCircle,
+//                        contentDescription = "user",
+//
+//                        modifier = Modifier
+//                            .fillMaxSize(),
+//                        contentScale = ContentScale.Crop
+//
+//                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -267,7 +276,7 @@ class ProfileFragment : Fragment() {
                         }
                     },
                     actions = {
-                        IconButton(onClick = {view?.findNavController()?.navigate(R.id.action_profileFragment_to_registerStepTwo2) }) {
+                        IconButton(onClick = {view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(currentUser?.id?: 1000,true)) }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_editar),
                                 contentDescription = "Settings"

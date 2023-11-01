@@ -25,6 +25,12 @@
             android:name="update"
             app:argType="boolean"
             android:defaultValue="true" />
+        <action
+            android:id="@+id/action_registerStepTwo2_to_login"
+            app:destination="@id/login" />
+        <argument
+            android:name="profile"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/login"
@@ -66,6 +72,11 @@
         <action
             android:id="@+id/action_studentFragment_to_clasesFragment"
             app:destination="@id/clasesFragment" />
+        <action
+            android:id="@+id/action_studentFragment_to_asignacionFragment"
+            app:destination="@id/asignacionFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_enter_anim" />
     </fragment>
     <fragment
         android:id="@+id/profesorFragment"
@@ -86,6 +97,9 @@
             app:exitAnim="@anim/nav_default_enter_anim"
             app:popEnterAnim="@anim/nav_default_enter_anim"
             app:popExitAnim="@anim/nav_default_enter_anim" />
+        <action
+            android:id="@+id/action_profesorFragment_to_materiaFragment"
+            app:destination="@id/materiaFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
@@ -107,7 +121,15 @@
         android:id="@+id/materiaFragment"
         android:name="com.example.proyectoalcaravan.views.MateriaFragment"
         android:label="fragment_materia"
-        tools:layout="@layout/fragment_materia" />
+        tools:layout="@layout/fragment_materia" >
+        <action
+            android:id="@+id/action_materiaFragment_to_asignacionFragment"
+            app:destination="@id/asignacionFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_enter_anim"
+            app:popExitAnim="@anim/nav_default_enter_anim" />
+    </fragment>
     <fragment
         android:id="@+id/clasesFragment"
         android:name="com.example.proyectoalcaravan.views.ClasesFragment"
@@ -116,5 +138,14 @@
         <action
             android:id="@+id/action_clasesFragment_to_materiaFragment"
             app:destination="@id/materiaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/asignacionFragment"
+        android:name="com.example.proyectoalcaravan.views.AsignacionFragment"
+        android:label="fragment_asignacion"
+        tools:layout="@layout/fragment_asignacion" >
+        <argument android:name="student"
+            app:argType="integer"
+            android:defaultValue="1000" />
     </fragment>
 </navigation>

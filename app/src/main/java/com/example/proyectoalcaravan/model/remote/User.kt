@@ -14,7 +14,7 @@ data class User(
     val listActivities: List<Actividad?>? = listOf(),
     val password: String? = "",
     val phone: Long? = null,
-    val rol: String? = "",
+    val rol: String? = "estudiante",
     var listOfMaterias: List<Materia>? = listOf()
 
 

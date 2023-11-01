@@ -44,6 +44,8 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,6 +70,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
@@ -154,6 +158,7 @@ class ProfesorFragment : Fragment() {
     }
 
 
+    @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     fun ListItem(item: User) {
 
@@ -183,12 +188,19 @@ class ProfesorFragment : Fragment() {
 //                        .size(80.dp)
 //                        .clip(CircleShape)
 //                )
-                Image(imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "user",
+//                Image(imageVector = Icons.Default.AccountCircle,
+//                    contentDescription = "user",
+//                    modifier = Modifier
+//                        .size(60.dp)
+//                        .clip(CircleShape)
+//                )
+
+                GlideImage(
+                    model = item.imageProfile,
+                    contentDescription = "foto",
                     modifier = Modifier
                         .size(60.dp)
-                        .clip(CircleShape)
-                )
+                        .clip(CircleShape)  )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -266,13 +278,20 @@ class ProfesorFragment : Fragment() {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(text = "Estas seguro que deseas eliminar este usuario")
-                                    Button(onClick = {  },
+                                    Text(text = "Estas seguro que deseas eliminar este usuario",
+                                        style = MaterialTheme.typography.body2,
+                                        fontSize = 15.sp,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(10.dp)
+
+                                        )
+                                    Button(onClick = { item.id?.let { viewModel.deleteUser(it) }
+                                        isModalVisible = false },
 
                                         ) {
                                         Text(text = "Eliminar")
                                     }
-                                    Button(onClick = { isModalVisible = false }) {
+                                    Button(onClick = {
+                                        isModalVisible = false }) {
                                         Text(text = "Cancelar")
 
                                     }
@@ -315,7 +334,7 @@ class ProfesorFragment : Fragment() {
                 selected = false,
                 onClick = { view?.findNavController()?.navigate(R.id.action_profesorFragment_to_clasesFragment) },
                 icon = {
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Actividades")
+                    Icon(imageVector = Icons.Default.List, contentDescription = "Actividades")
                 }
             )
             BottomNavigationItem(

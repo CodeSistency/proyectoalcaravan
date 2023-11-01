@@ -66,6 +66,7 @@ fun ListItem(item: Materia) {
             .padding(4.dp)
             .clickable {
                 viewModel.currentMateria.postValue(item)
+                viewModel.getActivitiesById(item.id)
                 view
                     ?.findNavController()
                     ?.navigate(R.id.action_clasesFragment_to_materiaFragment)

@@ -12,6 +12,7 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
 
     //Usuarios Retrofit
     fun getAllUsers() = retrofitService.getAllUsers()
+    fun getUserStudent(rol: String): Call<List<User>> = retrofitService.getUserStudents(rol)
 
     fun createUser(user: User): Call<User> = retrofitService.createUser(user)
 
@@ -29,6 +30,7 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
 
     //Actividades
     fun getAllActivities() = retrofitService.getAllActivities()
+    fun getActivityByIdClass(activityId: Int) = retrofitService.getActivityByIdClass(activityId)
     fun createActivity(actividad: Actividad): Call<Actividad> = retrofitService.createActivity(actividad)
     fun updateActivity(actividadId: Int, actividad: Actividad): Call<Actividad> = retrofitService.updateActivity(actividadId, actividad)
     fun deleteActivity(actividadId: Int): Call<Void> = retrofitService.deleteActivity(actividadId)

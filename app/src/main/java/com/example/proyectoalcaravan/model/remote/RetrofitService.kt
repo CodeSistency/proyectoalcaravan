@@ -9,10 +9,13 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface RetrofitService {
     @GET("users")
     fun getAllUsers(): Call<List<User>>
+    @GET("users")
+    fun getUserStudents(@Query("rol") rol: String): Call<List<User>>
 
     @POST("users")
     fun createUser(@Body user: User): Call<User>
@@ -40,6 +43,9 @@ interface RetrofitService {
     //Actividades
     @GET("activities")
     fun getAllActivities(): Call<List<Actividad>>
+
+    @GET("activities")
+    fun getActivityByIdClass(@Query("idClass") actividadId: Int): Call<List<Actividad>>
 
     @POST("activities")
     fun createActivity(@Body actividad: Actividad): Call<Actividad>

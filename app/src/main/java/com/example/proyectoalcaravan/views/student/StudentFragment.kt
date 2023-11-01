@@ -206,11 +206,22 @@ class StudentFragment : Fragment() {
                 .fillMaxSize()
                 .padding(4.dp)
                 .clickable {
-                    viewModel.getMateriaById(item.id)
-                    viewModel.currentMateria.postValue(item)
-                    view
-                        ?.findNavController()
-                        ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                    viewModel.getActivitiesById(item.id)
+//                    viewModel.getMateriaById(item.id)
+//                    viewModel.currentMateria.postValue(item)
+                    if (viewModel.currentUser.value?.rol == "estudiante"){
+
+                        view
+                            ?.findNavController()
+                            ?.navigate(R.id.action_studentFragment_to_asignacionFragment)
+                    } else {
+                        viewModel.getMateriaById(item.id)
+                        viewModel.currentMateria.postValue(item)
+                        view
+                            ?.findNavController()
+                            ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                    }
+
                 },
             elevation = 4.dp,
 
@@ -230,12 +241,7 @@ class StudentFragment : Fragment() {
                         fontWeight = FontWeight.Bold
 
                     )
-                    Text(text = "Inscritos: ${item.listStudent?.size}",
-                        style = MaterialTheme.typography.h5,
-                        modifier = Modifier.padding(bottom = 2.dp),
-                        fontSize = 15.sp,
-                        color = Color.DarkGray
-                    )
+
                 }
 //
 //            Text(text = item.id,
@@ -271,13 +277,13 @@ class StudentFragment : Fragment() {
                     Icon(Icons.Default.Home, contentDescription = stringResource(R.string.home))
                 }
             )
-            BottomNavigationItem(
-                selected = false,
-                onClick = { /* Handle bottom navigation item click */ },
-                icon = {
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Tarea")
-                }
-            )
+//            BottomNavigationItem(
+//                selected = false,
+//                onClick = { /* Handle bottom navigation item click */ },
+//                icon = {
+//                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Tarea")
+//                }
+//            )
             BottomNavigationItem(
                 selected = false,
                 onClick = {
@@ -351,7 +357,7 @@ class StudentFragment : Fragment() {
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Card(
-                                    modifier = Modifier.fillMaxSize(),
+                                    modifier = Modifier.fillMaxWidth(),
                                     elevation = 4.dp
                                 ) {
 
@@ -366,10 +372,10 @@ class StudentFragment : Fragment() {
                                                 value = viewModel.currentUser.value?.cedula.toString() // The textual representation of this code
                                             )
                                         }
-                                        Button(onClick = { isModalVisible = false }) {
-                                            Text(text = "Cancelar")
-
-                                        }
+//                                        Button(onClick = { isModalVisible = false }) {
+//                                            Text(text = "Cancelar")
+//
+//                                        }
 
                                 }
 

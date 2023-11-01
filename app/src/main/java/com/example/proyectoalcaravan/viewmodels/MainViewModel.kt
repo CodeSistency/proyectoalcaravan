@@ -32,12 +32,15 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var currentUser = MutableLiveData<User>()
     var currentMateria = MutableLiveData<Materia>()
     var currentActividad = MutableLiveData<Actividad>()
+    var updatedUser = MutableLiveData<User>()
 
     //Listas de datos
     var userList = MutableLiveData<List<User>>()
+    var userStudentsList = MutableLiveData<List<User>>()
     var materiasList = MutableLiveData<List<Materia>>()
     var materiasUserList = MutableLiveData<List<Materia>>()
     var activitiesList = MutableLiveData<List<Actividad>>()
+    var activitiesListById = MutableLiveData<List<Actividad>>()
 
     val errorMessage = MutableLiveData<String>()
 
@@ -188,6 +191,25 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         })
     }
 
+    fun getAUserStudents(rol: String) {
+        val response = repository.getUserStudent(rol)
+        response.enqueue(object : Callback<List<User>> {
+            override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                if (response.isSuccessful) {
+                    userStudentsList.postValue(response.body())
+                    Log.e("Lista de actividades", response.body().toString())
+                } else {
+                    Log.e("Lista fallida de actividades", response.body().toString())
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
     //CREATE USER
     fun createUser(user: User) {
         repository.createUser(user).enqueue(object : Callback<User> {
@@ -250,6 +272,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
                     // Handle successful response
+                    updatedUser.postValue(response.body())
                     val user = response.body()
                     Log.e("Get User by ID", "User: $user")
                 } else {
@@ -328,6 +351,43 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
                 if (response.isSuccessful) {
                     activitiesList.postValue(response.body())
+                    Log.e("Lista de actividades", response.body().toString())
+                } else {
+                    Log.e("Lista fallida de actividades", response.body().toString())
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<Actividad>>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+//    fun getActivityByIdClass(activityId: Int) {
+//        repository.getActivityByIdClass(activityId).enqueue(object : Callback<Actividad> {
+//            override fun onResponse(call: Call<Actividad>, response: Response<Actividad>) {
+//                if (response.isSuccessful) {
+//                    activitiesListById.postValue(response.body())
+//                    val user = response.body()
+//                    Log.e("Get User by ID", "User: $user")
+//                } else {
+//                    errorMessage.postValue("Error: ${response.code()}")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<Actividad>, t: Throwable) {
+//                errorMessage.postValue(t.message)
+//            }
+//        })
+//    }
+
+    fun getActivitiesById(activityId: Int) {
+        val response = repository.getActivityByIdClass(activityId)
+        response.enqueue(object : Callback<List<Actividad>> {
+            override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
+                if (response.isSuccessful) {
+                    activitiesListById.postValue(response.body())
                     Log.e("Lista de actividades", response.body().toString())
                 } else {
                     Log.e("Lista fallida de actividades", response.body().toString())
