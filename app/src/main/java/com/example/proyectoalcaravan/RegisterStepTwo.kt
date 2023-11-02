@@ -152,10 +152,10 @@ class RegisterStepTwo : Fragment() {
             if (validado) {
                 // All fields are valid, proceed with uploading the image and creating the user
                 val user = User(
-                    email = email,
+                    email = email?.lowercase(),
                     password = password,
-                    firstName = nombre,
-                    lastName = apellido,
+                    firstName = nombre.lowercase(),
+                    lastName = apellido.lowercase(),
                     cedula = cedula,
                     phone = telefono,
                     imageProfile = "", // Initialize with an empty string
@@ -241,8 +241,9 @@ class RegisterStepTwo : Fragment() {
         genderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedGender = parent?.getItemAtPosition(position) as String
+                viewModel.genero.postValue(selectedGender)
                 viewModel.genero.observe(viewLifecycleOwner){
-                    viewModel.genero.value = selectedGender
+                    viewModel.genero.postValue(selectedGender)
                 }
 
             }
@@ -259,9 +260,10 @@ class RegisterStepTwo : Fragment() {
         roleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedRole = parent?.getItemAtPosition(position) as String
-                viewModel.rol.observe(viewLifecycleOwner){
-                    viewModel.rol.postValue(selectedRole)
-                }
+                viewModel.rol.postValue(selectedRole)
+//                viewModel.rol.observe(viewLifecycleOwner){
+//                    viewModel.rol.postValue(selectedRole)
+//                }
 
             }
 

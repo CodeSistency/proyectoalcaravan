@@ -1,11 +1,13 @@
 package com.example.proyectoalcaravan.model.remote
 
+import java.time.LocalDate
+
 data class User(
     val birthday: String? = "",
     val cedula: Int? = null,
     val email: String? = "",
     val firstName: String? = "",
-    val gender: String? = "",
+    val gender: String? = "masculino",
     val id: Int? = null,
     var imageProfile: String? = "",
     val lastName: String? = "",
@@ -14,8 +16,9 @@ data class User(
     val listActivities: List<Actividad?>? = listOf(),
     val password: String? = "",
     val phone: Long? = null,
-    val rol: String? = "estudiante",
-    var listOfMaterias: List<Materia>? = listOf()
+    val rol: String? = "Estudiante",
+    var listOfMaterias: List<Materia>? = listOf(),
+    val created: LocalDate? = LocalDate.now(),
 
 
     )

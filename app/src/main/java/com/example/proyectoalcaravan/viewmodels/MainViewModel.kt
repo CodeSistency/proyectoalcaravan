@@ -81,6 +81,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         var validado = false
 
         if(isEmailValid && isPasswordValid) {
+            Log.e("e", "algo")
             if (!userList.value.isNullOrEmpty()) {
                 for (user in userList.value!!) {
                     validado = user.email != email
@@ -178,20 +179,21 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                 if (response.isSuccessful) {
                     userList.postValue(response.body())
-                    Log.e("Lista de usuarios", response.body().toString())
+                    Log.e("Lista de usuariosss", response.body().toString())
                 } else {
-                    Log.e("Lista de usuarios", response.body().toString())
+                    Log.e("Lista de usuariosss", response.body().toString())
                     errorMessage.postValue("Error: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<List<User>>, t: Throwable) {
                 errorMessage.postValue(t.message)
+                Log.e("erorrrrrrr", "${t.message}")
             }
         })
     }
 
-    fun getAUserStudents(rol: String) {
+    fun getUserStudents(rol: String) {
         val response = repository.getUserStudent(rol)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
@@ -209,6 +211,65 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             }
         })
     }
+
+    fun getAUserStudentsByFirstName(rol: String) {
+        val response = repository.getUserStudent(rol)
+        response.enqueue(object : Callback<List<User>> {
+            override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                if (response.isSuccessful) {
+                    userStudentsList.postValue(response.body())
+                    Log.e("Lista de actividades", response.body().toString())
+                } else {
+                    Log.e("Lista fallida de actividades", response.body().toString())
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+
+    fun getUserStudentsByEmail(email: String) {
+        val response = repository.getUserStudent(email)
+        response.enqueue(object : Callback<List<User>> {
+            override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                if (response.isSuccessful) {
+                    userStudentsList.postValue(response.body())
+                    Log.e("Lista de estudiantes email", response.body().toString())
+                } else {
+                    Log.e("Lista fallida de estudiantes email", response.body().toString())
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+    fun getAUserByGender(gender: String) {
+        val response = repository.getUserStudent(gender)
+        response.enqueue(object : Callback<List<User>> {
+            override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                if (response.isSuccessful) {
+                    userStudentsList.postValue(response.body())
+                    Log.e("Lista de estudiantes genero", response.body().toString())
+                } else {
+                    Log.e("Lista fallida de genero", response.body().toString())
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
 
     //CREATE USER
     fun createUser(user: User) {

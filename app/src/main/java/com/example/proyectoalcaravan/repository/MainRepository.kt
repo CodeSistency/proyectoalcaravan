@@ -12,6 +12,10 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
 
     //Usuarios Retrofit
     fun getAllUsers() = retrofitService.getAllUsers()
+    fun getUserStudentsByFirstName(name: String): Call<List<User>> = retrofitService.getUserStudentsByFirstName(name)
+    fun getUserStudentsByEmail(email: String): Call<List<User>> = retrofitService.getUserStudentsByFirstName(email)
+    fun getUserStudentsByGender(gender: String): Call<List<User>> = retrofitService.getUserStudentsByFirstName(gender)
+
     fun getUserStudent(rol: String): Call<List<User>> = retrofitService.getUserStudents(rol)
 
     fun createUser(user: User): Call<User> = retrofitService.createUser(user)

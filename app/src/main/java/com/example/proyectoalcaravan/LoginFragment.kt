@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -39,10 +40,12 @@ class LoginFragment : Fragment() {
 
 
         viewModel.getAllUsers()
+//        viewModel.getAUserStudents("estudiante")
         viewModel.getAllMaterias()
         viewModel.getAllActivities()
 
-        if(viewModel.userList?.value?.isEmpty() == true){
+        if(viewModel.userList?.value?.isNullOrEmpty() == true){
+            Log.e("no hay", "no hay")
             binding.loginBtn.isEnabled = false
         }
 
@@ -57,7 +60,7 @@ class LoginFragment : Fragment() {
             if (isUserValid != null) {
                 viewModel.createUserDB(UserDB(isUserValid.id ?: 0, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
 
-                if (isUserValid.rol == "estudiante"){
+                if (isUserValid.rol == "Estudiante"){
                     view.findNavController().navigate(R.id.action_login_to_studentFragment)
                 } else {
                     view.findNavController().navigate(R.id.action_login_to_profesorFragment)

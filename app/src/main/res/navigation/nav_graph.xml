@@ -24,13 +24,14 @@
         <argument
             android:name="update"
             app:argType="boolean"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
         <action
             android:id="@+id/action_registerStepTwo2_to_login"
             app:destination="@id/login" />
         <argument
             android:name="profile"
-            app:argType="integer" />
+            app:argType="integer"
+            android:defaultValue="20000" />
     </fragment>
     <fragment
         android:id="@+id/login"

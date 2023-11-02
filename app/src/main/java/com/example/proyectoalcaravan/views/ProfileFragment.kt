@@ -276,7 +276,7 @@ class ProfileFragment : Fragment() {
                         }
                     },
                     actions = {
-                        IconButton(onClick = {view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(currentUser?.id?: 1000,true)) }) {
+                        IconButton(onClick = {view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000)) }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_editar),
                                 contentDescription = "Settings"

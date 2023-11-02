@@ -17,6 +17,14 @@ interface RetrofitService {
     @GET("users")
     fun getUserStudents(@Query("rol") rol: String): Call<List<User>>
 
+    @GET("users")
+    fun getUserStudentsByFirstName(@Query("firstName") rol: String): Call<List<User>>
+    @GET("users")
+    fun getUserStudentsByGender(@Query("Gender") gender: String): Call<List<User>>
+
+    @GET("users")
+    fun getUserStudentsByEmail(@Query("lastName") email: String): Call<List<User>>
+
     @POST("users")
     fun createUser(@Body user: User): Call<User>
 
