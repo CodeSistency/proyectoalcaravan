@@ -40,7 +40,7 @@ class LoginFragment : Fragment() {
 
 
         viewModel.getAllUsers()
-//        viewModel.getAUserStudents("estudiante")
+        viewModel.getUserStudents("Estudiante")
         viewModel.getAllMaterias()
         viewModel.getAllActivities()
 

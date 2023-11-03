@@ -233,14 +233,6 @@ class MateriaFragment : Fragment() {
                         .size(60.dp)
                         .clip(CircleShape)  )
 
-//                Image(
-//                    imageVector = Icons.Default.AccountCircle,
-//                    contentDescription = "user",
-//                    modifier = Modifier
-//                        .size(60.dp)
-//                        .clip(CircleShape)
-//                )
-
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Column(

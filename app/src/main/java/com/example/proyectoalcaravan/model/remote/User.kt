@@ -13,7 +13,7 @@ data class User(
     val lastName: String? = "",
     val lat: Double? =0.0,
     val lgn: Double?=0.0,
-    val listActivities: List<Actividad?>? = listOf(),
+    var listActivities: List<Actividad?>? = listOf(),
     val password: String? = "",
     val phone: Long? = null,
     val rol: String? = "Estudiante",

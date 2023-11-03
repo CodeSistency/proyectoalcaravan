@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Button
@@ -40,6 +42,7 @@ import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -72,6 +75,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -92,7 +97,7 @@ class ProfesorFragment : Fragment() {
 
     private val viewModel by activityViewModels<MainViewModel>()
 
-//    val qrCode = viewModel.currentUser.value?.cedula
+    //    val qrCode = viewModel.currentUser.value?.cedula
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -125,6 +130,22 @@ class ProfesorFragment : Fragment() {
         var expanded by remember { mutableStateOf(false) }
         var selectedOption by remember { mutableStateOf("todos") }
 
+        var expandedGender by remember { mutableStateOf(false) }
+        var selectedOptionGender by remember { mutableStateOf("todos") }
+
+        var isModalVisibleEmail by remember { mutableStateOf(false) }
+        var isModalVisibleEdad by remember { mutableStateOf(false) }
+
+        var nombreSearch by remember { mutableStateOf(String()) }
+        var emailSearch by remember { mutableStateOf(String()) }
+        var edadSearch by remember { mutableStateOf(String()) }
+
+
+
+
+
+
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -136,8 +157,8 @@ class ProfesorFragment : Fragment() {
                     .background(Color.White)
                     .padding(12.dp)
                     .clip(MaterialTheme.shapes.medium), // Rounded corners
-                value = "",
-                onValueChange = { /* Handle search bar value change */ },
+                value = nombreSearch,
+                onValueChange = { nombreSearch = it },
                 placeholder = {
                     Text(text = "Buscar", style = MaterialTheme.typography.body1)
                 },
@@ -147,12 +168,14 @@ class ProfesorFragment : Fragment() {
 
             Box(
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(45.dp)
                     .background(Color.Blue, shape = RoundedCornerShape(16.dp))
                     .shadow(8.dp, shape = RoundedCornerShape(16.dp))
             ) {
                 IconButton(
-                    onClick = { /* Handle search icon button click */ },
+                    onClick = {
+                              viewModel.getAUserStudentsByFirstName(nombreSearch)
+                              },
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(4.dp)
@@ -167,7 +190,7 @@ class ProfesorFragment : Fragment() {
             }
 
             IconButton(
-                onClick = {expanded = true },
+                onClick = { expanded = true },
                 modifier = Modifier.padding(4.dp)
             ) {
                 Icon(
@@ -178,13 +201,18 @@ class ProfesorFragment : Fragment() {
             }
 
             Box(
-                modifier = Modifier.wrapContentHeight().align(Alignment.Top)
-            ) {
+                modifier = Modifier
+                    .offset(x = 45.dp)
+                    .padding(5.dp)
+            ){
                 DropdownMenu(
+
+
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
                     DropdownMenuItem(onClick = {
+                        viewModel.getUserStudents("Estudiante")
                         selectedOption = "todos"
                         expanded = false
                     }) {
@@ -192,24 +220,171 @@ class ProfesorFragment : Fragment() {
                     }
                     DropdownMenuItem(onClick = {
                         selectedOption = "email"
-                        expanded = false
+//                        expanded = false
+                        isModalVisibleEmail = true
                     }) {
                         Text("Email")
                     }
                     DropdownMenuItem(onClick = {
-                        selectedOption = "genero"
-                        expanded = false
-                    }) {
-                        Text("Genero")
-                    }
-                    DropdownMenuItem(onClick = {
                         selectedOption = "edad"
-                        expanded = false
+//                            expanded = false
+                        isModalVisibleEdad = true
+
                     }) {
                         Text("Edad")
                     }
+                    DropdownMenuItem(onClick = {
+                        selectedOption = "genero"
+                        expandedGender = true
+                    }) {
+                        Text("Genero")
+
+                        Box(
+                            modifier = Modifier
+                                .offset(x = 105.dp)
+                                .padding(5.dp)
+                        ){
+                            DropdownMenu(
+                                modifier = Modifier
+                                    .wrapContentHeight(),
+//                            .align(Alignment.CenterVertically),
+                                expanded = expandedGender,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                DropdownMenuItem(onClick = {
+                                    viewModel.getAUserByGender("Femenino")
+                                    selectedOptionGender = "Mujer"
+                                    expandedGender = false
+                                }) {
+                                    Text("Mujer")
+                                }
+                                DropdownMenuItem(onClick = {
+                                    viewModel.getAUserByGender("Masculino")
+                                    selectedOptionGender = "Hombre"
+                                    expandedGender = false
+                                }) {
+                                    Text("Hombre")
+                                }
+                            }
+                        }
+
+
+                    }
+
+                    DropdownMenuItem(onClick = {
+
+                        expanded = false
+                    }) {
+                        OutlinedButton(onClick = { expanded = false }) {
+                            Text(text = "Cerrar")
+                        }
+                    }
                 }
             }
+
+
+
+        }
+
+        if (isModalVisibleEdad) {
+            Dialog(
+                onDismissRequest = { isModalVisibleEdad = false },
+                content = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .background(Color.White)
+                                .padding(10.dp),
+
+                            elevation = 8.dp
+
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                OutlinedTextField(
+                                    value = edadSearch,
+                                    onValueChange = {
+                                        if (it.all { char -> char.isDigit() }) {
+                                            edadSearch = it
+                                        }
+                                                    },
+                                    keyboardOptions = KeyboardOptions.Default.copy(
+                                        keyboardType = KeyboardType.Number
+                                    ),
+                                    placeholder = {
+                                        Text(text = "Buscar...", style = MaterialTheme.typography.body1)
+                                    },
+
+                                    singleLine = true,
+                                    shape = MaterialTheme.shapes.medium)
+
+                                Button(onClick = {
+                                    isModalVisibleEdad = false
+
+                                }) {
+                                    Text(text = "Buscar")
+                                }
+                            }
+
+                        }
+                    }
+                }
+            )
+        }
+
+        if (isModalVisibleEmail) {
+            Dialog(
+                onDismissRequest = { isModalVisibleEmail = false },
+                content = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .background(Color.White)
+                                .padding(10.dp),
+                            elevation = 8.dp
+
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                OutlinedTextField(
+                                    value = emailSearch,
+                                    onValueChange = { emailSearch = it },
+                                    placeholder = {
+                                        Text(text = "Buscar...", style = MaterialTheme.typography.body1)
+                                    },
+                                    singleLine = true,
+                                    shape = MaterialTheme.shapes.medium)
+                                Button(onClick = {
+                                    viewModel.getUserStudentsByEmail(emailSearch)
+                                    isModalVisibleEmail = false
+                                    expanded = false
+                                }) {
+                                    Text(text = "Buscar")
+                                }
+                            }
+
+                        }
+                    }
+                }
+            )
         }
     }
 
@@ -236,27 +411,14 @@ class ProfesorFragment : Fragment() {
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Circular user image
-//                CoilImage(
-//                    data = user.imageUrl,
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .size(80.dp)
-//                        .clip(CircleShape)
-//                )
-//                Image(imageVector = Icons.Default.AccountCircle,
-//                    contentDescription = "user",
-//                    modifier = Modifier
-//                        .size(60.dp)
-//                        .clip(CircleShape)
-//                )
 
                 GlideImage(
                     model = item.imageProfile,
                     contentDescription = "foto",
                     modifier = Modifier
                         .size(60.dp)
-                        .clip(CircleShape)  )
+                        .clip(CircleShape)
+                )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -286,7 +448,11 @@ class ProfesorFragment : Fragment() {
                             .size(38.dp)
 //                        .background(Color.Red, CircleShape)
                     ) {
-                        Icon(imageVector = Icons.Default.Call, contentDescription = null, tint = Color.Green)
+                        Icon(
+                            imageVector = Icons.Default.Call,
+                            contentDescription = null,
+                            tint = Color.Green
+                        )
                     }
 
                     IconButton(
@@ -295,19 +461,26 @@ class ProfesorFragment : Fragment() {
                             .size(38.dp)
 //                        .background(Color.Red, CircleShape)
                     ) {
-                        Icon(imageVector = Icons.Default.AccountBox, contentDescription = null, tint = Color.Red)
+                        Icon(
+                            imageVector = Icons.Default.AccountBox,
+                            contentDescription = null,
+                            tint = Color.Red
+                        )
                     }
 
                     IconButton(
-                        onClick = {  isModalVisible = true },
+                        onClick = { isModalVisible = true },
                         modifier = Modifier
                             .size(38.dp)
 //                        .background(Color.Red, CircleShape)
                     ) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color.Gray)
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
                     }
                 }
-
 
 
             }
@@ -334,22 +507,27 @@ class ProfesorFragment : Fragment() {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(text = "Estas seguro que deseas eliminar este usuario",
+                                    Text(
+                                        text = "Estas seguro que deseas eliminar este usuario",
                                         style = MaterialTheme.typography.body2,
                                         fontSize = 15.sp,
                                         modifier = Modifier
                                             .align(Alignment.CenterHorizontally)
                                             .padding(10.dp)
 
-                                        )
-                                    Button(onClick = { item.id?.let { viewModel.deleteUser(it) }
-                                        isModalVisible = false },
+                                    )
+                                    Button(
+                                        onClick = {
+                                            item.id?.let { viewModel.deleteUser(it) }
+                                            isModalVisible = false
+                                        },
 
                                         ) {
                                         Text(text = "Eliminar")
                                     }
                                     Button(onClick = {
-                                        isModalVisible = false }) {
+                                        isModalVisible = false
+                                    }) {
                                         Text(text = "Cancelar")
 
                                     }
@@ -378,6 +556,7 @@ class ProfesorFragment : Fragment() {
 
     @Composable
     fun BottomAppBarContent() {
+        var user = viewModel.currentUser.value
         BottomAppBar(
             cutoutShape = MaterialTheme.shapes.small
         ) {
@@ -390,14 +569,19 @@ class ProfesorFragment : Fragment() {
             )
             BottomNavigationItem(
                 selected = false,
-                onClick = { view?.findNavController()?.navigate(R.id.action_profesorFragment_to_clasesFragment) },
+                onClick = {
+                    view?.findNavController()
+                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 100000))
+                },
                 icon = {
                     Icon(imageVector = Icons.Default.List, contentDescription = "Actividades")
                 }
             )
             BottomNavigationItem(
                 selected = false,
-                onClick = {view?.findNavController()?.navigate(R.id.action_profesorFragment_to_profileFragment)
+                onClick = {
+                    view?.findNavController()
+                        ?.navigate(R.id.action_profesorFragment_to_profileFragment)
                 },
                 icon = {
                     Icon(Icons.Default.AccountCircle, contentDescription = "Usuario")
@@ -442,7 +626,7 @@ class ProfesorFragment : Fragment() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Title()
-                    IconButton(onClick = { isModalVisible = true}) {
+                    IconButton(onClick = { isModalVisible = true }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
                         val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
                         Icon(
@@ -454,7 +638,7 @@ class ProfesorFragment : Fragment() {
 
                 }
 
-                     },
+            },
             bottomBar = { BottomAppBarContent() }
         ) {
             Column(
@@ -463,7 +647,7 @@ class ProfesorFragment : Fragment() {
             ) {
                 SearchBar()
 
-                ListContent(userList = viewModel.userList)
+                ListContent(userList = viewModel.userStudentsList)
 
                 if (isModalVisible) {
                     Dialog(
@@ -475,9 +659,8 @@ class ProfesorFragment : Fragment() {
                                     .fillMaxWidth()
                                     .background(Color.White)
                             ) {
-                                QrCodeScanner()
+                                view?.let { it1 -> QrCodeScanner(it1) }
                             }
-
 
 
 //                                Button(onClick = { isModalVisible = false }) {
@@ -492,12 +675,12 @@ class ProfesorFragment : Fragment() {
 
                 ModalBottomSheetLayout(sheetState = state,
 
-                    sheetContent ={
+                    sheetContent = {
 
 
-                        QrCodeScanner()
+//                        QrCodeScanner()
 
-                }) {
+                    }) {
 
                 }
             }

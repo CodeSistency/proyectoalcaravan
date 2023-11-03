@@ -199,8 +199,9 @@ class StudentFragment : Fragment() {
 
     @Composable
     fun ListItem(item: Materia) {
-        // Replace with your list item implementation
-        // You can use Card, ListItem, or any other Composable to represent a single item in the list
+
+        var user = viewModel.currentUser.value
+
         Card(
             modifier = Modifier
                 .fillMaxSize()
@@ -209,11 +210,11 @@ class StudentFragment : Fragment() {
                     viewModel.getActivitiesById(item.id)
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
-                    if (viewModel.currentUser.value?.rol == "estudiante"){
+                    if (viewModel.currentUser.value?.rol == "Estudiante"){
 
                         view
                             ?.findNavController()
-                            ?.navigate(R.id.action_studentFragment_to_asignacionFragment)
+                            ?.navigate(StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(user?.id ?: 1000))
                     } else {
                         viewModel.getMateriaById(item.id)
                         viewModel.currentMateria.postValue(item)
@@ -267,6 +268,9 @@ class StudentFragment : Fragment() {
 
     @Composable
     fun BottomAppBarContent() {
+
+        var user = viewModel.currentUser.value
+
         BottomAppBar(
             cutoutShape = MaterialTheme.shapes.small
         ) {
@@ -287,7 +291,9 @@ class StudentFragment : Fragment() {
             BottomNavigationItem(
                 selected = false,
                 onClick = {
-                    view?.findNavController()?.navigate(R.id.action_studentFragment_to_profileFragment)
+                    view?.findNavController()?.navigate(StudentFragmentDirections.actionStudentFragmentToProfileFragment(user?.id ?: 100000))
+
+
                 },
                 icon = {
                     Icon(Icons.Default.AccountCircle, contentDescription = "Usuario")

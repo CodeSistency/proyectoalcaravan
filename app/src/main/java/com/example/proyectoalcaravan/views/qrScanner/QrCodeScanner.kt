@@ -3,6 +3,7 @@ package com.example.proyectoalcaravan.views.qrScanner
 import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Size
+import android.view.View
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -33,9 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.navigation.findNavController
+import com.example.proyectoalcaravan.views.MateriaFragmentDirections
 
 @Composable
-fun QrCodeScanner() {
+fun QrCodeScanner(view: View) {
 //    var skipHalfExpanded by remember { mutableStateOf(true) }
     var code by remember {
         mutableStateOf("")
@@ -65,6 +68,7 @@ fun QrCodeScanner() {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+
 //        Text(
 //            text = code,
 //            fontSize = 20.sp,
@@ -74,6 +78,9 @@ fun QrCodeScanner() {
 //                .padding(62.dp)
 //                .background(Color.Blue)
 //        )
+        if (!code.isNullOrEmpty()){
+            view?.findNavController()?.navigate(MateriaFragmentDirections.actionMateriaFragmentToAsignacionFragment(code.toInt() ?: 100000))
+        }
         if (hasCamPermission) {
             AndroidView(
                 factory = { context ->

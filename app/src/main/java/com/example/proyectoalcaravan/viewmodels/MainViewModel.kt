@@ -194,14 +194,14 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     fun getUserStudents(rol: String) {
-        val response = repository.getUserStudent(rol)
+        val response = repository.getUserStudents(rol)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                 if (response.isSuccessful) {
                     userStudentsList.postValue(response.body())
-                    Log.e("Lista de actividades", response.body().toString())
+                    Log.e("Lista de estudiantes list", response.body().toString())
                 } else {
-                    Log.e("Lista fallida de actividades", response.body().toString())
+                    Log.e("Lista fallida de estudiantes", response.body().toString())
                     errorMessage.postValue("Error: ${response.code()}")
                 }
             }
@@ -212,13 +212,13 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         })
     }
 
-    fun getAUserStudentsByFirstName(rol: String) {
-        val response = repository.getUserStudent(rol)
+    fun getAUserStudentsByFirstName(name: String) {
+        val response = repository.getUserStudentsByFirstName(name)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                 if (response.isSuccessful) {
                     userStudentsList.postValue(response.body())
-                    Log.e("Lista de actividades", response.body().toString())
+                    Log.e("Lista de estudiantes first name", response.body().toString())
                 } else {
                     Log.e("Lista fallida de actividades", response.body().toString())
                     errorMessage.postValue("Error: ${response.code()}")
@@ -233,7 +233,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
     fun getUserStudentsByEmail(email: String) {
-        val response = repository.getUserStudent(email)
+        val response = repository.getUserStudentsByEmail(email)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                 if (response.isSuccessful) {
@@ -252,7 +252,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     fun getAUserByGender(gender: String) {
-        val response = repository.getUserStudent(gender)
+        val response = repository.getUserStudentsByGender(gender)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                 if (response.isSuccessful) {
@@ -277,6 +277,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
                     getAllUsers()
+                    getUserStudents("Estudiante")
                     // Handle successful response
                     Log.e("Create User", "User created successfully")
                 } else {
@@ -296,6 +297,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
                     getAllUsers()
+                    getUserStudents("Estudiante")
                     // Handle successful response
                     Log.e("Update User", "User updated successfully")
                 } else {
@@ -315,6 +317,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     getAllUsers()
+                    getUserStudents("Estudiante")
                     // Handle successful response
                     Log.e("Delete User", "User deleted successfully")
                 } else {

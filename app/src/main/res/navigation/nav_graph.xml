@@ -116,6 +116,8 @@
             app:popExitAnim="@anim/nav_default_enter_anim" >
 
         </action>
+        <argument android:name="profile"
+            app:argType="integer" />
 
     </fragment>
     <fragment
