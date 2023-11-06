@@ -12,7 +12,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.GregorianCalendar
+import java.util.Locale
 
 
 class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener {
@@ -27,12 +30,19 @@ class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
         val day = c.get(Calendar.DAY_OF_MONTH)
 
         // Create a new instance of DatePickerDialog and return it.
-        return DatePickerDialog(requireContext(), this, year, month, day)
+        val datePickerDialog = DatePickerDialog(requireContext(), this, year, month, day)
 
+        // Configure the date picker to display in Spanish
+
+
+        return datePickerDialog
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        // Do something with the date the user picks.
-        viewModel.birthday.postValue("${year}/${month}/${day}")
+        // Format the date in the desired format and set it in the ViewModel
+        val formattedDate = SimpleDateFormat("yyyy/MM/dd", Locale("es", "ES")).format(
+            GregorianCalendar(year, month, day).time
+        )
+        viewModel.birthday.postValue(formattedDate)
     }
 }

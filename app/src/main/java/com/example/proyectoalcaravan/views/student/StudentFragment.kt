@@ -63,6 +63,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 
 import androidx.fragment.app.activityViewModels
@@ -73,6 +74,8 @@ import com.example.proyectoalcaravan.model.remote.Materia
 
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.DatePickerFragment
+import com.example.proyectoalcaravan.views.MpaChartsFragment
 import com.example.proyectoalcaravan.views.qrScanner.QrCodeScanner
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
@@ -351,6 +354,18 @@ class StudentFragment : Fragment() {
             ) {
 //                SearchBar()
                 ListContent()
+
+                AndroidView(
+                    factory = { context ->
+                        val fragment = MpaChartsFragment()
+                        val inflater = LayoutInflater.from(context)
+                        fragment.onCreateView(inflater, null, null)
+                    }
+                )
+
+
+//                newFragment.show(childFragmentManager, "datePicker")
+
                 if (isModalVisible) {
                     Dialog(
                         onDismissRequest = { isModalVisible = false },

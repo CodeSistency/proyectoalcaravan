@@ -6,7 +6,7 @@
     app:startDestination="@id/login">
     <fragment
         android:id="@+id/registerStepOne2"
-        android:name="com.example.proyectoalcaravan.RegisterStepOne"
+        android:name="com.example.proyectoalcaravan.views.register.RegisterStepOne"
         android:label="fragment_register_step_one"
         tools:layout="@layout/fragment_register_step_one" >
         <action
@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerStepTwo2"
-        android:name="com.example.proyectoalcaravan.RegisterStepTwo"
+        android:name="com.example.proyectoalcaravan.views.register.RegisterStepTwo"
         android:label="fragment_register_step_two"
         tools:layout="@layout/fragment_register_step_two" >
         <action
@@ -35,7 +35,7 @@
     </fragment>
     <fragment
         android:id="@+id/login"
-        android:name="com.example.proyectoalcaravan.LoginFragment"
+        android:name="com.example.proyectoalcaravan.views.login.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action

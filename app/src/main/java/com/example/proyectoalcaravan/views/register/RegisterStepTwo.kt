@@ -1,7 +1,6 @@
-package com.example.proyectoalcaravan
+package com.example.proyectoalcaravan.views.register
 
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,7 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import co.yml.charts.common.extensions.isNotNull
+import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepTwoBinding
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
@@ -80,20 +79,20 @@ class RegisterStepTwo : Fragment() {
             binding.tvRegistroTitulo.text = "Actualizar"
 
         }
+        viewModel.updatedUser.observe(viewLifecycleOwner){ dataUser->
+                Log.e("updated User", dataUser.toString())
+                val firstName = dataUser.firstName ?: ""
+                val lastName = dataUser.lastName ?: ""
+                val cedula = dataUser.cedula.toString() // Convert to String
+                val phone = dataUser.phone.toString() // Convert to String
 
-        if (viewModel.updatedUser.value.isNotNull()){
-            val firstName = viewModel.updatedUser?.value?.firstName ?: ""
-            val lastName = viewModel.updatedUser?.value?.lastName ?: ""
-            val cedula = viewModel.updatedUser?.value?.cedula.toString() // Convert to String
-            val phone = viewModel.updatedUser?.value?.phone.toString() // Convert to String
+                binding.etNombre.setText(firstName)
+                binding.etApellido.setText(lastName)
+                binding.etCedula.setText(cedula)
+                binding.etTelefono.setText(phone)
 
-            binding.etNombre.setText(firstName)
-            binding.etApellido.setText(lastName)
-            binding.etCedula.setText(cedula)
-            binding.etTelefono.setText(phone)
-        } else {
-            Log.e("not reading", "chimbo")
         }
+
 
 
         binding.Registrar.setOnClickListener {
@@ -179,8 +178,9 @@ class RegisterStepTwo : Fragment() {
                         val downloadUri = uri.toString()
                         user.imageProfile = downloadUri
                         viewModel.createUser(user)
-                        viewModel.createUserDB(UserDB(user.id ?: 0, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
+                        viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
                         viewModel.getAllUsers()
+                        viewModel.profileImage.postValue(null)
                         view
                             ?.findNavController()
                             ?.navigate(R.id.action_registerStepTwo2_to_login)
@@ -227,8 +227,10 @@ class RegisterStepTwo : Fragment() {
         val roleSpinner = binding.roleSpinner
 
         // Create an ArrayAdapter using a string array and a default spinner layout
-        val genderAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.gender_array, android.R.layout.simple_spinner_item)
-        val roleAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.role_array, android.R.layout.simple_spinner_item)
+        val genderAdapter = ArrayAdapter.createFromResource(requireContext(),
+            R.array.gender_array, android.R.layout.simple_spinner_item)
+        val roleAdapter = ArrayAdapter.createFromResource(requireContext(),
+            R.array.role_array, android.R.layout.simple_spinner_item)
 
         // Specify the layout to use when the list of choices appears
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

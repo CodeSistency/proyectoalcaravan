@@ -4,7 +4,6 @@ plugins {
 //    id("kotlin-kapt")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
-//    id("androidx.navigation.safeargs")
     id("androidx.navigation.safeargs.kotlin")
 }
 
@@ -148,6 +147,13 @@ dependencies {
 
     //Glide
     implementation ("com.github.bumptech.glide:compose:1.0.0-beta01")
+
+    //Coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("com.google.accompanist:accompanist-coil:0.8.0")
+
+    //MPAandroidCharts
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

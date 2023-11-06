@@ -1,4 +1,4 @@
-package com.example.proyectoalcaravan
+package com.example.proyectoalcaravan.views.login
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentLoginBinding
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
@@ -58,7 +59,7 @@ class LoginFragment : Fragment() {
             val isUserValid = isUserValid(email, password)
 
             if (isUserValid != null) {
-                viewModel.createUserDB(UserDB(isUserValid.id ?: 0, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
+                viewModel.createUserDB(UserDB(1, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
 
                 if (isUserValid.rol == "Estudiante"){
                     view.findNavController().navigate(R.id.action_login_to_studentFragment)

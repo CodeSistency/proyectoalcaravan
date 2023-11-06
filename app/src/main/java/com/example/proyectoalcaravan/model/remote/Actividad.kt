@@ -7,7 +7,7 @@ data class Actividad(
     val description: String,
     val id: Int? = null,
     val idClass: Int,
-    val imageRevision: String? = null,
+    var imageRevision: String? = null,
     val isCompleted: Boolean = false,
     val messageStudent: String? = "",
     val title: String

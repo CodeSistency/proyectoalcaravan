@@ -42,7 +42,7 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
 
     //Room
 
-//    suspend fun getAllUsersDB() = userDao.getAllUsers()
+    fun getAllUsersDB() = userDao.getUsers()
 
     suspend fun createUserDB(user: UserDB) = userDao.insertUser(user)
 
@@ -50,7 +50,7 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
 
 //    suspend fun deleteUserDB(userId: Int) = userDao.deleteUser(userId)
 
-    suspend fun getUserByIdDB(userId: Int) = userDao.getUserById(userId)
+    fun getUserByIdDB(userId: Int) = userDao.getUserById(userId)
 
 
 

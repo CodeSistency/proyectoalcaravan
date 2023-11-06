@@ -1,4 +1,4 @@
-package com.example.proyectoalcaravan
+package com.example.proyectoalcaravan.views.register
 
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepOneBinding
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 

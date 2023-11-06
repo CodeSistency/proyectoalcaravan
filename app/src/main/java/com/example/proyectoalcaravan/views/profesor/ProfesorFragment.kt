@@ -581,7 +581,7 @@ class ProfesorFragment : Fragment() {
                 selected = false,
                 onClick = {
                     view?.findNavController()
-                        ?.navigate(R.id.action_profesorFragment_to_profileFragment)
+                        ?.navigate(R.id.action_profesorFragment_to_clasesFragment)
                 },
                 icon = {
                     Icon(Icons.Default.AccountCircle, contentDescription = "Usuario")

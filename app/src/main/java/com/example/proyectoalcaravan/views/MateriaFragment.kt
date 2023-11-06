@@ -593,15 +593,23 @@ class MateriaFragment : Fragment() {
 
 
                                 Button(
-                                    onClick = { viewModel.createActivity(
-                                        Actividad(
-                                            idClass = viewModel.currentMateria.value!!.id,
-                                            title = tituloAsignacion,
-                                            description = descripcionAsignacion,
-                                            date = viewModel.birthday.value,
+                                    onClick = {
 
-                                        )
-                                    )},
+                                        if (!tituloAsignacion.isNullOrEmpty() && !descripcionAsignacion.isNullOrEmpty() && !viewModel?.birthday?.value.isNullOrEmpty()){
+                                            viewModel.createActivity(
+                                                Actividad(
+                                                    idClass = viewModel.currentMateria.value!!.id,
+                                                    title = tituloAsignacion,
+                                                    description = descripcionAsignacion,
+                                                    date = viewModel.birthday.value,
+
+                                                    )
+                                            )
+
+                                        }else{
+                                            viewModel.showToast("Rellene todos los campos", requireContext())
+                                        }
+                                       },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp)

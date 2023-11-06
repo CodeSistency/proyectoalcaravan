@@ -6,14 +6,13 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.views.profesor.ProfesorActivity
 import com.example.proyectoalcaravan.R
-import com.example.proyectoalcaravan.RegisterStepOne
+import com.example.proyectoalcaravan.views.register.RegisterStepOne
 import com.example.proyectoalcaravan.views.student.StudentActivity
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.Actividad
@@ -33,6 +32,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var currentMateria = MutableLiveData<Materia>()
     var currentActividad = MutableLiveData<Actividad>()
     var updatedUser = MutableLiveData<User>()
+    var currentUserDB = MutableLiveData<UserDB?>()
 
     //Listas de datos
     var userList = MutableLiveData<List<User>>()
@@ -57,7 +57,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
 
-    val profileImage = MutableLiveData<Uri>()
+    val profileImage = MutableLiveData<Uri?>()
 
     fun isFormValid(): Boolean {
         val email = email.value
@@ -92,6 +92,10 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
         return validado
+    }
+
+    fun showToast(message: String, context: Context) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
 //    fun isUserValid(email: String, password: String): User? {
@@ -523,10 +527,33 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
     //Room
+    fun getUsersDB() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                var userDB = repository.getAllUsersDB()
+                Log.e("Userd database ", "User in the database: ${userDB}")
+            } catch (e: Exception) {
+                Log.e("UserDatabase error", "Error getting user: ${e.message}")
+            }
+        }
+    }
+
+    fun getUserDB(userId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                var userDB = repository.getUserByIdDB(userId)
+                currentUserDB.postValue(userDB)
+                Log.e("User database", "User Database ${userDB}")
+            } catch (e: Exception) {
+                Log.e("UserDatabase error", "Error user: ${e.message}")
+            }
+        }
+    }
     fun createUserDB(user: UserDB) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.createUserDB(user)
+                Log.e("User database created", "User created")
             } catch (e: Exception) {
                 Log.e("UserDatabase error", "Error creating user: ${e.message}")
             }
