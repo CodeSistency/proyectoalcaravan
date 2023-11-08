@@ -46,9 +46,9 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
 
     suspend fun createUserDB(user: UserDB) = userDao.insertUser(user)
 
-//    suspend fun updateUserDB(user: User) = userDao.updateUser(user)
+//    fun updateUserDB(userId: Int) = userDao.updateUser(userId)
 
-//    suspend fun deleteUserDB(userId: Int) = userDao.deleteUser(userId)
+    fun deleteUserDB(user: UserDB) = userDao.deleteUser(user)
 
     fun getUserByIdDB(userId: Int) = userDao.getUserById(userId)
 

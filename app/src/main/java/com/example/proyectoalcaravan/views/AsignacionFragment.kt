@@ -33,6 +33,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -108,10 +109,15 @@ class AsignacionFragment : Fragment() {
         var isModalNotaVisible by remember { mutableStateOf(false) }
         var notaAsignacion by remember { mutableStateOf(String()) }
         var mensaje by remember { mutableStateOf(String()) }
+        var currentUser = viewModel.currentUser.value
+        var currentUserDB = viewModel.currentUserDB.value
+
 
         var user = viewModel.updatedUser.value
 
-
+        LaunchedEffect(currentUser, isModalNotaVisible){
+            Log.e("asignacion", currentUser.toString())
+        }
 
         Card(
             modifier = Modifier
@@ -166,9 +172,14 @@ class AsignacionFragment : Fragment() {
 //                        }
 //                    }
 //                }
-                IconButton(onClick = { isModalNotaVisible = true}) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "algo")
+                if(currentUserDB?.rol == "Profesor"){
+                    IconButton(onClick = { isModalNotaVisible = true}) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "algo")
+                    }
+                }else{
+                    Text(text = item.calificationRevision.toString())
                 }
+
 
 
             }
@@ -195,78 +206,7 @@ class AsignacionFragment : Fragment() {
                             },
                         elevation = 8.dp
                     ) {
-//                        if(user.isNotNull() && user?.rol == "Estudiante"){
-//                            Column {
-//                               IconButton(onClick = {
-//                                   val dialog = ImagePickerDialogFragment()
-//                                   dialog.show(childFragmentManager, "image_picker_dialog")
-//                               }) {
-//                                   Icon(imageVector = Icons.Default.Add, contentDescription = "AÑADIR EVALUACION")
-//                               }
-//                                Column {
-//                                    Text(text = "Mensaje")
-//                                    OutlinedTextField(value = mensaje,
-//                                        onValueChange = {
-//                                            mensaje = it
-//                                        },
-//
-//                                        placeholder = {
-//                                            Text(text = "Añade alguna acotación")
-//                                        },
-//                                        keyboardOptions = KeyboardOptions.Default.copy(
-//                                            keyboardType = KeyboardType.Number
-//                                        )
-//
-//                                    )
-//                                    Button(onClick = {
-//
-//                                        val evaluacion = Actividad(
-//                                            calification = item.calification,
-//                                            calificationRevision = item.calificationRevision,
-//                                            date = item.date,
-//                                            description = item.description,
-//                                            id = item.id,
-//                                            idClass = item.idClass,
-//                                            imageRevision = item.imageRevision,
-//                                            isCompleted = item.isCompleted,
-//                                            messageStudent = mensaje,
-//                                            title = item.title
-//                                        )
-//                                        val updateUser = User(
-//                                            id = user.id, // Replace with the actual property name for the user ID
-//                                            firstName = user.firstName,
-//                                            lastName = user.lastName,
-//                                            email = user.email,
-//                                            password = user.password,
-//                                            gender = user.gender,
-//                                            rol = user.rol,
-//                                            birthday = user.birthday,
-//                                            imageProfile = user.imageProfile,
-//                                            phone = user.phone,
-//                                            cedula = user.cedula,
-//                                            listActivities = user.listActivities?.plus(
-//                                                evaluacion
-//                                            ),
-//                                            lgn = user.lgn,
-//                                            lat = user.lat,
-//                                            listOfMaterias = user.listOfMaterias
-//
-//                                        )
-//
-//                                        viewModel.updateUser(user?.id ?: 110, updateUser)
-//                                    }
-//
-//                                    ) {
-//                                        Text(text = "Enviar evaluación")
-//                                    }
-//                                }
-//                            }
-//                        }else{
-//                        if (item.imageRevision.isNullOrEmpty()){
-//                            Text(text = "Todavía no se ha enviado la asignación")
-//                        } else{
-//                            //Validar que no puede poner nota porque no ha llegado la evaluacion
-//                        }
+
 
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -386,15 +326,19 @@ class AsignacionFragment : Fragment() {
     @Composable
     fun ListItemAsignacionGeneral(item: Actividad) {
         var modalVisible by remember { mutableStateOf(false) }
-        val user by viewModel.updatedUser.observeAsState()
+//        val user by viewModel.updatedUser.observeAsState()
+        var user = viewModel.updatedUser.value
+        var currentUser = viewModel.currentUser.value
+        var currentUserDB = viewModel.currentUserDB.value
+
         var mensaje by remember { mutableStateOf(String()) }
         val profileImageUri by viewModel.profileImage.observeAsState()
 
+        LaunchedEffect(user, modalVisible){
+            Log.e("user role", user?.rol.toString())
+            Log.e("user in asignacion", user.toString())
 
-
-
-
-
+        }
 
         Card(
             modifier = Modifier
@@ -428,12 +372,17 @@ class AsignacionFragment : Fragment() {
                     )
 
                     }
-                if (user?.rol == "Estudiante"){
+
+
+                if (currentUserDB?.rol == "Profesor"){
+                    Text(text = item.calificationRevision.toString())
+                }else{
                     IconButton(onClick = { modalVisible = true}) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "algo")
                     }
-
                 }
+
+
 
 
 
@@ -518,9 +467,7 @@ class AsignacionFragment : Fragment() {
                                         placeholder = {
                                             Text(text = "Añade alguna acotación")
                                         },
-                                        keyboardOptions = KeyboardOptions.Default.copy(
-                                            keyboardType = KeyboardType.Number
-                                        )
+
 
                                     )
                                     Button(onClick = {
@@ -578,6 +525,7 @@ class AsignacionFragment : Fragment() {
                                                     viewModel.updateUser(user?.id ?: 110, updateUser)
                                                     user?.id?.let { viewModel.getUserById(it) }
                                                     viewModel.profileImage.postValue(null)
+//                                                    profileImageUri = null
                                                     viewModel.getAllUsers()
                                                     modalVisible = false
 

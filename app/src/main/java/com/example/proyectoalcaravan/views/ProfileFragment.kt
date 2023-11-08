@@ -7,11 +7,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -31,9 +29,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,8 +43,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.extensions.formatToSinglePrecision
+import co.yml.charts.common.extensions.isNotNull
 import co.yml.charts.common.model.Point
 import co.yml.charts.ui.linechart.LineChart
 import co.yml.charts.ui.linechart.model.GridLines
@@ -62,20 +61,22 @@ import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
+import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.register.RegisterStepTwoArgs
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.simonsickle.compose.barcodes.Barcode
-import com.simonsickle.compose.barcodes.BarcodeType
 
 
 class ProfileFragment : Fragment() {
 
     private val viewModel by activityViewModels<MainViewModel>()
+    val args: ProfileFragmentArgs by navArgs()
+
 
     val pointsData: List<Point> =
         listOf(Point(0f, 40f), Point(1f, 90f), Point(2f, 0f), Point(3f, 60f), Point(4f, 10f))
@@ -127,6 +128,9 @@ class ProfileFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                if(args.isNotNull()){
+                    viewModel.getUserById(args.profile)
+                }
                 Profile(viewModel.currentUser.value)
 //                MyFragmentContent(viewModel)
 //                Button(onClick = { checkCamaraPermissions() }) {
@@ -140,7 +144,9 @@ class ProfileFragment : Fragment() {
 
     @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
-    fun ProfileCard(currentUser: User?) {
+    fun ProfileCard(currentUser: User?, userDB: UserDB?) {
+
+        var updatedUser = viewModel.updatedUser.observeAsState()
         Column {
 
 
@@ -170,44 +176,58 @@ class ProfileFragment : Fragment() {
                         .background(Color.White),
 
                 ) {
-                    // You can use CoilImage or Image with your image source
-//                    CoilImage(
-//                        data = "Your Image URL or Resource",
-//                        contentDescription = "Profile Image",
-//                        contentScale = ContentScale.Crop,
-//                        modifier = Modifier.fillMaxSize()
-//                    )
-                    GlideImage(
-                        model = currentUser?.imageProfile,
-                        contentDescription = "foto",
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentScale = ContentScale.Fit                   )
+                    if (args.isNotNull()){
+                        GlideImage(
+                            model = updatedUser.value?.imageProfile,
+                            contentDescription = "foto",
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }else{
+                        GlideImage(
+                            model = userDB?.imageProfile ?: currentUser?.imageProfile,
+                            contentDescription = "foto",
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
 
-//                    Image(imageVector = Icons.Default.AccountCircle,
-//                        contentDescription = "user",
-//
-//                        modifier = Modifier
-//                            .fillMaxSize(),
-//                        contentScale = ContentScale.Crop
-//
-//                    )
+
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                        text = currentUser?.firstName.toString(),
+                if (args.isNotNull()){
+
+                    Text(
+                        text = updatedUser.value?.firstName?: "nombre",
                         style = MaterialTheme.typography.h6,
+                        color = Color.White,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = currentUser?.lastName.toString(),
+                        text = updatedUser.value?.lastName?: "apellido",
                         style = MaterialTheme.typography.body1,
-                        color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
+                        color = Color.White
                     )
-                // Other Composables (Name, Bio, etc.)
-                // Add your other composables here
+                }else{
+                    Text(
+                        text = userDB?.firstName ?: currentUser?.firstName.toString(),
+                        style = MaterialTheme.typography.h6,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        text = userDB?.lastName ?: currentUser?.lastName.toString(),
+                        style = MaterialTheme.typography.body1,
+                        color = Color.White
+                    )
+                }
+
+
+
 
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -216,8 +236,10 @@ class ProfileFragment : Fragment() {
     }
 
     @Composable
-    fun SmallMap(currentUser: User?) {
+    fun SmallMap(currentUser: User?, userDB: UserDB?) {
         val context = LocalContext.current
+        var updatedUser = viewModel.updatedUser.observeAsState()
+
 
         Card(
             modifier = Modifier
@@ -247,11 +269,25 @@ class ProfileFragment : Fragment() {
                 googleMap.addMarker(markerOptions)
 
                 // Move the camera to the desired location
-                val cameraPosition = CameraPosition.Builder()
-                    .target(LatLng(currentUser?.lat ?: 0.078867, currentUser?.lgn ?: 0.078867)) // Replace with your desired location
-                    .zoom(15f) // Zoom level
-                    .build()
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+
+
+                if (args.isNotNull()){
+                    var cameraPosition = CameraPosition.Builder()
+                        .target(LatLng(updatedUser.value?.lat ?: 10.0000, updatedUser.value?.lat ?: 10.0000)) // Replace with your desired location
+                        .zoom(15f) // Zoom level
+                        .build()
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+
+                }else{
+                    var cameraPosition = CameraPosition.Builder()
+                        .target(LatLng(userDB?.lag ?:currentUser?.lat ?: 0.078867, userDB?.lgn ?: currentUser?.lgn ?: 0.078867)) // Replace with your desired location
+                        .zoom(15f) // Zoom level
+                        .build()
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+                }
+
+
+
             }
         }
         }
@@ -260,6 +296,9 @@ class ProfileFragment : Fragment() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Profile(currentUser: User?) {
+        var userDB = viewModel.currentUserDB.value
+        var updatedUser = viewModel.updatedUser.observeAsState()
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -276,50 +315,88 @@ class ProfileFragment : Fragment() {
                         }
                     },
                     actions = {
-                        IconButton(onClick = {view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000)) }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_editar),
-                                contentDescription = "Settings"
-                            )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = {view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000)) }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_editar),
+                                    contentDescription = "Settings"
+                                )
+                            }
+                            IconButton(onClick = {
+                                if (userDB != null) {
+                                    viewModel.deleteUserDB(UserDB(userDB.id, userDB.userId, userDB.firstName, userDB.lastName, userDB.birthday, userDB.cedula, userDB.gender, userDB.imageProfile, userDB.email, userDB.password, userDB.rol, userDB.phone, userDB.lgn, userDB.lag) )
+                                }
+                                view?.findNavController()?.navigate(R.id.action_profileFragment_to_login) }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_logout),
+                                    contentDescription = "Settings"
+                                )
+                            }
                         }
+
                     }
                 )
             }
         ) {
             LazyColumn{
                 item {
-                    ProfileCard(currentUser)
+                    ProfileCard(currentUser, userDB)
 
                 }
                 item {
                     Column {
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        Text(text = "Email: ${currentUser?.email.toString()}",
-                            style = MaterialTheme.typography.h6,
-                            modifier = Modifier.padding(10.dp),
-                            color = Color.DarkGray
-                        )
+                        if (args.isNotNull()){
+                            Text(text = "Email: ${updatedUser.value?.email}",
+                                style = MaterialTheme.typography.h6,
+                                modifier = Modifier.padding(10.dp),
+                                color = Color.DarkGray
+                            )
 
 
 
-                        Text(text = "Cedula: ${currentUser?.cedula.toString()}",
-                            style = MaterialTheme.typography.h6,
-                            modifier = Modifier.padding(10.dp),
-                            color = Color.DarkGray
-                        )
+                            Text(text = "Cedula: ${updatedUser.value?.cedula}",
+                                style = MaterialTheme.typography.h6,
+                                modifier = Modifier.padding(10.dp),
+                                color = Color.DarkGray
+                            )
 
 
-                        Text(text = "Telefono: ${currentUser?.phone.toString()}",
+                            Text(text = "Telefono: ${updatedUser.value?.phone}",
 
-                            style = MaterialTheme.typography.h6,
-                            modifier = Modifier.padding(10.dp),
-                            color = Color.DarkGray
+                                style = MaterialTheme.typography.h6,
+                                modifier = Modifier.padding(10.dp),
+                                color = Color.DarkGray
 
-                        )
+                            )
+
+                        }else{
+                            Text(text = "Email: ${userDB?.email ?: currentUser?.email.toString()}",
+                                style = MaterialTheme.typography.h6,
+                                modifier = Modifier.padding(10.dp),
+                                color = Color.DarkGray
+                            )
+                            Text(text = "Cedula: ${userDB?.cedula ?: currentUser?.cedula.toString()}",
+                                style = MaterialTheme.typography.h6,
+                                modifier = Modifier.padding(10.dp),
+                                color = Color.DarkGray
+                            )
+                            Text(text = "Telefono: ${userDB?.phone ?: currentUser?.phone.toString()}",
+
+                                style = MaterialTheme.typography.h6,
+                                modifier = Modifier.padding(10.dp),
+                                color = Color.DarkGray
+
+                            )
+
+                        }
+
 
                     }
-                    SmallMap(currentUser)
+                    SmallMap(currentUser, userDB)
                     LineChart(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -327,52 +404,8 @@ class ProfileFragment : Fragment() {
                         lineChartData = lineChartData
                     )
                 }
-//                Column(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .padding(16.dp),
-////                verticalArrangement = Arrangement.Center,
-//                    horizontalAlignment = Alignment.CenterHorizontally
-//                ) {
-//                    // User Photo
-//                    Image(
-//                        painter = painterResource(R.drawable.ic_profile),
-//                        contentDescription = "User Photo",
-//                        modifier = Modifier
-//                            .size(120.dp)
-//                            .padding(vertical = 16.dp),
-//                        contentScale = ContentScale.Crop
-//                    )
-//
-//                    // User Information
-//                    Text(
-//                        text = currentUser?.firstName.toString(),
-//                        style = MaterialTheme.typography.h6,
-//                        modifier = Modifier.padding(bottom = 8.dp)
-//                    )
-//                    Text(
-//                        text = currentUser?.lastName.toString(),
-//                        style = MaterialTheme.typography.body1,
-//                        color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
-//                    )
-//            }
-
-
-//                if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
-//                    Barcode(
-//                        modifier = Modifier
-//                            .align(Alignment.CenterHorizontally)
-//                            .fillMaxSize()
-//                            .padding(10.dp, 10.dp, 10.dp, 40.dp),
-//                        resolutionFactor = 10, // Optionally, increase the resolution of the generated image
-//                        type = BarcodeType.QR_CODE, // pick the type of barcode you want to render
-//                        value = viewModel.currentUser.value?.cedula.toString() // The textual representation of this code
-//                    )
-//                }
 
             }
-
-
 
         }
     }

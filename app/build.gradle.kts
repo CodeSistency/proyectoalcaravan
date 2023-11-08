@@ -125,6 +125,9 @@ dependencies {
     implementation ("androidx.camera:camera-lifecycle:1.0.2")
     implementation ("androidx.camera:camera-view:1.0.0-alpha31")
 
+    //Scanner
+    implementation ("com.google.mlkit:barcode-scanning:17.0.3")
+
     // Zxing
     implementation ("com.google.zxing:core:3.3.3")
     //QRS

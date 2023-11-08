@@ -1,6 +1,7 @@
 package com.example.proyectoalcaravan.views.qrScanner
 
 import android.graphics.ImageFormat
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.zxing.BarcodeFormat
@@ -46,8 +47,12 @@ class QrCodeAnalyzer(
                     )
                 }.decode(binaryBmp)
                 onQrCodeScanned(result.text)
+
             } catch(e: Exception) {
                 e.printStackTrace()
+                Log.e("error scanner", e.message.toString())
+                Log.e("error scanner2", e.printStackTrace().toString())
+
             } finally {
                 image.close()
             }

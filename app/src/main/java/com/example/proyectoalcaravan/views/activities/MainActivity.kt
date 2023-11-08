@@ -40,72 +40,62 @@ class MainActivity : AppCompatActivity() {
 
         val repository = MainRepository(retrofitService, userDao)
         viewModel = ViewModelProvider(this, MyViewModelFactory(repository)).get(MainViewModel::class.java)
+        viewModel.getUserDB(1)
+        viewModel.getAllUsers()
+        viewModel.getAllActivities()
+        viewModel.getAllMaterias()
 
-        viewModel.getUserById(1)
 
-//        viewModel.currentUserDB.observe(this, Observer { user ->
-//            // Check if the user exists and has a non-null and non-empty 'rol' property
-//            if (user != null && user.rol.isNotNull()) {
-//                if (user.rol == "Estudiante") {
-//                    // Navigate to the StudentFragment
-//                    navController = findNavController(R.id.nav_host_fragment)
+        if (viewModel.currentUserDB.value != null && viewModel.currentUserDB?.value!!.rol.isNotNull()) {
+            if (viewModel.currentUserDB.value!!.rol == "Estudiante") {
+                // Navigate to the StudentFragment
+                Log.e("something", "algo")
+                navController = findNavController(R.id.nav_host_fragment)
+                navController.navigate(R.id.studentFragment)
+//                    Log.e("nav", navController.graph.toString())
 //
-//                    val navGraph = navController.graph
-//                    navGraph.setStartDestination(R.id.studentFragment)
-//                    navController.setGraph(navGraph.id)
-////                    navController.setGraph(navGraph)
-//
-////                    val navGraph = navController.getNavigationGraph()
-////                    val navInflater = NavInflater.inflate(this, navController.getNavInflater())
-//////                    val navGraph = navInflater.inflate(navController.navGraph.id)
-////
-////                    navGraph.setStartDestination(R.id.profesorFragment)
-////                    navController.setGraph(navGraph)
-//                    startActivity(Intent(this, StudentFragment::class.java))
-//                } else if (user.rol == "Profesor") {
-//                    // Navigate to the ProfessorFragment
-//
-//                    val navGraph = navController.graph
-//                    navGraph.setStartDestination(R.id.profesorFragment)
-//                    navController.setGraph(navGraph.id)
-//
-//                    startActivity(Intent(this, ProfesorFragment::class.java))
-//                }
-//            } else {
-//                // User doesn't exist or has an empty 'rol'
-//                // Handle this case, e.g., show an error message or go to a default screen
-//                // For now, we just navigate to the MainActivity
-//                startActivity(Intent(this, MainActivity::class.java))
-//            }
-//            finish()
-//        })
+            } else if (viewModel.currentUserDB.value!!.rol == "Profesor") {
+                // Navigate to the ProfessorFragment
+                navController = findNavController(R.id.nav_host_fragment)
+                navController.navigate(R.id.profesorFragment)
 
-//        viewModel.currentUserDB.observe(this, Observer { user ->
-//            // Check if the user exists and has a non-null and non-empty 'rol' property
-//            if (user != null && user.rol.isNotNull()) {
-//                val navController = findNavController(R.id.nav_host_fragment)
-//
-//                if (user.rol == "Estudiante") {
-//                    Log.e("estudiante correcto", "estu")
-//
-//                    navController.navigate(R.id.studentFragment)
-////                    startActivity(Intent(this, MainActivity::class.java))
-//
-//                } else if (user.rol == "Profesor") {
-//                    Log.e("profesor correcto", "prof")
-//                    navController.navigate(R.id.profesorFragment)
-////                    startActivity(Intent(this, MainActivity::class.java))
-//
-////
-//                }
-//            } else {
-//                // User doesn't exist or has an empty 'rol'
-//                // Handle this case, e.g., show an error message or go to a default screen
-//                // For now, we just navigate to the MainActivity
-//                startActivity(Intent(this, MainActivity::class.java))
-//            }
-//            finish()
-//        })
+                Log.e("nav", navController.graph.toString())
+                Log.e("something", "algo")
+
+
+
+            }
+        }
+        Log.e("database", viewModel.currentUserDB.value.toString())
+
+        viewModel.currentUserDB.observe(this) { user ->
+            Log.e("database2", user.toString())
+
+            Log.e("something", "algo $user")
+
+            // Check if the user exists and has a non-null and non-empty 'rol' property
+            if (user != null && user.rol.isNotNull()) {
+                if (user.rol == "Estudiante") {
+                    // Navigate to the StudentFragment
+                    Log.e("something", "algo")
+                    navController = findNavController(R.id.nav_host_fragment)
+                    navController.navigate(R.id.studentFragment)
+
+//                    startActivity(Intent(this, MainActivity::class.java))
+                } else if (user.rol == "Profesor") {
+                    Log.e("something", "algo")
+
+                    // Navigate to the ProfessorFragment
+                    navController = findNavController(R.id.nav_host_fragment)
+                    navController.navigate(R.id.profesorFragment)
+
+                    Log.e("nav", navController.graph.toString())
+
+
+                }
+            }
+        }
+
 
     }
 

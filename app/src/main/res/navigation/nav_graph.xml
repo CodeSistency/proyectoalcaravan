@@ -118,6 +118,13 @@
         </action>
         <argument android:name="profile"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_profileFragment_to_login"
+            app:destination="@id/login"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_enter_anim"
+            app:popExitAnim="@anim/nav_default_enter_anim" />
 
     </fragment>
     <fragment

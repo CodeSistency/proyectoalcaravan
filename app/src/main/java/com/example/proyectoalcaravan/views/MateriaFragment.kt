@@ -67,6 +67,9 @@ import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.componentes.Header
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class MateriaFragment : Fragment() {
 
@@ -93,6 +96,11 @@ class MateriaFragment : Fragment() {
 
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.activitiesListById.postValue(arrayListOf())
     }
 
     @Composable
@@ -336,7 +344,7 @@ class MateriaFragment : Fragment() {
 
         val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
 
-
+        var materiaId = viewModel.currentMateria.value?.id
 
 
         Column {
@@ -596,15 +604,34 @@ class MateriaFragment : Fragment() {
                                     onClick = {
 
                                         if (!tituloAsignacion.isNullOrEmpty() && !descripcionAsignacion.isNullOrEmpty() && !viewModel?.birthday?.value.isNullOrEmpty()){
-                                            viewModel.createActivity(
-                                                Actividad(
-                                                    idClass = viewModel.currentMateria.value!!.id,
-                                                    title = tituloAsignacion,
-                                                    description = descripcionAsignacion,
-                                                    date = viewModel.birthday.value,
 
-                                                    )
-                                            )
+                                            val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale("es", "ES"))
+                                            var isDateFormatValid = true
+
+                                            try {
+                                                dateFormat.parse(viewModel.birthday.value)
+                                            } catch (e: ParseException) {
+                                                isDateFormatValid = false
+                                            }
+
+                                            if (isDateFormatValid){
+                                                viewModel.createActivity(
+                                                    Actividad(
+                                                        idClass = viewModel.currentMateria.value!!.id,
+                                                        title = tituloAsignacion,
+                                                        description = descripcionAsignacion,
+                                                        date = viewModel.birthday.value,
+
+                                                        )
+                                                )
+                                            }else{
+                                                viewModel.showToast("Coloca una fecha", requireContext())
+
+                                            }
+
+                                            if (materiaId != null) {
+                                                viewModel.getActivitiesById(materiaId)
+                                            }
 
                                         }else{
                                             viewModel.showToast("Rellene todos los campos", requireContext())

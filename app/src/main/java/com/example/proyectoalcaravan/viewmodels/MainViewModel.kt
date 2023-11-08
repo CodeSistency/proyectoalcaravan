@@ -34,6 +34,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var updatedUser = MutableLiveData<User>()
     var currentUserDB = MutableLiveData<UserDB?>()
 
+
+
     //Listas de datos
     var userList = MutableLiveData<List<User>>()
     var userStudentsList = MutableLiveData<List<User>>()
@@ -340,6 +342,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 if (response.isSuccessful) {
                     // Handle successful response
+                    //Checkear esto
+                    currentUser.postValue(response.body())
                     updatedUser.postValue(response.body())
                     val user = response.body()
                     Log.e("Get User by ID", "User: $user")
@@ -474,6 +478,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<Actividad>, response: Response<Actividad>) {
                 if (response.isSuccessful) {
                     getAllActivities()
+                    getUserById(currentUser.value?.id ?: 10000)
+                    currentMateria.value?.let { getActivitiesById(it.id) }
                     // Handle successful response
                     Log.e("Create Actividad", "Actividad created successfully")
                 } else {
@@ -543,20 +549,45 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             try {
                 var userDB = repository.getUserByIdDB(userId)
                 currentUserDB.postValue(userDB)
-                Log.e("User database", "User Database ${userDB}")
+                Log.e("User database", "User Database ${currentUserDB}")
             } catch (e: Exception) {
                 Log.e("UserDatabase error", "Error user: ${e.message}")
             }
         }
     }
+
+//    fun UpdateUserDB(userId: Int) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                var userDB = repository.getUserByIdDB(userId)
+//                currentUserDB.postValue(userDB)
+//                Log.e("User database", "User Database ${currentUserDB}")
+//            } catch (e: Exception) {
+//                Log.e("UserDatabase error", "Error user: ${e.message}")
+//            }
+//        }
+//    }
     fun createUserDB(user: UserDB) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.createUserDB(user)
+                currentUserDB.postValue(user)
+
                 Log.e("User database created", "User created")
             } catch (e: Exception) {
                 Log.e("UserDatabase error", "Error creating user: ${e.message}")
             }
         }
     }
+    fun deleteUserDB(user: UserDB) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.deleteUserDB(user)
+                Log.e("User database deleted", "User deleted")
+            } catch (e: Exception) {
+                Log.e("UserDatabase error", "Error creating user: ${e.message}")
+            }
+        }
+    }
 }
+

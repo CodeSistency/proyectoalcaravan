@@ -12,10 +12,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentLoginBinding
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
+import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 
 
@@ -39,7 +41,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        viewModel.getUserDB(1)
         viewModel.getAllUsers()
         viewModel.getUserStudents("Estudiante")
         viewModel.getAllMaterias()
@@ -51,25 +53,36 @@ class LoginFragment : Fragment() {
         }
 
         binding.loginBtn.setOnClickListener{
-
+            viewModel.getAllUsers()
 
             val email = binding.etEmail.text.toString()
             val password = binding.password.text.toString()
+            if (isOnline(requireContext())){
+                val isUserValid = isUserValid(email, password)
 
-            val isUserValid = isUserValid(email, password)
+                if (isUserValid != null) {
 
-            if (isUserValid != null) {
-                viewModel.createUserDB(UserDB(1, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
 
-                if (isUserValid.rol == "Estudiante"){
-                    view.findNavController().navigate(R.id.action_login_to_studentFragment)
+                    viewModel.createUserDB(UserDB(1, isUserValid.id, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
+
+
+                    if (isUserValid.rol == "Estudiante"){
+                        view.findNavController().navigate(R.id.action_login_to_studentFragment)
+                    } else {
+                        view.findNavController().navigate(R.id.action_login_to_profesorFragment)
+
+                    }
                 } else {
-                    view.findNavController().navigate(R.id.action_login_to_profesorFragment)
-
+                    Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
+            }else{
+                Toast.makeText(requireContext(), "No hay conexión a internet", Toast.LENGTH_SHORT).show()
+
             }
+
+
+
+
 
         }
 

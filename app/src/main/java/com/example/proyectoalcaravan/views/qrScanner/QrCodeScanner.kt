@@ -2,6 +2,7 @@ package com.example.proyectoalcaravan.views.qrScanner
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import android.util.Size
 import android.view.View
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,8 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
+import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.views.MateriaFragmentDirections
+import com.example.proyectoalcaravan.views.profesor.ProfesorFragmentDirections
 
 @Composable
 fun QrCodeScanner(view: View) {
@@ -62,6 +66,9 @@ fun QrCodeScanner(view: View) {
             hasCamPermission = granted
         }
     )
+    LaunchedEffect(code){
+        Log.e("scanner", "scaneado")
+    }
     LaunchedEffect(key1 = true) {
         launcher.launch(Manifest.permission.CAMERA)
     }
@@ -69,18 +76,20 @@ fun QrCodeScanner(view: View) {
         modifier = Modifier.fillMaxSize()
     ) {
 
-//        Text(
-//            text = code,
-//            fontSize = 20.sp,
-//            fontWeight = FontWeight.Bold,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(62.dp)
-//                .background(Color.Blue)
-//        )
-        if (!code.isNullOrEmpty()){
-            view?.findNavController()?.navigate(MateriaFragmentDirections.actionMateriaFragmentToAsignacionFragment(code.toInt() ?: 100000))
-        }
+        Text(
+            text = code,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(62.dp)
+                .background(Color.White)
+        )
+//        if (!code.isNullOrEmpty()){
+////            var navController = findNavController(R.id.nav_host_fragment)
+//            Log.e("scanner", "scaneado")
+//            view?.findNavController()?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(code.toInt() ?: 100000))
+//        }
         if (hasCamPermission) {
             AndroidView(
                 factory = { context ->
@@ -117,9 +126,15 @@ fun QrCodeScanner(view: View) {
                     }
                     previewView
                 },
-//                modifier = Modifier.weight(1f)
-                modifier = Modifier.fillMaxSize()
-
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = code,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp)
             )
 
         }

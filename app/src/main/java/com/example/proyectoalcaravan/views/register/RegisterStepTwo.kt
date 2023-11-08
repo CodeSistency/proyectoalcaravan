@@ -178,7 +178,7 @@ class RegisterStepTwo : Fragment() {
                         val downloadUri = uri.toString()
                         user.imageProfile = downloadUri
                         viewModel.createUser(user)
-                        viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
+//                        viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
                         viewModel.getAllUsers()
                         viewModel.profileImage.postValue(null)
                         view

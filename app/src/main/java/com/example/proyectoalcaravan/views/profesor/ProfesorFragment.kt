@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -83,17 +84,21 @@ import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.ProfileFragmentArgs
 import com.example.proyectoalcaravan.views.qrScanner.QrCodeScanner
+import com.example.proyectoalcaravan.views.register.RegisterStepTwoArgs
+import com.example.proyectoalcaravan.views.scanner.Scanner
 
 //import kotlinx.coroutines.launch
 
 
-class ProfesorFragment : Fragment() {
+@ExperimentalGetImage class ProfesorFragment : Fragment() {
 
     private val viewModel by activityViewModels<MainViewModel>()
 
@@ -571,7 +576,8 @@ class ProfesorFragment : Fragment() {
                 selected = false,
                 onClick = {
                     view?.findNavController()
-                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 100000))
+                        ?.navigate(R.id.action_profesorFragment_to_clasesFragment)
+
                 },
                 icon = {
                     Icon(imageVector = Icons.Default.List, contentDescription = "Actividades")
@@ -581,7 +587,7 @@ class ProfesorFragment : Fragment() {
                 selected = false,
                 onClick = {
                     view?.findNavController()
-                        ?.navigate(R.id.action_profesorFragment_to_clasesFragment)
+                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 100000))
                 },
                 icon = {
                     Icon(Icons.Default.AccountCircle, contentDescription = "Usuario")
@@ -659,7 +665,10 @@ class ProfesorFragment : Fragment() {
                                     .fillMaxWidth()
                                     .background(Color.White)
                             ) {
-                                view?.let { it1 -> QrCodeScanner(it1) }
+//                                view?.let { it1 -> QrCodeScanner(it1) }
+//                                view?.let { it1 -> Scanner(requireView()) }
+                                view?.let { it1 -> Scanner(requireView()) }
+
                             }
 
 
