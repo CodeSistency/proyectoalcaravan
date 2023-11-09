@@ -34,8 +34,6 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var updatedUser = MutableLiveData<User>()
     var currentUserDB = MutableLiveData<UserDB?>()
 
-
-
     //Listas de datos
     var userList = MutableLiveData<List<User>>()
     var userStudentsList = MutableLiveData<List<User>>()
@@ -45,6 +43,17 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var activitiesListById = MutableLiveData<List<Actividad>>()
 
     val errorMessage = MutableLiveData<String>()
+
+    //Variables filtradas
+    var alphabetOrder = userStudentsList.value?.sortedBy { it.firstName }
+    var edadOrder = userStudentsList.value?.sortedBy { it.edad }
+    var birthdayOrder = userStudentsList.value?.sortedBy { it.birthday }
+    var createdOrder = userStudentsList.value?.sortedBy { it.created }
+
+
+
+
+
 
     //Data to Register
 

@@ -76,6 +76,9 @@ import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.DatePickerFragment
 import com.example.proyectoalcaravan.views.MpaChartsFragment
+import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
+import com.example.proyectoalcaravan.views.charts.GenderPerformanceChart
+import com.example.proyectoalcaravan.views.charts.LineChart
 import com.example.proyectoalcaravan.views.qrScanner.QrCodeScanner
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
@@ -213,11 +216,15 @@ class StudentFragment : Fragment() {
                     viewModel.getActivitiesById(item.id)
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
-                    if (viewModel.currentUser.value?.rol == "Estudiante"){
+                    if (viewModel.currentUser.value?.rol == "Estudiante") {
 
                         view
                             ?.findNavController()
-                            ?.navigate(StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(user?.id ?: 1000))
+                            ?.navigate(
+                                StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+                                    user?.id ?: 1000
+                                )
+                            )
                     } else {
                         viewModel.getMateriaById(item.id)
                         viewModel.currentMateria.postValue(item)
@@ -355,13 +362,17 @@ class StudentFragment : Fragment() {
 //                SearchBar()
                 ListContent()
 
-                AndroidView(
-                    factory = { context ->
-                        val fragment = MpaChartsFragment()
-                        val inflater = LayoutInflater.from(context)
-                        fragment.onCreateView(inflater, null, null)
-                    }
-                )
+//                LineChart(viewModel = viewModel)
+//                GenderPerformanceChart(viewModel = viewModel)
+                AgeRangePerformanceChart(viewModel = viewModel)
+
+//                AndroidView(
+//                    factory = { context ->
+//                        val fragment = MpaChartsFragment()
+//                        val inflater = LayoutInflater.from(context)
+//                        fragment.onCreateView(inflater, null, null)
+//                    }
+//                )
 
 
 //                newFragment.show(childFragmentManager, "datePicker")

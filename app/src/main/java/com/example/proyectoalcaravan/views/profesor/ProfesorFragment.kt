@@ -2,12 +2,12 @@ package com.example.proyectoalcaravan.views.profesor
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.camera.core.ExperimentalGetImage
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,16 +46,13 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -77,22 +73,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
-import com.example.proyectoalcaravan.views.ProfileFragmentArgs
-import com.example.proyectoalcaravan.views.qrScanner.QrCodeScanner
-import com.example.proyectoalcaravan.views.register.RegisterStepTwoArgs
 import com.example.proyectoalcaravan.views.scanner.Scanner
 
 //import kotlinx.coroutines.launch
@@ -560,6 +551,26 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
     }
 
     @Composable
+    fun ListContentOrderAlphabet(userList: MutableLiveData<List<User>>) {
+        Log.e("alphabet", userList.toString())
+        val users by userList.observeAsState(initial = emptyList())
+//        val alphabet = users.sortedBy { it.firstName }
+//        val alphabet = users.sortedByDescending { it.firstName }
+        val alphabet = users.sortedBy { it.firstName }
+
+
+
+        LazyColumn(
+            modifier = Modifier.padding(bottom = 50.dp)
+        ) {
+            items(alphabet) { user ->
+                ListItem(item = user)
+            }
+
+        }
+    }
+
+    @Composable
     fun BottomAppBarContent() {
         var user = viewModel.currentUser.value
         BottomAppBar(
@@ -652,8 +663,9 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 SearchBar()
+//                ListContent(userList = viewModel.userStudentsList)
 
-                ListContent(userList = viewModel.userStudentsList)
+                ListContentOrderAlphabet(userList = viewModel.userStudentsList)
 
                 if (isModalVisible) {
                     Dialog(

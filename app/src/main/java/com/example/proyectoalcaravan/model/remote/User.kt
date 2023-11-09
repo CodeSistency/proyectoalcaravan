@@ -5,6 +5,7 @@ import java.time.LocalDate
 data class User(
     val birthday: String? = "",
     val cedula: Int? = null,
+    val edad: Int? = null,
     val email: String? = "",
     val firstName: String? = "",
     val gender: String? = "masculino",

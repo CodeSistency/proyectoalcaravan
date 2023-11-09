@@ -22,6 +22,7 @@ import com.example.proyectoalcaravan.views.ImagePickerDialogFragment
 import com.google.firebase.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.storage
+import java.time.LocalDate
 
 
 class RegisterStepTwo : Fragment() {
@@ -163,7 +164,8 @@ class RegisterStepTwo : Fragment() {
                     listActivities = viewModel.listOfActivities.value,
                     lgn = viewModel.longitude.value,
                     rol = viewModel.rol.value,
-                    gender = viewModel.genero.value
+                    gender = viewModel.genero.value,
+                    created = LocalDate.now(),
                 )
 
                 // Define a reference to Firebase Storage
