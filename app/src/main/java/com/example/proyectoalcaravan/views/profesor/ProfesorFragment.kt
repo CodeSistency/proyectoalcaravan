@@ -41,18 +41,23 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,6 +72,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -85,6 +91,8 @@ import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.scanner.Scanner
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 //import kotlinx.coroutines.launch
 
@@ -106,6 +114,7 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                viewModel.getUserStudents("Estudiante")
                 ProfesorContent()
 
             }
@@ -120,8 +129,9 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
     }
 
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun SearchBar() {
+    fun SearchBar(scope: CoroutineScope, state: ModalBottomSheetState) {
 
         var expanded by remember { mutableStateOf(false) }
         var selectedOption by remember { mutableStateOf("todos") }
@@ -135,6 +145,7 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
         var nombreSearch by remember { mutableStateOf(String()) }
         var emailSearch by remember { mutableStateOf(String()) }
         var edadSearch by remember { mutableStateOf(String()) }
+
 
 
 
@@ -186,7 +197,8 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
             }
 
             IconButton(
-                onClick = { expanded = true },
+                onClick = { expanded = true
+                    scope.launch { state.show() }},
                 modifier = Modifier.padding(4.dp)
             ) {
                 Icon(
@@ -281,6 +293,9 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
 
 
         }
+
+
+
 
         if (isModalVisibleEdad) {
             Dialog(
@@ -381,6 +396,20 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
                     }
                 }
             )
+        }
+    }
+
+    @Composable
+    fun FilterIconButton(icon: ImageVector, text: String) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { /* Handle button click */ }) {
+                Icon(imageVector = icon, contentDescription = null)
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = text)
         }
     }
 
@@ -541,19 +570,37 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
 
     @Composable
     fun ListContent(userList: MutableLiveData<List<User>>) {
-        val users by userList.observeAsState(initial = emptyList())
+        Log.e("user profesor fragment", userList.value.toString())
+        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
+        Log.e("actividades", users.toString())
 
-        LazyColumn {
-            items(users) { user ->
-                ListItem(item = user)
-            }
+
+
+
+            LazyColumn {
+                items(users) { user ->
+                    Log.e("user specify", user.toString())
+
+                    ListItem(item = user)
+                }
+
         }
+
+
+
     }
 
     @Composable
     fun ListContentOrderAlphabet(userList: MutableLiveData<List<User>>) {
+
         Log.e("alphabet", userList.toString())
-        val users by userList.observeAsState(initial = emptyList())
+//        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
+        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
+
+        Log.e("users viewModel", viewModel.userStudentsList.value.toString())
+
+        Log.e("actividadesss", users.toString())
+
 //        val alphabet = users.sortedBy { it.firstName }
 //        val alphabet = users.sortedByDescending { it.firstName }
         val alphabet = users.sortedBy { it.firstName }
@@ -564,6 +611,7 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
             modifier = Modifier.padding(bottom = 50.dp)
         ) {
             items(alphabet) { user ->
+                Log.e("user alphabet", "${user.toString()} ")
                 ListItem(item = user)
             }
 
@@ -624,7 +672,6 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun ProfesorContent() {
-//        var isBottomSheetOpen by remember { mutableStateOf(false) }
         var skipHalfExpanded by remember { mutableStateOf(false) }
         val state = rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
@@ -633,6 +680,10 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
         val scope = rememberCoroutineScope()
 
         var isModalVisible by remember { mutableStateOf(false) }
+
+        viewModel.getUserStudents("Estudiante")
+
+
 
         Scaffold(
             topBar = {
@@ -662,8 +713,8 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                SearchBar()
-//                ListContent(userList = viewModel.userStudentsList)
+                SearchBar(scope, state)
+                ListContent(userList = viewModel.userStudentsList)
 
                 ListContentOrderAlphabet(userList = viewModel.userStudentsList)
 
@@ -694,20 +745,68 @@ import com.example.proyectoalcaravan.views.scanner.Scanner
                     )
                 }
 
-                ModalBottomSheetLayout(sheetState = state,
 
-                    sheetContent = {
-
-
-//                        QrCodeScanner()
-
-                    }) {
-
-                }
             }
         }
 
 
+
+        ModalBottomSheetLayout(sheetState = state,
+            modifier = Modifier.background(Color.Transparent),
+
+            sheetContent = {
+
+
+                Column(
+                    modifier = Modifier
+
+                        .padding(top = 16.dp, end = 16.dp, start = 16.dp, bottom = 80.dp,)
+
+
+                ) {
+                    // Text and icon in the same row
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Filter by")
+                        Icon(painter = painterResource(R.drawable.ic_filters), contentDescription = null)
+                    }
+
+                    // Range input
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Slider(
+                        value = 15f,
+                        onValueChange = {},
+                        valueRange = 15f..40f,
+                        steps = 25,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Icon buttons
+                    Spacer(modifier = Modifier.height(16.dp))
+                    FilterIconButton(icon = Icons.Default.Person, text = "Age")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    FilterIconButton(icon = Icons.Default.Build, text = "Filter 2")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    FilterIconButton(icon = Icons.Default.Place, text = "Filter 3")
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = { /*TODO*/ },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp)) {
+                        Text(text = "Aplicar")
+                    }
+
+                }
+
+            }) {
+
+        }
     }
 
 

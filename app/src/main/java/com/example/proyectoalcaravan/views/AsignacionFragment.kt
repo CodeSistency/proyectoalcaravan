@@ -95,6 +95,7 @@ class AsignacionFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             Log.e("arg", args.student.toString())
             viewModel.getUserById(args.student)
+            viewModel.currentMateria.value?.id?.let { viewModel.getActivitiesById(it) }
             setContent {
                 AsignacionContent()
 
@@ -314,6 +315,7 @@ class AsignacionFragment : Fragment() {
     @Composable
     fun ListContentAsignacionGeneral(listOfActivities: MutableLiveData<List<Actividad>>) {
         val actividades by listOfActivities.observeAsState(initial = emptyList())
+        Log.e("actividades", actividades.toString())
 
         LazyColumn {
             items(actividades) { actividad ->

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -104,15 +105,18 @@ class MateriaFragment : Fragment() {
     }
 
     @Composable
-    fun ListContentUsers(userList: MutableLiveData<List<User>>, selectedUsers: MutableList<User>) {
-        val users by userList.observeAsState(initial = emptyList())
-//        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
-
-        LazyColumn {
-            items(users) { user ->
-                ListItemUser(user, selectedUsers)
-            }
-        }
+    fun ListContentUsers(userList: MutableLiveData<List<User>>, selectedUsers: MutableList<User>, userListSuscribed: MutableLiveData<Materia>) {
+      val users by userList.observeAsState(initial = emptyList())
+        val usersSuscribed by userListSuscribed.observeAsState()
+        val list = usersSuscribed?.listStudent ?: emptyList()
+//
+//        val usersSuscribedSet = list.toSet()
+//
+//        LazyColumn {
+//            items(users.filter { user -> usersSuscribedSet.contains(user) }) { user ->
+//                ListItemUser(user, selectedUsers)
+//            }
+//        }
 
         // You can use selectedUsers for your further processing.
     }
@@ -260,7 +264,7 @@ class MateriaFragment : Fragment() {
                 }
 
                 IconButton(
-                    onClick = {},
+                    onClick = {isModalVisible = true},
                     modifier = Modifier
                         .size(38.dp)
 //                        .background(Color.Red, CircleShape)
@@ -272,6 +276,81 @@ class MateriaFragment : Fragment() {
             }
 
 
+        }
+
+        if (isModalVisible) {
+            Dialog(
+                onDismissRequest = { isModalVisible = false },
+                content = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .background(Color.White)
+                                .width(500.dp)
+                                .height(300.dp),
+                            elevation = 8.dp
+
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Estas seguro que deseas eliminar este usuario",
+                                    style = MaterialTheme.typography.body2,
+                                    fontSize = 15.sp,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(10.dp)
+
+                                )
+                                Button(
+                                    onClick = {
+                                        val currentMateria = viewModel.currentMateria.value
+                                        if (currentMateria != null) {
+                                            val materiaId = currentMateria.id
+                                            val teacherId = currentMateria.idTeacher
+                                            val materiaName = currentMateria.name
+
+                                            // Filter out the selected user
+                                            val filteredUsers = currentMateria.listStudent?.filterNot { it.id == user.id }
+                                            Log.e("remove user", filteredUsers.toString())
+
+                                            // Update the Materia object with the filtered users
+                                            val materiaUser = Materia(
+                                                id = materiaId,
+                                                name = materiaName,
+                                                idTeacher = teacherId,
+                                                listStudent = filteredUsers
+                                            )
+
+                                            viewModel.updateMateria(materiaId, materiaUser)
+                                        }
+                                        isModalVisible = false
+                                    },
+
+                                    ) {
+                                    Text(text = "Eliminar")
+                                }
+                                Button(onClick = {
+
+
+                                    isModalVisible = false
+                                }) {
+                                    Text(text = "Cancelar")
+
+                                }
+                            }
+
+                        }
+                    }
+                }
+            )
         }
     }
 
@@ -470,7 +549,7 @@ class MateriaFragment : Fragment() {
                                         .fillMaxWidth()
                                 ) {
 
-                                        ListContentUsers(userList = viewModel.userList, selectedUsers)
+                                        ListContentUsers(userList = viewModel.userList, selectedUsers, userListSuscribed = viewModel.currentMateria)
 
                                 }
                                 Button(

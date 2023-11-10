@@ -4,7 +4,9 @@ plugins {
 //    id("kotlin-kapt")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+
     id("androidx.navigation.safeargs.kotlin")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -86,6 +88,7 @@ dependencies {
     implementation("androidx.compose.material:material:1.4.3")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
     implementation ("androidx.compose.ui:ui")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
     implementation ("androidx.compose.foundation:foundation")
     implementation ("androidx.compose.foundation:foundation-layout")
     implementation("androidx.compose:compose-bom:2022.10.00")
@@ -157,6 +160,16 @@ dependencies {
 
     //MPAandroidCharts
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    //Firebase
+//   implementation platform("com.google.firebase:firebase-bom:32.5.0")
+
+    platform("com.google.firebase:firebase-bom:32.5.0")
+
+    // Add the dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation ("com.google.firebase:firebase-crashlytics-ktx:18.5.1")
+    implementation ("com.google.firebase:firebase-analytics-ktx:21.5.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

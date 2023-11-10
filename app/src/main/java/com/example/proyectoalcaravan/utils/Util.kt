@@ -1,8 +1,13 @@
 package com.example.proyectoalcaravan.utils
 
+import android.Manifest
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 fun isOnline (context: Context): Boolean {
     val connectivityManager =  context.getSystemService (Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -19,3 +24,4 @@ fun isOnline (context: Context): Boolean {
     }
     return false
 }
+

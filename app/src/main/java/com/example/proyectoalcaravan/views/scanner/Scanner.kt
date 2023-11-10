@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -55,6 +56,11 @@ fun Scanner(view: View) {
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
             hasCamPermission = granted
+
+            if (!granted) {
+                // User denied the permission, show a toast or handle accordingly
+                Toast.makeText(context, "Permiso de la camara denegado, vaya a los ajustes", Toast.LENGTH_SHORT).show()
+            }
         }
     )
     LaunchedEffect(qrCodeValue){
@@ -64,8 +70,11 @@ fun Scanner(view: View) {
 
 
 
+
 LaunchedEffect(key1 = true) {
-    launcher.launch(Manifest.permission.CAMERA)
+    if (!hasCamPermission){
+        launcher.launch(Manifest.permission.CAMERA)
+    }
 }
 
 if (hasCamPermission) {
@@ -127,5 +136,7 @@ if (hasCamPermission) {
         view?.findNavController()
             ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(qrCodeValue.toInt() ?: 100000))
     }
+}else{
+
 }
 }

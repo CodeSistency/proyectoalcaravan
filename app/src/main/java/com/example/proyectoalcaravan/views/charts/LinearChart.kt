@@ -25,7 +25,7 @@ fun LineChart(viewModel: MainViewModel) {
     val currentUser by viewModel.currentUser.observeAsState()
 
     currentUser?.let { user ->
-        val activities = user.listActivities?.filter { it?.idClass == 2 }
+        val activities = user.listActivities?.filter { it?.idClass == viewModel.currentMateria.value?.id }
         val entries = activities?.mapIndexed { index, activity ->
             activity?.calificationRevision?.let { Entry((index + 1).toFloat(), it.toFloat()) }
         }

@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.getAllUsers()
         viewModel.getAllActivities()
         viewModel.getAllMaterias()
+        viewModel.getUserStudents("Estudiante")
 
 
         if (viewModel.currentUserDB.value != null && viewModel.currentUserDB?.value!!.rol.isNotNull()) {
@@ -51,13 +52,17 @@ class MainActivity : AppCompatActivity() {
                 // Navigate to the StudentFragment
                 Log.e("something", "algo")
                 navController = findNavController(R.id.nav_host_fragment)
+//                navController.navigate(R.id.studentFragment)
                 navController.navigate(R.id.studentFragment)
+
 //                    Log.e("nav", navController.graph.toString())
 //
             } else if (viewModel.currentUserDB.value!!.rol == "Profesor") {
                 // Navigate to the ProfessorFragment
                 navController = findNavController(R.id.nav_host_fragment)
+//                navController.navigate(R.id.profesorFragment)
                 navController.navigate(R.id.profesorFragment)
+
 
                 Log.e("nav", navController.graph.toString())
                 Log.e("something", "algo")

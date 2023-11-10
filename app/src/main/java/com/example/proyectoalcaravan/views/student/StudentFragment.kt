@@ -361,10 +361,18 @@ class StudentFragment : Fragment() {
             ) {
 //                SearchBar()
                 ListContent()
+                LazyColumn{
+                    item { 
+                        LineChart(viewModel = viewModel)
+                    }
+                    item { 
+                        GenderPerformanceChart(viewModel = viewModel)
+                    }
+                }
 
 //                LineChart(viewModel = viewModel)
 //                GenderPerformanceChart(viewModel = viewModel)
-                AgeRangePerformanceChart(viewModel = viewModel)
+//                AgeRangePerformanceChart(viewModel = viewModel)
 
 //                AndroidView(
 //                    factory = { context ->
