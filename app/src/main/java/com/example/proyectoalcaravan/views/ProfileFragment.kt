@@ -24,9 +24,11 @@ import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -36,8 +38,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
@@ -151,7 +155,7 @@ class ProfileFragment : Fragment() {
                 .fillMaxWidth()
                 .height(200.dp)
                 .background(
-                    Color.Blue.copy(alpha = 0.8F),
+                    color = colorResource(id = R.color.mostaza),
                     shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
 
                     )
@@ -336,6 +340,7 @@ class ProfileFragment : Fragment() {
                 )
             }
         ) {
+           
             LazyColumn{
                 item {
                     ProfileCard(currentUser, userDB)
@@ -345,60 +350,132 @@ class ProfileFragment : Fragment() {
                     Column {
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        if (args.isNotNull()){
-                            Text(text = "Email: ${updatedUser.value?.email}",
-                                style = MaterialTheme.typography.h6,
-                                modifier = Modifier.padding(10.dp),
-                                color = Color.DarkGray
+                        if (args.isNotNull() && updatedUser.isNotNull()){
+                            Text(text = "Email",
+                                style = MaterialTheme.typography.h3,
+                                color = Color.LightGray
                             )
+                            OutlinedButton(
+                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "${updatedUser.value?.email}")
+                            }
+                            
+//                            Text(text = "Email: ${updatedUser.value?.email}",
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//                            )
 
-
-
-                            Text(text = "Cedula: ${updatedUser.value?.cedula}",
-                                style = MaterialTheme.typography.h6,
-                                modifier = Modifier.padding(10.dp),
-                                color = Color.DarkGray
+                            Text(text = "Cedula",
+                                style = MaterialTheme.typography.h3,
+                                color = Color.LightGray
                             )
+                            OutlinedButton(
+                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "${updatedUser.value?.cedula}")
+                            }
+//                            Text(text = "Cedula: ${updatedUser.value?.cedula}",
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//                            )
 
 
-                            Text(text = "Telefono: ${updatedUser.value?.phone}",
-
-                                style = MaterialTheme.typography.h6,
-                                modifier = Modifier.padding(10.dp),
-                                color = Color.DarkGray
-
+//                            Text(text = "Telefono: ${updatedUser.value?.phone}",
+//
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//
+//                            )
+                            Text(text = "Telefono",
+                                style = MaterialTheme.typography.h3,
+                                color = Color.LightGray
                             )
+                            OutlinedButton(
+                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "0${updatedUser.value?.phone}")
+                            }
 
                         }else{
-                            Text(text = "Email: ${userDB?.email ?: currentUser?.email.toString()}",
-                                style = MaterialTheme.typography.h6,
-                                modifier = Modifier.padding(10.dp),
-                                color = Color.DarkGray
+                            Text(text = "Email",
+                                style = MaterialTheme.typography.h3,
+                                color = Color.LightGray
                             )
-                            Text(text = "Cedula: ${userDB?.cedula ?: currentUser?.cedula.toString()}",
-                                style = MaterialTheme.typography.h6,
-                                modifier = Modifier.padding(10.dp),
-                                color = Color.DarkGray
-                            )
-                            Text(text = "Telefono: ${userDB?.phone ?: currentUser?.phone.toString()}",
+                            OutlinedButton(
+                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "${currentUser?.email ?: userDB?.email}")
+                            }
 
-                                style = MaterialTheme.typography.h6,
-                                modifier = Modifier.padding(10.dp),
-                                color = Color.DarkGray
+//                            Text(text = "Email: ${updatedUser.value?.email}",
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//                            )
 
+                            Text(text = "Cedula",
+                                style = MaterialTheme.typography.h3,
+                                color = Color.LightGray
                             )
+                            OutlinedButton(
+                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "${currentUser?.cedula ?: userDB?.cedula}")
+                            }
+//                            Text(text = "Cedula: ${updatedUser.value?.cedula}",
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//                            )
+
+
+//                            Text(text = "Telefono: ${updatedUser.value?.phone}",
+//
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//
+//                            )
+                            Text(text = "Telefono",
+                                style = MaterialTheme.typography.h3,
+                                color = Color.LightGray
+                            )
+                            OutlinedButton(
+                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "0${currentUser?.phone ?: userDB?.phone}")
+                            }
+                            
+//                            Text(text = "Email: ${userDB?.email ?: currentUser?.email.toString()}",
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//                            )
+//                            Text(text = "Cedula: ${userDB?.cedula ?: currentUser?.cedula.toString()}",
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//                            )
+//                            Text(text = "Telefono: ${userDB?.phone ?: currentUser?.phone.toString()}",
+//
+//                                style = MaterialTheme.typography.h6,
+//                                modifier = Modifier.padding(10.dp),
+//                                color = Color.DarkGray
+//
+//                            )
 
                         }
 
 
                     }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Ubicación",
+                            fontSize = 25.sp,
+                            )
+                       Icon(painterResource(id = R.drawable.ic_location), contentDescription = null)
+                    }
                     SmallMap(currentUser, userDB)
-                    LineChart(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp),
-                        lineChartData = lineChartData
-                    )
+                 
                 }
 
             }

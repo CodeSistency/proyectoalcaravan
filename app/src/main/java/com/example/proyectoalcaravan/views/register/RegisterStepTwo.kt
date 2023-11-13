@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.compose.material.darkColors
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
@@ -86,11 +87,19 @@ class RegisterStepTwo : Fragment() {
                 val lastName = dataUser.lastName ?: ""
                 val cedula = dataUser.cedula.toString() // Convert to String
                 val phone = dataUser.phone.toString() // Convert to String
+                val edad = dataUser.edad.toString()
+                val lat = dataUser.lat.toString()
+                val lgn = dataUser.lgn.toString()
+                val image = dataUser.imageProfile.toString()
 
                 binding.etNombre.setText(firstName)
                 binding.etApellido.setText(lastName)
+            binding.etCedula.isEnabled = false
                 binding.etCedula.setText(cedula)
                 binding.etTelefono.setText(phone)
+//            binding.btnImagePicker.setImageURI(image)
+            binding.etEdad.setText(edad)
+
 
         }
 

@@ -179,7 +179,7 @@ fun ListItem(item: Materia) {
                 tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .absolutePadding(top = (-30).dp, right = (-30).dp)
+//                    .absolutePadding(top = (-30).dp, right = (-30).dp)
             )
         }
     }

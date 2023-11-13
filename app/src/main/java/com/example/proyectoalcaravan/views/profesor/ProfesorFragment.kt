@@ -59,8 +59,12 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +77,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
@@ -90,6 +95,7 @@ import androidx.core.app.ComponentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
+import co.yml.charts.common.extensions.isNotNull
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
@@ -133,8 +139,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
     @Composable
     fun Title(user: User) {
+        var userDB = viewModel.currentUserDB.value
         // Replace "Your Title" with your actual title string
-        Text(text = "Hola ${user.firstName}",
+        Text(text = "Hola ${user.firstName ?: userDB?.firstName}",
             style = MaterialTheme.typography.h1,
             fontSize = 30.sp)
     }
@@ -436,6 +443,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     fun ListItem(item: User, isPermissionGranted: Boolean) {
 
         var isModalVisible by remember { mutableStateOf(false) }
+        var isModalContactVisible by remember { mutableStateOf(false) }
+
         val ctx = LocalContext.current
 
 
@@ -499,18 +508,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     }
 
                     IconButton(
-                        onClick = { item.phone?.let {
-                            if (isPermissionGranted || viewModel.checkContactPermission(requireActivity())) {
-                                // Permission already granted, proceed with the contact operation
-                                viewModel.insertContact(requireActivity(), item.firstName?: "", item.phone.toString())                            } else {
-                                // Permission not granted, request it
-                                ActivityCompat.requestPermissions(
-                                    context as ComponentActivity,
-                                    arrayOf(Manifest.permission.WRITE_CONTACTS),
-                                    MY_PERMISSIONS_REQUEST_WRITE_CONTACTS
-                                )
-                            }
-                             } },
+                        onClick = {isModalContactVisible = true },
                         modifier = Modifier
                             .size(38.dp)
 //                        .background(Color.Red, CircleShape)
@@ -541,30 +539,28 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
             if (isModalVisible) {
                 Dialog(
+
                     onDismissRequest = { isModalVisible = false },
                     content = {
                         Column(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
+                                .background(Color.White)
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .shadow(elevation = 10.dp, shape = RectangleShape),
+
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Card(
-                                modifier = Modifier
-                                    .background(Color.White)
-                                    .width(500.dp)
-                                    .height(300.dp),
-                                elevation = 8.dp
 
-                            ) {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
                                         text = "Estas seguro que deseas eliminar este usuario",
-                                        style = MaterialTheme.typography.body2,
-                                        fontSize = 15.sp,
+                                        style = MaterialTheme.typography.subtitle1,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 25.sp,
                                         modifier = Modifier
                                             .align(Alignment.CenterHorizontally)
                                             .padding(10.dp)
@@ -587,7 +583,87 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                     }
                                 }
 
+
+                        }
+                    }
+                )
+            }
+
+            if (isModalContactVisible) {
+                Dialog(
+                    onDismissRequest = { isModalContactVisible = false },
+                    content = {
+                        Column(
+                            modifier = Modifier
+                                .background(Color.White)
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .shadow(elevation = 10.dp, shape = RectangleShape),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Estas seguro que desea agregar añadir este contacto",
+                                    style = MaterialTheme.typography.subtitle1,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 25.sp,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(10.dp)
+
+                                )
+
+                                Text(
+                                    text = "Nombre: ${item.firstName} ${item.lastName}",
+                                    style = MaterialTheme.typography.h6,
+                                    fontSize = 18.sp,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(5.dp)
+
+                                )
+                                Text(
+                                    text = "Número: 0${item.phone}",
+                                    style = MaterialTheme.typography.h6,
+                                    fontSize = 18.sp,
+                                    modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(5.dp)
+
+                                )
+                                Button(
+                                    onClick = {
+                                        item.phone?.let {
+                                            if (isPermissionGranted || viewModel.checkContactPermission(requireActivity())) {
+                                                // Permission already granted, proceed with the contact operation
+                                                viewModel.insertContact(requireActivity(), item.firstName?: "", item.phone.toString())                            } else {
+                                                // Permission not granted, request it
+                                                ActivityCompat.requestPermissions(
+                                                    context as ComponentActivity,
+                                                    arrayOf(Manifest.permission.WRITE_CONTACTS),
+                                                    MY_PERMISSIONS_REQUEST_WRITE_CONTACTS
+                                                )
+                                            }
+                                        }
+                                        isModalContactVisible = false
+                                    },
+
+                                    ) {
+                                    Text(text = "Eliminar")
+                                }
+                                Button(onClick = {
+                                    isModalContactVisible = false
+                                }) {
+                                    Text(text = "Cancelar")
+
+                                }
                             }
+
+
                         }
                     }
                 )
@@ -599,28 +675,58 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
 
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContent(userList: MutableLiveData<List<User>>) {
 //        Log.e("user profesor fragment", userList.value.toString())
 //        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
 //        Log.e("actividades", users.toString())
         val users by userList.observeAsState(initial = emptyList())
+        val userStudents = viewModel.userStudentsList.observeAsState()
+
+        LaunchedEffect(key1 = true){
+            viewModel.setSearchQuery("")
+        }
 
         var isPermissionGranted by remember { mutableStateOf(false) }
+        var refresh = viewModel.refreshing.observeAsState()
 
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserStudents("Estudiante") })
 
+        if (users.isNullOrEmpty()){
+            Box(Modifier.pullRefresh(pullRefreshState)){
+                LazyColumn {
+                    if( userStudents != null){
+                        items(userStudents.value ?: emptyList()) { user ->
+                            Log.e("user specify", user.toString())
 
-            LazyColumn {
-                if(users != null){
-                    items(users) { user ->
-                        Log.e("user specify", user.toString())
-
-                        ListItem(item = user, isPermissionGranted)
+                            ListItem(item = user, isPermissionGranted)
+                        }
                     }
+
+
                 }
+                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+            }
+        }else{
+            Box(Modifier.pullRefresh(pullRefreshState)){
+                LazyColumn {
+                    if(users != null){
+                        items(users) { user ->
+                            Log.e("user specify", user.toString())
+
+                            ListItem(item = user, isPermissionGranted)
+                        }
+                    }
 
 
+                }
+                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+            }
         }
+
+
+
 
 
 
@@ -695,16 +801,16 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     Icon(imageVector = Icons.Default.List, contentDescription = "Actividades")
                 }
             )
-            BottomNavigationItem(
-                selected = false,
-                onClick = {
-                    view?.findNavController()
-                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 100000))
-                },
-                icon = {
-                    Icon(Icons.Default.AccountCircle, contentDescription = "Usuario")
-                }
-            )
+//            BottomNavigationItem(
+//                selected = false,
+//                onClick = {
+//                    view?.findNavController()
+//                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 100000))
+//                },
+//                icon = {
+//                    Icon(Icons.Default.AccountCircle, contentDescription = "Usuario")
+//                }
+//            )
         }
     }
 
@@ -731,7 +837,12 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 //                .wrapContentHeight()
                 .background(
 //                    Color.Blue.copy(alpha = 0.8F),
-                    colorResource(id = R.color.secondary),
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            colorResource(id = R.color.secondary),
+                            colorResource(id = R.color.primary)
+                        )
+                    ),
                     shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
 
                     )
@@ -1142,7 +1253,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     fun TabsHomeWithPagerScreen() {
         var selectedTabIndex by remember { mutableStateOf(0) }
 
-        val tabs = listOf("Listdo", "Rendimiento", "Metricas")
+        val tabs = listOf("Listado", "Rendimiento", "Metricas")
 
 
         // Pager state
@@ -1161,7 +1272,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.LightGray)
+//                    .background(color = Color.Black)
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -1192,9 +1303,15 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             ) { page ->
                 // Content for each tab
                 when (page) {
-                    0 -> ListContent(userList = filteredUserList )
-                    1 -> GenderPerformanceChart(viewModel = viewModel)
-                    2 -> AgeRangePerformanceChart(viewModel = viewModel)
+                    0 -> Column(modifier = Modifier.padding(bottom = 50.dp, start = 5.dp, end = 5.dp)) {
+                        ListContent(userList = filteredUserList )
+                    }
+                    1 -> Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                        GenderPerformanceChart(viewModel = viewModel)
+                    }
+                    2 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                        AgeRangePerformanceChart(viewModel = viewModel)
+                    }
                 }
             }
 

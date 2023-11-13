@@ -44,6 +44,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var currentActividad = MutableLiveData<Actividad>()
     var updatedUser = MutableLiveData<User>()
     var currentUserDB = MutableLiveData<UserDB?>()
+    var refreshing = MutableLiveData<Boolean>(false)
+
 
     //Listas de datos
     var userList = MutableLiveData<List<User>>()
@@ -110,13 +112,13 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     val profileImageCompose by mutableStateOf<Uri?>(null)
 
 
-    init {
-        // Initialize or set your user data to userList
-        // For example:
-        // userList.value = listOf(user1, user2, user3, ...)
-        // Initially, set filteredUserList to the same data
-        filteredUserList.value = userStudentsList.value
-    }
+//    init {
+//        // Initialize or set your user data to userList
+//        // For example:
+//        // userList.value = listOf(user1, user2, user3, ...)
+//        // Initially, set filteredUserList to the same data
+//        filteredUserList.value = userStudentsList.value
+//    }
 
     //Busqueda
     fun setSearchQuery(query: String) {
@@ -371,15 +373,20 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     fun getUserStudents(rol: String) {
+        refreshing.postValue(true)
         val response = repository.getUserStudents(rol)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                 if (response.isSuccessful) {
                     userStudentsList.postValue(response.body())
                     Log.e("Lista de estudiantes list", response.body().toString())
+                    refreshing.postValue(false)
+
                 } else {
                     Log.e("Lista fallida de estudiantes", response.body().toString())
                     errorMessage.postValue("Error: ${response.code()}")
+                    refreshing.postValue(false)
+
                 }
             }
 

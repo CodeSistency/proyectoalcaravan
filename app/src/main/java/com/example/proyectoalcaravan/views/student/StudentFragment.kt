@@ -308,8 +308,9 @@ class StudentFragment : Fragment() {
                 .fillMaxWidth()
 //                .wrapContentHeight()
                 .background(
-//                    Color.Blue.copy(alpha = 0.8F),
-                    colorResource(id = R.color.secondary),
+//                    colorResource(id = R.color.primary),
+                    brush = Brush.verticalGradient(listOf(colorResource(id = R.color.secondary), colorResource(id = R.color.primary))),
+
                     shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
 
                     )
@@ -569,30 +570,30 @@ class StudentFragment : Fragment() {
 
         Scaffold(
             topBar = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp), // Optional padding
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    if (user != null) {
-                        Title(user)
-                    }
-                    IconButton(onClick = { isModalVisible = true}) {
-
-//                    IconButton(onClick = { scope.launch { state.show() }}) {
-                        val iconPainter: Painter = painterResource(R.drawable.qr_detailed_svgrepo_com)
-                        Icon(
-
-                            painter = iconPainter,
-                            contentDescription = "QR Code",
-                            modifier = Modifier.size(20.dp)
-
-                        )
-                    }
-
-
-                }
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(8.dp), // Optional padding
+//                    horizontalArrangement = Arrangement.SpaceBetween
+//                ) {
+//                    if (user != null) {
+//                        Title(user)
+//                    }
+//                    IconButton(onClick = { isModalVisible = true}) {
+//
+////                    IconButton(onClick = { scope.launch { state.show() }}) {
+//                        val iconPainter: Painter = painterResource(R.drawable.qr_detailed_svgrepo_com)
+//                        Icon(
+//
+//                            painter = iconPainter,
+//                            contentDescription = "QR Code",
+//                            modifier = Modifier.size(20.dp)
+//
+//                        )
+//                    }
+//
+//
+//                }
 
                 Box(
                     modifier = Modifier
@@ -707,7 +708,7 @@ class StudentFragment : Fragment() {
                         content = {
                             Column(
                                 modifier = Modifier
-                                    .fillMaxSize()
+
                                     .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
