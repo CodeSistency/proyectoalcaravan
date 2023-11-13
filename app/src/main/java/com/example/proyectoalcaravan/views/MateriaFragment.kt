@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,14 +33,12 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,7 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -62,7 +58,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
@@ -105,20 +100,23 @@ class MateriaFragment : Fragment() {
     }
 
     @Composable
-    fun ListContentUsers(userList: MutableLiveData<List<User>>, selectedUsers: MutableList<User>, userListSuscribed: MutableLiveData<Materia>) {
-      val users by userList.observeAsState(initial = emptyList())
+    fun ListContentUsers(
+        userList: MutableLiveData<List<User>>,
+        selectedUsers: MutableList<User>,
+        userListSuscribed: MutableLiveData<Materia>
+    ) {
+        val users by userList.observeAsState(initial = emptyList())
         val usersSuscribed by userListSuscribed.observeAsState()
         val list = usersSuscribed?.listStudent ?: emptyList()
-//
-//        val usersSuscribedSet = list.toSet()
-//
-//        LazyColumn {
-//            items(users.filter { user -> usersSuscribedSet.contains(user) }) { user ->
-//                ListItemUser(user, selectedUsers)
-//            }
-//        }
+        Log.e("all selected users", selectedUsers.toString())
+        // Get the set of user IDs already in the class
+        val usersInClassIds = list.map { it.id }.toSet()
 
-        // You can use selectedUsers for your further processing.
+        LazyColumn {
+            items(users.filter { user -> user.id !in usersInClassIds }) { user ->
+                ListItemUser(user, selectedUsers)
+            }
+        }
     }
 
     @OptIn(ExperimentalGlideComposeApi::class)
@@ -219,15 +217,22 @@ class MateriaFragment : Fragment() {
                 .clip(shape = MaterialTheme.shapes.medium)
                 .background(Color.LightGray)
                 .border(1.dp, Color.White, shape = MaterialTheme.shapes.medium)
-                .clickable { viewModel.currentMateria.value?.id?.let {
-                    viewModel.getActivitiesById(
-                        it
-                    )
-                }
+                .clickable {
+                    viewModel.currentMateria.value?.id?.let {
+                        viewModel.getActivitiesById(
+                            it
+                        )
+                    }
 
 //                    view?.findNavController()?.navigate(R.id.action_materiaFragment_to_asignacionFragment)
-                    view?.findNavController()?.navigate(MateriaFragmentDirections.actionMateriaFragmentToAsignacionFragment(user?.id ?: 100000))
-                           }
+                    view
+                        ?.findNavController()
+                        ?.navigate(
+                            MateriaFragmentDirections.actionMateriaFragmentToAsignacionFragment(
+                                user?.id ?: 100000
+                            )
+                        )
+                }
             ,
             elevation = 4.dp,
         ) {
@@ -329,6 +334,28 @@ class MateriaFragment : Fragment() {
                                                 listStudent = filteredUsers
                                             )
 
+                                            val materiaIdToRemove = user.listOfMaterias?.find { it.id == materiaId }?.id ?: 0
+                                            val updatedListOfMaterias = user.listOfMaterias?.filterNot { it.id == materiaIdToRemove }
+
+                                            val modifiedUser = User(
+                                                id = user.id, // Replace with the actual property name for the user ID
+                                                firstName = user.firstName,
+                                                lastName = user.lastName,
+                                                email = user.email,
+                                                password = user.password,
+                                                gender = user.gender,
+                                                rol = user.rol,
+                                                birthday = user.birthday,
+                                                imageProfile = user.imageProfile,
+                                                phone = user.phone,
+                                                cedula = user.cedula,
+                                                listActivities = user.listActivities,
+                                                lgn = user.lgn,
+                                                lat = user.lat,
+                                                listOfMaterias = updatedListOfMaterias
+                                            )
+                                            viewModel.updateUser(user?.id ?: 110, modifiedUser)
+
                                             viewModel.updateMateria(materiaId, materiaUser)
                                         }
                                         isModalVisible = false
@@ -421,11 +448,11 @@ class MateriaFragment : Fragment() {
         var tituloAsignacion by remember { mutableStateOf(String()) }
         var descripcionAsignacion by remember { mutableStateOf(String()) }
 
-        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
-
+//        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
+        val selectedUsers = viewModel.currentMateria.observeAsState().value?.listStudent?.toMutableList()
         var materiaId = viewModel.currentMateria.value?.id
 
-
+        Log.e("selected users in general", selectedUsers.toString())
         Column {
             viewModel.currentMateria.value?.let { Header(titulo = it.name) }
 
@@ -549,7 +576,10 @@ class MateriaFragment : Fragment() {
                                         .fillMaxWidth()
                                 ) {
 
-                                        ListContentUsers(userList = viewModel.userList, selectedUsers, userListSuscribed = viewModel.currentMateria)
+                                    ListContentUsers(userList = viewModel.userList,
+                                        selectedUsers = selectedUsers?: mutableListOf(),
+                                        userListSuscribed = viewModel.currentMateria
+                                    )
 
                                 }
                                 Button(
@@ -560,37 +590,52 @@ class MateriaFragment : Fragment() {
                                             val teacherId = currentMateria.idTeacher
                                             val materiaName = currentMateria.name
 
-                                            for (user in selectedUsers) {
-                                                // Create a modified user object with additional data
-                                                val materiaUser = Materia(
-                                                    id = currentMateria.id,
-                                                    name = currentMateria.name,
-                                                    idTeacher = currentMateria.idTeacher
-                                                )
-                                                val modifiedUser = User(
-                                                    id = user.id, // Replace with the actual property name for the user ID
-                                                    firstName = user.firstName,
-                                                    lastName = user.lastName,
-                                                    email = user.email,
-                                                    password = user.password,
-                                                    gender = user.gender,
-                                                    rol = user.rol,
-                                                    birthday = user.birthday,
-                                                    imageProfile = user.imageProfile,
-                                                    phone = user.phone,
-                                                    cedula = user.cedula,
-                                                    listActivities = user.listActivities,
-                                                    lgn = user.lgn,
-                                                    lat = user.lat,
-                                                    listOfMaterias = user.listOfMaterias?.plus(
-                                                        materiaUser
+                                            if (selectedUsers != null) {
+                                                for (user in selectedUsers) {
+                                                    // Create a modified user object with additional data
+                                                    val materiaUser = Materia(
+                                                        id = currentMateria.id,
+                                                        name = currentMateria.name,
+                                                        idTeacher = currentMateria.idTeacher
                                                     )
-                                                )
 
-                                                // Call viewModel.updateUser for each user in the list
-                                                viewModel.updateUser(user?.id ?: 110, modifiedUser)
+                                                    val updatedListOfMaterias = user.listOfMaterias.orEmpty().toMutableList()
 
-                                                // Update the materia with the modified user list
+                                                    // Check if the materia with the same id already exists
+                                                    val existingMateria = updatedListOfMaterias.find { it.id == materiaUser.id }
+
+                                                    if (existingMateria == null) {
+                                                        // If the materia does not exist, add it to the list
+                                                        updatedListOfMaterias.add(materiaUser)
+                                                    } else {
+                                                        // If the materia already exists, you can handle it as needed (skip, update, etc.)
+                                                        // For now, let's just print a message
+                                                        println("Materia with id ${materiaUser.id} already exists for user ${user.id}")
+                                                    }
+                                                    val modifiedUser = User(
+                                                        id = user.id, // Replace with the actual property name for the user ID
+                                                        firstName = user.firstName,
+                                                        lastName = user.lastName,
+                                                        email = user.email,
+                                                        password = user.password,
+                                                        gender = user.gender,
+                                                        rol = user.rol,
+                                                        birthday = user.birthday,
+                                                        imageProfile = user.imageProfile,
+                                                        phone = user.phone,
+                                                        cedula = user.cedula,
+                                                        listActivities = user.listActivities,
+                                                        lgn = user.lgn,
+                                                        lat = user.lat,
+                                                        listOfMaterias = updatedListOfMaterias
+
+                                                    )
+
+                                                    // Call viewModel.updateUser for each user in the list
+                                                    viewModel.updateUser(user?.id ?: 110, modifiedUser)
+
+                                                    // Update the materia with the modified user list
+                                                }
                                             }
 
                                             viewModel.updateMateria(materiaId, Materia(materiaId, teacherId, selectedUsers, materiaName))

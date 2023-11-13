@@ -1,12 +1,23 @@
 package com.example.proyectoalcaravan.viewmodels
 
+import android.Manifest
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.ContactsContract
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,6 +52,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var materiasUserList = MutableLiveData<List<Materia>>()
     var activitiesList = MutableLiveData<List<Actividad>>()
     var activitiesListById = MutableLiveData<List<Actividad>>()
+    var filteredUserList = MutableLiveData<List<User>>()
 
     val errorMessage = MutableLiveData<String>()
 
@@ -49,11 +61,6 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var edadOrder = userStudentsList.value?.sortedBy { it.edad }
     var birthdayOrder = userStudentsList.value?.sortedBy { it.birthday }
     var createdOrder = userStudentsList.value?.sortedBy { it.created }
-
-
-
-
-
 
     //Data to Register
 
@@ -66,9 +73,164 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     val genero = MutableLiveData<String>()
     val listOfActivities = MutableLiveData<List<Actividad?>>(listOf())
 
-
-
     val profileImage = MutableLiveData<Uri?>()
+
+
+    // Estados actuales
+    var currentUserCompose by mutableStateOf<User?>(null)
+    var currentMateriaCompose by mutableStateOf<Materia?>(null)
+    var currentActividadCompose by mutableStateOf<Actividad?>(null)
+    var updatedUserCompose by mutableStateOf<User?>(null)
+    var currentUserDBCompose by mutableStateOf<UserDB?>(null)
+
+    var userListCompose by mutableStateOf<List<User>?>(null)
+    var userStudentsListCompose by mutableStateOf<List<User>?>(null)
+    var materiasListCompose by mutableStateOf<List<Materia>?>(null)
+    var materiasUserListCompose by mutableStateOf<List<Materia>?>(null)
+    var activitiesListCompose by mutableStateOf<List<Actividad>?>(null)
+    var activitiesListByIdCompose by mutableStateOf<List<Actividad>?>(null)
+    var filteredUserListCompose by mutableStateOf<List<User>?>(null)
+
+    val errorMessageCompose by mutableStateOf<String?>(null)
+
+    var alphabetOrderCompose by mutableStateOf<List<User>?>(null)
+    var edadOrderCompose by mutableStateOf<List<User>?>(null)
+    var birthdayOrderCompose by mutableStateOf<List<User>?>(null)
+    var createdOrderCompose by mutableStateOf<List<User>?>(null)
+
+    val emailCompose by mutableStateOf<String?>(null)
+    val passwordCompose by mutableStateOf<String?>(null)
+    val latitudeCompose by mutableStateOf<Double?>(null)
+    val longitudeCompose by mutableStateOf<Double?>(null)
+    val birthdayCompose by mutableStateOf<String?>("Fecha")
+    val rolCompose by mutableStateOf<String?>(null)
+    val generoCompose by mutableStateOf<String?>(null)
+    val listOfActivitiesCompose by mutableStateOf<List<Actividad?>>(listOf())
+
+    val profileImageCompose by mutableStateOf<Uri?>(null)
+
+
+    init {
+        // Initialize or set your user data to userList
+        // For example:
+        // userList.value = listOf(user1, user2, user3, ...)
+        // Initially, set filteredUserList to the same data
+        filteredUserList.value = userStudentsList.value
+    }
+
+    //Busqueda
+    fun setSearchQuery(query: String) {
+        filteredUserList.value = if (query.isEmpty()) {
+            userList.value // Show all users when the query is empty
+        } else {
+            userList.value?.filter { user ->
+                user.firstName?.contains(query, ignoreCase = true) == true
+            }
+        }
+        Log.e("filter by search", filteredUserList.toString())
+    }
+
+    //Filtros
+    fun setAgeFilter(minAge: Int, maxAge: Int) {
+        filteredUserList.value = userList.value?.filter { user ->
+            user.edad in minAge..maxAge
+        }
+    }
+
+    fun setEmailFilter(email: String) {
+        filteredUserList.value = userList.value?.filter { user ->
+            user.email?.contains(email, ignoreCase = true) == true
+        }
+    }
+
+    fun setGenderFilter(gender: String) {
+        filteredUserList.value = userList.value?.filter { user ->
+            user.gender?.equals(gender, ignoreCase = true) == true
+        }
+    }
+
+
+    //Order by
+    fun sortByAge(ascending: Boolean = true) {
+        filteredUserList.value = filteredUserList.value?.sortedBy { user ->
+            user.edad ?: 0
+        }
+        if (!ascending) {
+            filteredUserList.value = filteredUserList.value?.reversed()
+        }
+    }
+
+    fun sortByAlphabetical(ascending: Boolean = true) {
+        filteredUserList.value = filteredUserList.value?.sortedBy { user ->
+            user.firstName ?: ""
+        }
+        if (!ascending) {
+            filteredUserList.value = filteredUserList.value?.reversed()
+        }
+    }
+
+    fun sortByBirthday(ascending: Boolean = true) {
+        filteredUserList.value = filteredUserList.value?.sortedBy { user ->
+            user.birthday ?: ""
+        }
+        if (!ascending) {
+            filteredUserList.value = filteredUserList.value?.reversed()
+        }
+    }
+
+    fun sortByCreationDate(ascending: Boolean = true) {
+        filteredUserList.value = filteredUserList.value?.sortedBy { user ->
+            user.created?.toEpochDay() ?: 0
+        }
+        if (!ascending) {
+            filteredUserList.value = filteredUserList.value?.reversed()
+        }
+    }
+
+    //Reset Filters
+    fun resetFilters() {
+        // Reset all filters and show all users
+        getUserStudents("Estudiante")
+        filteredUserList.value = userStudentsList.value
+    }
+
+    fun insertContact(context: ComponentActivity, name: String, phoneNumber: String) {
+        val contentResolver: ContentResolver = context.contentResolver
+
+        val values = ContentValues().apply {
+            put(ContactsContract.RawContacts.ACCOUNT_TYPE, null as String?)
+            put(ContactsContract.RawContacts.ACCOUNT_NAME, null as String?)
+        }
+
+        val rawContactUri = contentResolver.insert(ContactsContract.RawContacts.CONTENT_URI, values)
+        val rawContactId = rawContactUri?.lastPathSegment?.toLongOrNull()
+
+        val dataValues = ContentValues().apply {
+            put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+            put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+            put(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name)
+        }
+
+        contentResolver.insert(ContactsContract.Data.CONTENT_URI, dataValues)
+
+        val phoneValues = ContentValues().apply {
+            put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+            put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+            put(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber)
+            put(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+        }
+
+        contentResolver.insert(ContactsContract.Data.CONTENT_URI, phoneValues)
+        Log.e("contact", "contact")
+    }
+
+    fun checkContactPermission(context: ComponentActivity): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.WRITE_CONTACTS
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
 
     fun isFormValid(): Boolean {
         val email = email.value
@@ -352,8 +514,29 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                 if (response.isSuccessful) {
                     // Handle successful response
                     //Checkear esto
-                    currentUser.postValue(response.body())
+//                    currentUser.postValue(response.body())
                     updatedUser.postValue(response.body())
+                    val user = response.body()
+                    Log.e("Get User by ID", "User: $user")
+                } else {
+                    errorMessage.postValue("Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<User>, t: Throwable) {
+                errorMessage.postValue(t.message)
+            }
+        })
+    }
+
+    fun getUserRefresh(userId: Int) {
+        repository.getUserById(userId).enqueue(object : Callback<User> {
+            override fun onResponse(call: Call<User>, response: Response<User>) {
+                if (response.isSuccessful) {
+                    // Handle successful response
+                    //Checkear esto
+                    currentUser.postValue(response.body())
+//                    updatedUser.postValue(response.body())
                     val user = response.body()
                     Log.e("Get User by ID", "User: $user")
                 } else {
@@ -469,6 +652,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
                 if (response.isSuccessful) {
                     activitiesListById.postValue(response.body())
+                    activitiesListByIdCompose = response.body()
                     Log.e("Lista de actividades", response.body().toString())
                 } else {
                     Log.e("Lista fallida de actividades", response.body().toString())

@@ -5,5 +5,9 @@
     <color name="purple_200">#084077</color>
     <color name="blue_dark">#154070</color>
     <color name="mostaza">#FFC107</color>
+    <color name="primary">#ff1b49</color>
+    <color name="secondary">#e67d20</color>
+
+
 
 </resources>

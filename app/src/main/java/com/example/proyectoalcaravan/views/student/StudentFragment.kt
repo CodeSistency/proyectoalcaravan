@@ -2,6 +2,7 @@ package com.example.proyectoalcaravan.views.student
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +10,11 @@ import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.ColumnScopeInstance.weight
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,33 +22,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Button
 import androidx.compose.material.Card
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -54,35 +54,37 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.proyectoalcaravan.R
+import com.example.proyectoalcaravan.model.local.UserDB
+import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.Materia
 
 import com.example.proyectoalcaravan.model.remote.User
+import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
-import com.example.proyectoalcaravan.views.DatePickerFragment
-import com.example.proyectoalcaravan.views.MpaChartsFragment
-import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
 import com.example.proyectoalcaravan.views.charts.GenderPerformanceChart
 import com.example.proyectoalcaravan.views.charts.LineChart
-import com.example.proyectoalcaravan.views.qrScanner.QrCodeScanner
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
-import kotlinx.coroutines.launch
 
 
 class StudentFragment : Fragment() {
@@ -163,43 +165,14 @@ class StudentFragment : Fragment() {
     }
 
     @Composable
-    fun Title() {
+    fun Title(user: User) {
         // Replace "Your Title" with your actual title string
-        Text(text = "Home", style = MaterialTheme.typography.h5)
+        Text(text = "Hola ${user.firstName}",
+            style = MaterialTheme.typography.h1,
+            fontSize = 40.sp)
     }
 
-    @Composable
-    fun SearchBar() {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-//                .padding(12.dp),
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
-                value = "",
-                onValueChange = { /* Handle search bar value change */ },
-                placeholder = {
-                    Text(text = "Buscar", style = MaterialTheme.typography.body1)
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp)
-            )
 
-            IconButton(
-                onClick = { /* Handle filter icon button click */ },
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_filters),
-                    contentDescription = "Filter",
-                    tint = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
-                )
-            }
-        }
-    }
 
 
 
@@ -281,9 +254,25 @@ class StudentFragment : Fragment() {
 
         var user = viewModel.currentUser.value
 
+        val gradientColors = listOf(
+            colorResource(id = R.color.primary),
+            colorResource(id = R.color.secondary)
+        )
+
+
         BottomAppBar(
-            cutoutShape = MaterialTheme.shapes.small
-        ) {
+            modifier = Modifier
+                .padding(16.dp) // Add padding to separate from the screen
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = gradientColors,
+//                        start = Offset(0f, 0f), // Adjust the start and end offsets as needed
+//                        end = Offset(100f, 100f)
+                    ),
+                    shape = CircleShape
+                )
+                .shadow(8.dp, CircleShape), // Add shadow with a specified elevation
+        cutoutShape = CircleShape        ) {
             BottomNavigationItem(
                 selected = true,
                 onClick = { /* Handle bottom navigation item click */ },
@@ -312,6 +301,254 @@ class StudentFragment : Fragment() {
         }
     }
 
+    @Composable
+    fun Header3(titulo: String, subtitulo: String){
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+//                .wrapContentHeight()
+                .background(
+//                    Color.Blue.copy(alpha = 0.8F),
+                    colorResource(id = R.color.secondary),
+                    shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
+
+                    )
+                .padding(bottom = 10.dp)
+        ){
+            Column(
+                modifier = Modifier
+//                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+//                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = titulo,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 60.sp,
+                    color = Color.White,
+//                    modifier = Modifier.padding(top = 5.dp)
+
+
+                )
+
+                Text(text = subtitulo,
+                    style = MaterialTheme.typography.subtitle1,
+                    fontSize = 50.sp,
+//                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+//                    modifier = Modifier.padding(top = 2.dp)
+
+
+                )
+
+
+            }
+        }
+    }
+
+    @Composable
+    fun HorizontalItemCard(item: Materia) {
+        var user = viewModel.currentUser.value
+
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .height(120.dp)
+                .width(180.dp)
+                .clip(RoundedCornerShape(16.dp))
+//                .background(generateRandomColor())
+                .background(
+
+//                            brush = Brush . linearGradient (
+//                            colors = listOf(Color.Black, Color.Transparent),
+//                    start = Offset(0.5f, 1.0f),
+//                    end = Offset(0.5f, 0.5f)
+//                )
+                    color = generateRandomColor(),
+                )
+                .clickable {
+                    viewModel.getActivitiesById(item.id)
+//                    viewModel.getMateriaById(item.id)
+//                    viewModel.currentMateria.postValue(item)
+                    if (viewModel.currentUser.value?.rol == "Estudiante") {
+
+                        view
+                            ?.findNavController()
+                            ?.navigate(
+                                StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+                                    user?.id ?: 1000
+                                )
+                            )
+                    } else {
+                        viewModel.getMateriaById(item.id)
+                        viewModel.currentMateria.postValue(item)
+                        view
+                            ?.findNavController()
+                            ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                    }
+
+                },
+//            contentAlignment = Alignment.Center
+        ) {
+            // Display text at the middle left
+            Text(
+                text = item.name,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterStart),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_book),
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+//                    .padding(end = 30.dp, top = (-30).dp)
+            )
+        }
+    }
+
+    @Composable
+    fun HorizontalList(gridItems: MutableLiveData<List<Materia>>) {
+        val items by gridItems.observeAsState(initial = emptyList())
+
+            LazyRow(
+                modifier = Modifier
+//                    .fillMaxWidth()
+                    .padding(8.dp)
+
+            ) {
+                items(items) { item ->
+                    HorizontalItemCard(item = item)
+                }
+            }
+
+
+    }
+
+    @Composable
+    fun ListContentAsignacionGeneral(user: MutableLiveData<UserDB?>) {
+        val actividades by user.observeAsState()
+        Log.e("actividades", actividades.toString())
+        Log.e("user test", user.toString())
+        var userRol = viewModel.currentUser.value
+        Log.e("user test", userRol.toString())
+
+
+        LazyColumn {
+            items(actividades?.listActivities ?: emptyList()) { actividad ->
+                if (actividad != null) {
+                    ListItemAsignacionGeneral(item = actividad)
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalGlideComposeApi::class)
+    @Composable
+    fun ListItemAsignacionGeneral(item: Actividad) {
+
+        var modalVisible by remember { mutableStateOf(false) }
+//        val user by viewModel.updatedUser.observeAsState()
+//        var user = viewModel.updatedUser.value
+        var currentUser = viewModel.currentUser.value
+        var currentUserDB = viewModel.currentUserDB.value
+
+        var mensaje by remember { mutableStateOf(String()) }
+        val profileImageUri by viewModel.profileImage.observeAsState()
+
+
+
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp)
+                .clickable {
+                    view
+                        ?.findNavController()
+                        ?.navigate(
+                            StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+                                currentUserDB?.userId ?: 1000
+                            )
+                        )
+                },
+            elevation = 4.dp,
+
+            ) {
+
+
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(text = item.title,
+                        style = MaterialTheme.typography.h1,
+                        modifier = Modifier.padding(bottom = 2.dp),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+
+                    )
+                    Text(text = "Fecha: ${item.date}",
+                        style = MaterialTheme.typography.h5,
+                        modifier = Modifier.padding(bottom = 2.dp),
+                        fontSize = 15.sp,
+                        color = Color.DarkGray
+                    )
+
+                }
+
+
+                if (currentUserDB?.rol == "Profesor"){
+                    Text(text = item.calificationRevision.toString())
+                }else{
+                    IconButton(onClick = {
+                        viewModel.getActivitiesById(item.idClass)
+//                    viewModel.getMateriaById(item.id)
+//                    viewModel.currentMateria.postValue(item)
+//                        if (viewModel.currentUserDB.value?.rol == "Estudiante") {
+
+                            view
+                                ?.findNavController()
+                                ?.navigate(
+                                    StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+                                        currentUserDB?.userId ?: 1000
+                                    )
+                                )
+//                        } else {
+//                            viewModel.getMateriaById(item.idClass)
+//                            view
+//                                ?.findNavController()
+//                                ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+//                        }
+
+                    }) {
+                        Icon(imageVector = Icons.Default.ArrowForward, contentDescription = "algo")
+                    }
+                }
+
+
+
+
+
+//
+
+
+
+            }
+
+
+
+        }
+
+
+    }
+
     @OptIn(ExperimentalMaterialApi::class)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
@@ -326,6 +563,9 @@ class StudentFragment : Fragment() {
 
         var isModalVisible by remember { mutableStateOf(false) }
 
+        var user = viewModel.currentUser.value
+        var userDB = viewModel.currentUserDB
+
 
         Scaffold(
             topBar = {
@@ -335,7 +575,9 @@ class StudentFragment : Fragment() {
                         .padding(8.dp), // Optional padding
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Title()
+                    if (user != null) {
+                        Title(user)
+                    }
                     IconButton(onClick = { isModalVisible = true}) {
 
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
@@ -352,15 +594,89 @@ class StudentFragment : Fragment() {
 
                 }
 
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(colorResource(id = R.color.secondary)),                ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (user != null) {
+                            Title(user)
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { isModalVisible = true }) {
+//                    IconButton(onClick = { scope.launch { state.show() }}) {
+                                val iconPainter: Painter = painterResource(R.drawable.qr_detailed_svgrepo_com)
+                                Icon(
+                                    painter = iconPainter,
+                                    contentDescription = "QR Code",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                            IconButton(onClick = {  view?.findNavController()
+                                ?.navigate(StudentFragmentDirections.actionStudentFragmentToProfileFragment(user?.id ?: 100000)) }) {
+//                    IconButton(onClick = { scope.launch { state.show() }}) {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = "QR Code",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                        }
+
+
+                    }
+
+                }
+
             },
             bottomBar = { BottomAppBarContent() }
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Header3(titulo = "Aprende", subtitulo ="Virtualmente")
+
+                if(userDB.value?.listOfMaterias?.isNullOrEmpty() == true){
+                   Box(
+                       modifier = Modifier
+                           .background(Color.LightGray)
+                           .height(120.dp)
+                           .padding(8.dp)
+                           .fillMaxWidth()
+
+
+                   ) {
+                       Column(
+                           modifier = Modifier.fillMaxSize(),
+                           verticalArrangement = Arrangement.Center,
+                           horizontalAlignment = Alignment.CenterHorizontally
+                       ) {
+                           Text("No hay materias disponibles")
+                       }
+
+                   }
+                }else{
+                    HorizontalList(gridItems = viewModel.materiasList)
+                }
+                HorizontalList(gridItems = viewModel.materiasList)
+
+                if(userDB.value?.listActivities?.isNullOrEmpty() == true){
+                        //Tengo que hacer progress bar
+                    }else{
+                        ListContentAsignacionGeneral(user = userDB)
+
+                    }
+
 //                SearchBar()
-                ListContent()
+//                ListContent()
                 LazyColumn{
                     item { 
                         LineChart(viewModel = viewModel)

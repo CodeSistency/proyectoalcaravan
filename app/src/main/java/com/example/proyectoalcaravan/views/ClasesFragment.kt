@@ -5,22 +5,43 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.LinearGradient
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +50,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.Materia
-import com.example.proyectoalcaravan.model.remote.User
+import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.componentes.Header
 
@@ -118,12 +139,85 @@ fun ListItem(item: Materia) {
         }
     }
 
+    @Composable
+    fun GridItemCard(item: Materia) {
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .height(130.dp)
+//                .size(150.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(generateRandomColor())
+//                .background(
+//                    brush = Brush.linearGradient(
+//                        colors = listOf(Color.Black, Color.Transparent),
+//                        start = Offset(0.5f, 1.0f),
+//                        end = Offset(0.5f, 0.5f)
+//                    )
+//                )
+                .clickable {
+                    viewModel.currentMateria.postValue(item)
+                    viewModel.getActivitiesById(item.id)
+                    view
+                        ?.findNavController()
+                        ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            // Display text at the middle left
+            Text(
+                text = item.name,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterStart),
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_book),
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .absolutePadding(top = (-30).dp, right = (-30).dp)
+            )
+        }
+    }
+
+    @Composable
+    fun Grid(gridItems: MutableLiveData<List<Materia>>) {
+        val items by gridItems.observeAsState(initial = emptyList())
+//        LazyColumn {
+//            items(items = items.chunked(2)) { rowItems ->
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(8.dp)
+//                ) {
+//                    for (item in rowItems) {
+//                        GridItemCard(item = item)
+//                    }
+//                }
+//            }
+//        }
+
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 128.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            items(items) { item ->
+                GridItemCard(item)
+            }
+        }
+    }
+
 
     @Composable
     fun ClasesContent() {
         Column {
             Header(titulo = "Materias")
-            ListContent(materiasList = viewModel.materiasList)
+//            ListContent(materiasList = viewModel.materiasList)
+            Grid(gridItems = viewModel.materiasList)
         }
 
     }

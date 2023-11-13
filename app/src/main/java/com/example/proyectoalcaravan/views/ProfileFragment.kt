@@ -21,10 +21,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -64,7 +62,6 @@ import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
-import com.example.proyectoalcaravan.views.register.RegisterStepTwoArgs
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
@@ -76,7 +73,6 @@ class ProfileFragment : Fragment() {
 
     private val viewModel by activityViewModels<MainViewModel>()
     val args: ProfileFragmentArgs by navArgs()
-
 
     val pointsData: List<Point> =
         listOf(Point(0f, 40f), Point(1f, 90f), Point(2f, 0f), Point(3f, 60f), Point(4f, 10f))
@@ -326,7 +322,7 @@ class ProfileFragment : Fragment() {
                             }
                             IconButton(onClick = {
                                 if (userDB != null) {
-                                    viewModel.deleteUserDB(UserDB(userDB.id, userDB.userId, userDB.firstName, userDB.lastName, userDB.birthday, userDB.cedula, userDB.gender, userDB.imageProfile, userDB.email, userDB.password, userDB.rol, userDB.phone, userDB.lgn, userDB.lag) )
+                                    viewModel.deleteUserDB(UserDB(userDB.id, userDB.userId, userDB.firstName, userDB.lastName, userDB.birthday, userDB.cedula, userDB.gender, userDB.imageProfile, userDB.email, userDB.password, userDB.rol, userDB.phone, userDB.lgn, userDB.lag, userDB.listActivities, userDB.listOfMaterias) )
                                 }
                                 view?.findNavController()?.navigate(R.id.action_profileFragment_to_login) }) {
                                 Icon(

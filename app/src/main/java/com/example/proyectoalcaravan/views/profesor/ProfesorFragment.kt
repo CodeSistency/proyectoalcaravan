@@ -1,5 +1,6 @@
 package com.example.proyectoalcaravan.views.profesor
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
@@ -8,8 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.camera.core.ExperimentalGetImage
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +28,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -46,18 +51,14 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -70,11 +71,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -82,6 +85,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ComponentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
@@ -90,12 +95,16 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
+import com.example.proyectoalcaravan.views.charts.GenderPerformanceChart
+import com.example.proyectoalcaravan.views.charts.LineChart2
 import com.example.proyectoalcaravan.views.scanner.Scanner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 //import kotlinx.coroutines.launch
 
+const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
 @ExperimentalGetImage class ProfesorFragment : Fragment() {
 
@@ -123,9 +132,11 @@ import kotlinx.coroutines.launch
 
 
     @Composable
-    fun Title() {
+    fun Title(user: User) {
         // Replace "Your Title" with your actual title string
-        Text(text = "Home", style = MaterialTheme.typography.h5)
+        Text(text = "Hola ${user.firstName}",
+            style = MaterialTheme.typography.h1,
+            fontSize = 30.sp)
     }
 
 
@@ -161,11 +172,17 @@ import kotlinx.coroutines.launch
                 modifier = Modifier
                     .weight(1F)
                     .padding(end = 4.dp)
-                    .background(Color.White)
-                    .padding(12.dp)
-                    .clip(MaterialTheme.shapes.medium), // Rounded corners
+//                    .padding(12.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        Color.White,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                , // Rounded corners
                 value = nombreSearch,
-                onValueChange = { nombreSearch = it },
+                onValueChange = { nombreSearch = it
+                    viewModel.setSearchQuery(it)
+                                },
                 placeholder = {
                     Text(text = "Buscar", style = MaterialTheme.typography.body1)
                 },
@@ -173,28 +190,28 @@ import kotlinx.coroutines.launch
                 shape = MaterialTheme.shapes.medium
             )
 
-            Box(
-                modifier = Modifier
-                    .size(45.dp)
-                    .background(Color.Blue, shape = RoundedCornerShape(16.dp))
-                    .shadow(8.dp, shape = RoundedCornerShape(16.dp))
-            ) {
-                IconButton(
-                    onClick = {
-                              viewModel.getAUserStudentsByFirstName(nombreSearch)
-                              },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(4.dp)
-                ) {
-                    Icon(
-
-                        painter = painterResource(R.drawable.ic_search),
-                        contentDescription = "Search",
-                        tint = Color.White
-                    )
-                }
-            }
+//            Box(
+//                modifier = Modifier
+//                    .size(45.dp)
+//                    .background(Color.Blue, shape = RoundedCornerShape(16.dp))
+//                    .shadow(8.dp, shape = RoundedCornerShape(16.dp))
+//            ) {
+//                IconButton(
+//                    onClick = {
+//                              viewModel.getAUserStudentsByFirstName(nombreSearch)
+//                              },
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .padding(4.dp)
+//                ) {
+//                    Icon(
+//
+//                        painter = painterResource(R.drawable.ic_search),
+//                        contentDescription = "Search",
+//                        tint = Color.White
+//                    )
+//                }
+//            }
 
             IconButton(
                 onClick = { expanded = true
@@ -416,10 +433,11 @@ import kotlinx.coroutines.launch
 
     @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
-    fun ListItem(item: User) {
+    fun ListItem(item: User, isPermissionGranted: Boolean) {
 
         var isModalVisible by remember { mutableStateOf(false) }
         val ctx = LocalContext.current
+
 
         Card(
             modifier = Modifier
@@ -481,7 +499,18 @@ import kotlinx.coroutines.launch
                     }
 
                     IconButton(
-                        onClick = { },
+                        onClick = { item.phone?.let {
+                            if (isPermissionGranted || viewModel.checkContactPermission(requireActivity())) {
+                                // Permission already granted, proceed with the contact operation
+                                viewModel.insertContact(requireActivity(), item.firstName?: "", item.phone.toString())                            } else {
+                                // Permission not granted, request it
+                                ActivityCompat.requestPermissions(
+                                    context as ComponentActivity,
+                                    arrayOf(Manifest.permission.WRITE_CONTACTS),
+                                    MY_PERMISSIONS_REQUEST_WRITE_CONTACTS
+                                )
+                            }
+                             } },
                         modifier = Modifier
                             .size(38.dp)
 //                        .background(Color.Red, CircleShape)
@@ -568,21 +597,28 @@ import kotlinx.coroutines.launch
 
     }
 
+
+
     @Composable
     fun ListContent(userList: MutableLiveData<List<User>>) {
-        Log.e("user profesor fragment", userList.value.toString())
-        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
-        Log.e("actividades", users.toString())
+//        Log.e("user profesor fragment", userList.value.toString())
+//        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
+//        Log.e("actividades", users.toString())
+        val users by userList.observeAsState(initial = emptyList())
 
+        var isPermissionGranted by remember { mutableStateOf(false) }
 
 
 
             LazyColumn {
-                items(users) { user ->
-                    Log.e("user specify", user.toString())
+                if(users != null){
+                    items(users) { user ->
+                        Log.e("user specify", user.toString())
 
-                    ListItem(item = user)
+                        ListItem(item = user, isPermissionGranted)
+                    }
                 }
+
 
         }
 
@@ -591,7 +627,8 @@ import kotlinx.coroutines.launch
     }
 
     @Composable
-    fun ListContentOrderAlphabet(userList: MutableLiveData<List<User>>) {
+    fun ListContentOrderAlphabet(userList: List<User>) {
+        var isPermissionGranted by remember { mutableStateOf(false) }
 
         Log.e("alphabet", userList.toString())
 //        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
@@ -612,7 +649,7 @@ import kotlinx.coroutines.launch
         ) {
             items(alphabet) { user ->
                 Log.e("user alphabet", "${user.toString()} ")
-                ListItem(item = user)
+                ListItem(item = user, isPermissionGranted)
             }
 
         }
@@ -621,8 +658,25 @@ import kotlinx.coroutines.launch
     @Composable
     fun BottomAppBarContent() {
         var user = viewModel.currentUser.value
+
+        val gradientColors = listOf(
+            colorResource(id = R.color.primary),
+            colorResource(id = R.color.secondary)
+        )
+
         BottomAppBar(
-            cutoutShape = MaterialTheme.shapes.small
+            modifier = Modifier
+                .padding(16.dp) // Add padding to separate from the screen
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = gradientColors,
+//                        start = Offset(0f, 0f), // Adjust the start and end offsets as needed
+//                        end = Offset(100f, 100f)
+                    ),
+                    shape = CircleShape
+                )
+                .shadow(8.dp, CircleShape), // Add shadow with a specified elevation
+            cutoutShape = CircleShape // You can use CircleShape or RoundedCornerShape as per your preference
         ) {
             BottomNavigationItem(
                 selected = true,
@@ -636,7 +690,6 @@ import kotlinx.coroutines.launch
                 onClick = {
                     view?.findNavController()
                         ?.navigate(R.id.action_profesorFragment_to_clasesFragment)
-
                 },
                 icon = {
                     Icon(imageVector = Icons.Default.List, contentDescription = "Actividades")
@@ -655,6 +708,7 @@ import kotlinx.coroutines.launch
         }
     }
 
+
     @Composable
     fun BottomSheetContent() {
         LazyColumn(
@@ -665,6 +719,504 @@ import kotlinx.coroutines.launch
             items(10) { index ->
                 Text(text = "Item $index")
             }
+        }
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun Header3(titulo: String, subtitulo: String, scope: CoroutineScope, state: ModalBottomSheetState){
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+//                .wrapContentHeight()
+                .background(
+//                    Color.Blue.copy(alpha = 0.8F),
+                    colorResource(id = R.color.secondary),
+                    shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
+
+                    )
+                .padding(bottom = 10.dp)
+        ){
+            Column(
+                modifier = Modifier
+//                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+//                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = titulo,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 60.sp,
+                    color = Color.White,
+//                    modifier = Modifier.padding(top = 5.dp)
+
+
+                )
+
+                Text(text = subtitulo,
+                    style = MaterialTheme.typography.subtitle1,
+                    fontSize = 50.sp,
+//                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+//                    modifier = Modifier.padding(top = 2.dp)
+
+
+                )
+
+                SearchBar(scope, state)
+
+            }
+        }
+    }
+
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun TabsBottomSheetWithPagerScreen() {
+        var selectedTabIndex by remember { mutableStateOf(0) }
+
+        val tabs = listOf("Ordenar", "Email", "Sexo")
+
+
+        // Pager state
+        val pagerState = rememberPagerState(pageCount = {tabs.size})
+        val coroutineScope = rememberCoroutineScope()
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(6.dp)
+        ) {
+            // Tabs
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+//                    .background(Color.LightGray),
+//                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                tabs.forEachIndexed { index, text ->
+                    TabItem(
+                        text = text,
+                        isSelected = index == selectedTabIndex,
+                        onTabClick = {
+                            selectedTabIndex = index
+                            // Set the selected page in the pager state
+                            coroutineScope.launch {
+                                // Call scroll to on pagerState
+                                pagerState.animateScrollToPage(index)                            }
+
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Animated Content
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) { page ->
+                // Content for each tab
+                when (page) {
+                    0 -> TabOrdernar()
+                    1 -> TabEmail()
+                    2 -> TabSexo()
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+
+    @Composable
+    fun TabItem(text: String, isSelected: Boolean, onTabClick: () -> Unit) {
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .clip(MaterialTheme.shapes.small)
+                .background(if (isSelected) Color.Gray else Color.Transparent)
+                .clickable { onTabClick() }
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .background(if (isSelected) Color.Gray else Color.Transparent)
+            )
+        }
+    }
+
+    @Composable
+    fun TabContent(content: String) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+//                .background(Color.Blue)
+                .padding(16.dp)
+        ) {
+            Text(text = content)
+        }
+    }
+
+    @Composable
+    fun TabEmail() {
+
+        var emailSearch by remember { mutableStateOf("") }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+//                .background(Color.Blue)
+//                .padding(2.dp)
+        ) {
+            Column(
+//                modifier = Modifier
+//                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Filtrar por email:")
+                OutlinedTextField(
+                    modifier = Modifier
+//                        .weight(1F)
+//                    .padding(12.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            Color.White,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                    , // Rounded corners
+                    value = emailSearch,
+                    onValueChange = { viewModel.setEmailFilter(it)
+                        viewModel
+                    },
+                    placeholder = {
+                        Text(text = "Buscar", style = MaterialTheme.typography.body1)
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
+//            Button(onClick = { /*TODO*/ }) {
+//                Text(text = "Aplicar")
+//
+//            }
+        }
+    }
+
+    @Composable
+    fun TabEdad() {
+
+        var edadSearch by remember { mutableStateOf("") }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+//                .background(Color.Blue)
+//                .padding(2.dp)
+        ) {
+            Column(
+//                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Filtrar por email:")
+                OutlinedTextField(
+                    modifier = Modifier
+//                        .weight(1F)
+//                    .padding(12.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            Color.White,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                    , // Rounded corners
+                    value = edadSearch,
+                    onValueChange = { edadSearch = it
+                        viewModel
+                    },
+                    placeholder = {
+                        Text(text = "Buscar", style = MaterialTheme.typography.body1)
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
+//            Button(onClick = { /*TODO*/ }) {
+//                Text(text = "Aplicar")
+//
+//            }
+        }
+    }
+
+    @Composable
+    fun TabSexo() {
+
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+//                .background(Color.Blue)
+//                .padding(2.dp)
+        ) {
+            Column(
+
+                verticalArrangement = Arrangement.Center
+            ) {
+             Row(
+                 modifier = Modifier.fillMaxWidth(),
+                 horizontalArrangement = Arrangement.SpaceAround,
+                 verticalAlignment = Alignment.CenterVertically
+             ) {
+
+                 IconButton(
+                     onClick = { viewModel.setGenderFilter("Masculino") },
+                     modifier = Modifier
+                         .size(100.dp)
+                         .background(Color.LightGray, CircleShape)
+                 ) {
+                     Icon(
+                         imageVector = Icons.Default.Delete,
+                         contentDescription = null,
+                         tint = Color.Gray
+                     )
+                 }
+
+
+                 IconButton(
+                     onClick = { viewModel.setGenderFilter("Femenino") },
+                     modifier = Modifier
+                         .size(100.dp)
+                         .background(Color.LightGray, CircleShape)
+                 ) {
+                     Icon(
+                         imageVector = Icons.Default.Delete,
+                         contentDescription = null,
+                         tint = Color.Gray
+                     )
+                 }
+             }
+            }
+//            Button(onClick = { /*TODO*/ }) {
+//                Text(text = "Aplicar")
+//
+//            }
+        }
+    }
+
+    @Composable
+    fun TabOrdernar() {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+//                .padding(16.dp)
+        ) {
+            Column(
+//                modifier = Modifier
+//                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Ordenar por:")
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Row(
+                    modifier = Modifier.padding(3.dp),
+
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    IconButton(
+                        onClick = { viewModel.sortByAlphabetical(true) },
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(Color.LightGray, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "Alfabeticamente")
+                }
+
+                Row(
+                    modifier = Modifier.padding(3.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    IconButton(
+                        onClick = { viewModel.sortByBirthday(true) },
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(Color.LightGray, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(text = "Fecha de nacimiento")
+                }
+
+                Row(
+                    modifier = Modifier.padding(3.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    IconButton(
+                        onClick = { viewModel.sortByCreationDate(true) },
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(Color.LightGray, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(text = "Fecha de creacion")
+                }
+
+
+                Row(
+                    modifier = Modifier.padding(3.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    IconButton(
+                        onClick = { viewModel.sortByAge(true) },
+                        modifier = Modifier
+                            .size(38.dp)
+                            .background(Color.LightGray, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(text = "Ordenar por edad")
+                }
+
+                Row(
+                    modifier = Modifier.padding(3.dp),
+
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Edad")
+                    Spacer(modifier = Modifier.width(10.dp))
+                   Row(
+                       modifier = Modifier.fillMaxWidth(),
+                       verticalAlignment = Alignment.CenterVertically,
+                       horizontalArrangement = Arrangement.SpaceAround
+                   ) {
+                       OutlinedButton(onClick = { viewModel.setAgeFilter(17, 26) }) {
+                           Text(text = "17-26")
+                       }
+                       OutlinedButton(onClick = { viewModel.setAgeFilter(27, 36) }) {
+                           Text(text = "27-36")
+                       }
+                       OutlinedButton(onClick = { viewModel.setAgeFilter(47, 56) }) {
+                           Text(text = "47-56")
+                       }
+                   }
+                }
+            }
+        }
+    }
+
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun TabsHomeWithPagerScreen() {
+        var selectedTabIndex by remember { mutableStateOf(0) }
+
+        val tabs = listOf("Listdo", "Rendimiento", "Metricas")
+
+
+        // Pager state
+        val pagerState = rememberPagerState(pageCount = {tabs.size})
+        val coroutineScope = rememberCoroutineScope()
+        val filteredUserList = viewModel.filteredUserList
+
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp)
+        ) {
+            // Tabs
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.LightGray)
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                tabs.forEachIndexed { index, text ->
+                    TabItemHome(
+                        text = text,
+                        isSelected = index == selectedTabIndex,
+                        onTabClick = {
+                            selectedTabIndex = index
+                            // Set the selected page in the pager state
+                            coroutineScope.launch {
+                                // Call scroll to on pagerState
+                                pagerState.animateScrollToPage(index)                            }
+
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Animated Content
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) { page ->
+                // Content for each tab
+                when (page) {
+                    0 -> ListContent(userList = filteredUserList )
+                    1 -> GenderPerformanceChart(viewModel = viewModel)
+                    2 -> AgeRangePerformanceChart(viewModel = viewModel)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+
+    @Composable
+    fun TabItemHome(text: String, isSelected: Boolean, onTabClick: () -> Unit) {
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .clip(MaterialTheme.shapes.small)
+                .background(if (isSelected) Color.Gray else Color.Transparent)
+                .clickable { onTabClick() }
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .background(if (isSelected) Color.Gray else Color.Transparent)
+            )
         }
     }
 
@@ -680,28 +1232,61 @@ import kotlinx.coroutines.launch
         val scope = rememberCoroutineScope()
 
         var isModalVisible by remember { mutableStateOf(false) }
+        val filteredUserList = viewModel.filteredUserList
 
-        viewModel.getUserStudents("Estudiante")
+//        LaunchedEffect(key1 = true ){
+//            viewModel.setSearchQuery("")
+//        }
+//
+//        LaunchedEffect(key1 = true ){
+//            viewModel.getUserStudents("Estudiante")
+//        }
+        Log.d("UserViewModel", "userStudentsList: ${viewModel.userStudentsList.value}")
+        Log.d("UserViewModel", "filteredUserList: ${viewModel.filteredUserList.value}")
 
+        var user = viewModel.currentUser.value
 
 
         Scaffold(
             topBar = {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp), // Optional padding
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Title()
-                    IconButton(onClick = { isModalVisible = true }) {
+                        .background(colorResource(id = R.color.secondary)),                ){
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (user != null) {
+                            Title(user)
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { isModalVisible = true }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
-                        val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
-                        Icon(
-                            painter = iconPainter,
-                            contentDescription = "QR Code",
-                            modifier = Modifier.size(40.dp)
-                        )
+                                val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
+                                Icon(
+                                    painter = iconPainter,
+                                    contentDescription = "QR Code",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                            IconButton(onClick = {  view?.findNavController()
+                                ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 100000)) }) {
+//                    IconButton(onClick = { scope.launch { state.show() }}) {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = "QR Code",
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                        }
+
+
                     }
 
                 }
@@ -710,13 +1295,15 @@ import kotlinx.coroutines.launch
             bottomBar = { BottomAppBarContent() }
         ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+//                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                SearchBar(scope, state)
-                ListContent(userList = viewModel.userStudentsList)
+                Header3(titulo = "Administra", subtitulo ="tus clases", scope, state )
+//                ListContent(userList = viewModel.userStudentsList)
 
-                ListContentOrderAlphabet(userList = viewModel.userStudentsList)
+//                    ListContent(userList = filteredUserList)
+                TabsHomeWithPagerScreen()
+
 
                 if (isModalVisible) {
                     Dialog(
@@ -775,32 +1362,33 @@ import kotlinx.coroutines.launch
                         Text(text = "Filter by")
                         Icon(painter = painterResource(R.drawable.ic_filters), contentDescription = null)
                     }
+                    TabsBottomSheetWithPagerScreen()
 
                     // Range input
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Slider(
-                        value = 15f,
-                        onValueChange = {},
-                        valueRange = 15f..40f,
-                        steps = 25,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Icon buttons
-                    Spacer(modifier = Modifier.height(16.dp))
-                    FilterIconButton(icon = Icons.Default.Person, text = "Age")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    FilterIconButton(icon = Icons.Default.Build, text = "Filter 2")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    FilterIconButton(icon = Icons.Default.Place, text = "Filter 3")
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { /*TODO*/ },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp)) {
-                        Text(text = "Aplicar")
-                    }
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                    Slider(
+//                        value = 15f,
+//                        onValueChange = {},
+//                        valueRange = 15f..40f,
+//                        steps = 25,
+//                        modifier = Modifier.fillMaxWidth()
+//                    )
+//
+//                    // Icon buttons
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    FilterIconButton(icon = Icons.Default.Person, text = "Age")
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                    FilterIconButton(icon = Icons.Default.Build, text = "Filter 2")
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                    FilterIconButton(icon = Icons.Default.Place, text = "Filter 3")
+//
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                    Button(onClick = { /*TODO*/ },
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(horizontal = 10.dp)) {
+//                        Text(text = "Aplicar")
+//                    }
 
                 }
 

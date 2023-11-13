@@ -3,8 +3,13 @@ package com.example.proyectoalcaravan.model.local
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.example.proyectoalcaravan.model.converters.Converters
+import com.example.proyectoalcaravan.model.remote.Actividad
+import com.example.proyectoalcaravan.model.remote.Materia
 
 @Entity(tableName = "users")
+@TypeConverters(Converters::class)
 data class UserDB(
     @PrimaryKey(autoGenerate = true) val id: Int,
     @ColumnInfo(name = "user_id") val userId: Int?,
@@ -20,6 +25,8 @@ data class UserDB(
     @ColumnInfo(name = "phone") val phone: Long?,
     @ColumnInfo(name = "lgn") val lgn: Double?,
     @ColumnInfo(name = "lag") val lag: Double?,
-//    @ColumnInfo(name = "listActivities") val listActivities: List<Actividad>,
+    @ColumnInfo(name = "listActivities") val listActivities: List<Actividad?>?,
+    @ColumnInfo(name = "listOfMaterias") val listOfMaterias: List<Materia>?,
+
     // Add other columns as per your requirements
 )

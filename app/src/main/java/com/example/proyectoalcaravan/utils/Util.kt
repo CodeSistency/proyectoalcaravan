@@ -7,7 +7,9 @@ import android.net.NetworkCapabilities
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import kotlin.random.Random
 
 fun isOnline (context: Context): Boolean {
     val connectivityManager =  context.getSystemService (Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -23,5 +25,11 @@ fun isOnline (context: Context): Boolean {
         }
     }
     return false
+}
+
+@Composable
+fun generateRandomColor(): Color {
+    // Generate a random color
+    return Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat())
 }
 

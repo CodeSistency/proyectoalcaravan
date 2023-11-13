@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
-import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentLoginBinding
 import com.example.proyectoalcaravan.model.local.UserDB
@@ -63,7 +62,7 @@ class LoginFragment : Fragment() {
                 if (isUserValid != null) {
 
 
-                    viewModel.createUserDB(UserDB(1, isUserValid.id, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat))
+                    viewModel.createUserDB(UserDB(1, isUserValid.id, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat, isUserValid.listActivities, isUserValid.listOfMaterias))
 
 
                     if (isUserValid.rol == "Estudiante"){

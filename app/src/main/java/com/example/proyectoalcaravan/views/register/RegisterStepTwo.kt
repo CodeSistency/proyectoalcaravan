@@ -12,9 +12,9 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
+import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepTwoBinding
-import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.DatePickerFragment
@@ -106,7 +106,9 @@ class RegisterStepTwo : Fragment() {
             val nombre = binding.etNombre.text.toString()
             val apellido = binding.etApellido.text.toString()
             val cedula = binding.etCedula.text.toString().toIntOrNull()
-            val telefono = binding.etTelefono.text.toString().toLongOrNull()
+            val telefono = binding.etTelefono.text.toString()
+            val edad = binding.etEdad.text.toString().toIntOrNull()
+
             val lgn = viewModel.longitude.value
             val lat = viewModel.latitude.value
             val imageUri = viewModel.profileImage.value
@@ -114,11 +116,24 @@ class RegisterStepTwo : Fragment() {
             if (lat != null) {
                 if (lgn != null) {
                     if (email.isNullOrEmpty() || password.isNullOrEmpty() || nombre.isEmpty() || apellido.isEmpty() ||
-                        cedula == null || birthday.isNullOrEmpty() || lat == null || lgn == null || imageUri == null) {
+                        cedula == null || birthday.isNullOrEmpty() || lat == null || lgn == null || !imageUri.isNotNull() ) {
                         showToast("Llena todos los campos")
                         validado = false
                     }
                 }
+            }
+
+            binding.Registrar.isEnabled = false
+
+            // Rest of your code for validation and user creation...
+
+            // After all validations and user creation logic
+            if (validado) {
+                // Enable the button after successful validation and user creation
+                binding.Registrar.isEnabled = true
+            } else {
+                // If validation fails, enable the button to allow corrections
+                binding.Registrar.isEnabled = true
             }
 
             if (validado) {
@@ -129,13 +144,46 @@ class RegisterStepTwo : Fragment() {
                 }
             }
 
-//            if (validado) {
-//                // Check if lat and lgn are within valid ranges or meet specific criteria
-//                if (lat < MIN_LAT_VALUE || lat > MAX_LAT_VALUE || lgn < MIN_LGN_VALUE || lgn > MAX_LGN_VALUE) {
-//                    showToast("Ubicación no válida")
-//                    validado = false
-//                }
-//            }
+            if (validado) {
+                // Check if firstName and lastName contain numbers
+                if (cedula != null) {
+                    if (cedula < 1000000 ) {
+                        showToast("La cedula no es valida")
+                        validado = false
+                    }
+                }
+            }
+            if (validado) {
+                // Check if firstName and lastName contain numbers
+                if (edad != null) {
+                    if (edad > 120 || edad < 14) {
+                        showToast("La edad no es valida")
+                        validado = false
+                    }
+                }
+            }
+
+
+
+
+                    if (validado) {
+                        // Check if telefono is not null and is a number
+                        if (telefono != null && telefono.matches(Regex("\\d+"))) {
+                            // Check if telefono starts with 0 and has a maximum length of 11 digits
+                            if (telefono.startsWith("0") && telefono.length == 11) {
+                                // Phone number is valid
+                                showToast("El número es válido")
+                            } else {
+                                // Phone number is not valid
+                                showToast("El número no es válido")
+                                validado = false
+                            }
+                        } else {
+                            // telefono is null or not a number
+                            showToast("Ingrese un número de teléfono válido")
+                            validado = false
+                        }
+                    }
 
             if (validado) {
                 if (userList != null) {
@@ -157,7 +205,8 @@ class RegisterStepTwo : Fragment() {
                     firstName = nombre.lowercase(),
                     lastName = apellido.lowercase(),
                     cedula = cedula,
-                    phone = telefono,
+                    edad = edad,
+                    phone = telefono.toLongOrNull(),
                     imageProfile = "", // Initialize with an empty string
                     birthday = birthday,
                     lat = viewModel.latitude.value,
