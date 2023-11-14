@@ -100,10 +100,13 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
+import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
 import com.example.proyectoalcaravan.views.charts.GenderPerformanceChart
 import com.example.proyectoalcaravan.views.charts.LineChart2
+import com.example.proyectoalcaravan.views.componentes.connection.NoInternetMessage
+import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.example.proyectoalcaravan.views.scanner.Scanner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -138,10 +141,11 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
 
     @Composable
-    fun Title(user: User) {
-        var userDB = viewModel.currentUserDB.value
+    fun Title() {
+        var userDB = viewModel.currentUserDB.observeAsState()
+        var user = viewModel.currentUser.value
         // Replace "Your Title" with your actual title string
-        Text(text = "Hola ${user.firstName ?: userDB?.firstName}",
+        Text(text = "Hola ${user?.firstName ?: userDB?.value?.firstName}",
             style = MaterialTheme.typography.h1,
             fontSize = 30.sp)
     }
@@ -451,16 +455,18 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(2.dp)
+                .padding(8.dp)
                 .clip(shape = MaterialTheme.shapes.medium)
-                .background(Color(245, 245, 245))
-                .border(1.dp, Color.White, shape = MaterialTheme.shapes.medium),
-            elevation = 4.dp,
+                .clickable {
+
+                },
+
+            elevation = 8.dp,
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -693,37 +699,43 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
         val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserStudents("Estudiante") })
 
-        if (users.isNullOrEmpty()){
-            Box(Modifier.pullRefresh(pullRefreshState)){
-                LazyColumn {
-                    if( userStudents != null){
-                        items(userStudents.value ?: emptyList()) { user ->
-                            Log.e("user specify", user.toString())
-
-                            ListItem(item = user, isPermissionGranted)
-                        }
-                    }
-
-
-                }
-                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
-            }
+        if (refresh.value == true){
+            ShimmerCardList()
         }else{
-            Box(Modifier.pullRefresh(pullRefreshState)){
-                LazyColumn {
-                    if(users != null){
-                        items(users) { user ->
-                            Log.e("user specify", user.toString())
+            if (users.isNullOrEmpty()){
+                Box(Modifier.pullRefresh(pullRefreshState)){
+                    LazyColumn {
+                        if( userStudents != null){
+                            items(userStudents.value ?: emptyList()) { user ->
+                                Log.e("user specify", user.toString())
 
-                            ListItem(item = user, isPermissionGranted)
+                                ListItem(item = user, isPermissionGranted)
+                            }
                         }
+
+
                     }
-
-
+                    PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
                 }
-                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+            }else{
+                Box(Modifier.pullRefresh(pullRefreshState)){
+                    LazyColumn {
+                        if(users != null){
+                            items(users) { user ->
+                                Log.e("user specify", user.toString())
+
+                                ListItem(item = user, isPermissionGranted)
+                            }
+                        }
+
+
+                    }
+                    PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+                }
             }
         }
+
+
 
 
 
@@ -1325,14 +1337,15 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             modifier = Modifier
                 .padding(4.dp)
                 .clip(MaterialTheme.shapes.small)
-                .background(if (isSelected) Color.Gray else Color.Transparent)
+                .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent)
                 .clickable { onTabClick() }
         ) {
             Text(
                 text = text,
                 modifier = Modifier
                     .padding(8.dp)
-                    .background(if (isSelected) Color.Gray else Color.Transparent)
+                    .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent),
+                color = if (isSelected) Color.White else Color.Gray
             )
         }
     }
@@ -1362,6 +1375,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         Log.d("UserViewModel", "filteredUserList: ${viewModel.filteredUserList.value}")
 
         var user = viewModel.currentUser.value
+        var userDB = viewModel.currentUserDB.observeAsState()
+
 
 
         Scaffold(
@@ -1377,8 +1392,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (user != null) {
-                            Title(user)
+                        if (user != null || userDB != null) {
+                                Title()
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -1393,7 +1408,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                 )
                             }
                             IconButton(onClick = {  view?.findNavController()
-                                ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 100000)) }) {
+                                ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 3000)) }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
                                 Icon(
                                     imageVector = Icons.Default.AccountCircle,
@@ -1419,7 +1434,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 //                ListContent(userList = viewModel.userStudentsList)
 
 //                    ListContent(userList = filteredUserList)
-                TabsHomeWithPagerScreen()
+
+                    TabsHomeWithPagerScreen()
+
+
 
 
                 if (isModalVisible) {
@@ -1434,7 +1452,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                             ) {
 //                                view?.let { it1 -> QrCodeScanner(it1) }
 //                                view?.let { it1 -> Scanner(requireView()) }
-                                view?.let { it1 -> Scanner(requireView()) }
+                                view?.let { it1 -> Scanner(requireView(), viewModel, requireContext()) }
 
                             }
 

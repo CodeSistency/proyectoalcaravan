@@ -170,6 +170,10 @@ dependencies {
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation ("com.google.firebase:firebase-crashlytics-ktx:18.5.1")
     implementation ("com.google.firebase:firebase-analytics-ktx:21.5.0")
+    implementation ("com.google.firebase:firebase-messaging-ktx:23.3.1")
+
+
+    implementation("com.valentinilk.shimmer:compose-shimmer:1.2.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

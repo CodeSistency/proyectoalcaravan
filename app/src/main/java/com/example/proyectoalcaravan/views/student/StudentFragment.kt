@@ -165,9 +165,12 @@ class StudentFragment : Fragment() {
     }
 
     @Composable
-    fun Title(user: User) {
+    fun Title(userDB: MutableLiveData<UserDB?>) {
+        var user = viewModel.currentUser.value
+
+        var userDatabase = userDB.observeAsState()
         // Replace "Your Title" with your actual title string
-        Text(text = "Hola ${user.firstName}",
+        Text(text = "Hola ${user?.firstName ?: userDatabase.value?.firstName}",
             style = MaterialTheme.typography.h1,
             fontSize = 40.sp)
     }
@@ -309,7 +312,12 @@ class StudentFragment : Fragment() {
 //                .wrapContentHeight()
                 .background(
 //                    colorResource(id = R.color.primary),
-                    brush = Brush.verticalGradient(listOf(colorResource(id = R.color.secondary), colorResource(id = R.color.primary))),
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            colorResource(id = R.color.secondary),
+                            colorResource(id = R.color.primary)
+                        )
+                    ),
 
                     shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
 
@@ -564,8 +572,9 @@ class StudentFragment : Fragment() {
 
         var isModalVisible by remember { mutableStateOf(false) }
 
-        var user = viewModel.currentUser.value
         var userDB = viewModel.currentUserDB
+        var user = viewModel.currentUser.observeAsState()
+
 
 
         Scaffold(
@@ -606,9 +615,9 @@ class StudentFragment : Fragment() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (user != null) {
-                            Title(user)
-                        }
+
+                            Title(userDB)
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -622,7 +631,7 @@ class StudentFragment : Fragment() {
                                 )
                             }
                             IconButton(onClick = {  view?.findNavController()
-                                ?.navigate(StudentFragmentDirections.actionStudentFragmentToProfileFragment(user?.id ?: 100000)) }) {
+                                ?.navigate(StudentFragmentDirections.actionStudentFragmentToProfileFragment(user?.value?.id ?: 3000)) }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
                                 Icon(
                                     imageVector = Icons.Default.AccountCircle,
@@ -667,7 +676,7 @@ class StudentFragment : Fragment() {
                 }else{
                     HorizontalList(gridItems = viewModel.materiasList)
                 }
-                HorizontalList(gridItems = viewModel.materiasList)
+//                HorizontalList(gridItems = viewModel.materiasList)
 
                 if(userDB.value?.listActivities?.isNullOrEmpty() == true){
                         //Tengo que hacer progress bar
@@ -678,14 +687,14 @@ class StudentFragment : Fragment() {
 
 //                SearchBar()
 //                ListContent()
-                LazyColumn{
-                    item { 
-                        LineChart(viewModel = viewModel)
-                    }
-                    item { 
-                        GenderPerformanceChart(viewModel = viewModel)
-                    }
-                }
+//                LazyColumn{
+//                    item {
+//                        LineChart(viewModel = viewModel)
+//                    }
+//                    item {
+//                        GenderPerformanceChart(viewModel = viewModel)
+//                    }
+//                }
 
 //                LineChart(viewModel = viewModel)
 //                GenderPerformanceChart(viewModel = viewModel)
@@ -717,12 +726,14 @@ class StudentFragment : Fragment() {
                                     modifier = Modifier.fillMaxWidth(),
                                     elevation = 4.dp
                                 ) {
+                                    Text(text = "Escanea el Qr",
+                                        modifier = Modifier.padding(10.dp))
 
                                         if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
                                             Barcode(
                                                 modifier = Modifier
                                                     .align(Alignment.CenterHorizontally)
-                                                    .fillMaxSize()
+
                                                     .padding(10.dp, 10.dp, 10.dp, 40.dp),
                                                 resolutionFactor = 10, // Optionally, increase the resolution of the generated image
                                                 type = BarcodeType.QR_CODE, // pick the type of barcode you want to render

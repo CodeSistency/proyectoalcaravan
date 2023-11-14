@@ -3,6 +3,7 @@ package com.example.proyectoalcaravan.views
 import android.annotation.SuppressLint
 //import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -131,7 +132,7 @@ class ProfileFragment : Fragment() {
                 if(args.isNotNull()){
                     viewModel.getUserById(args.profile)
                 }
-                Profile(viewModel.currentUser.value)
+                Profile(viewModel.currentUser.observeAsState().value)
 //                MyFragmentContent(viewModel)
 //                Button(onClick = { checkCamaraPermissions() }) {
 //                    Text(text = "Scanner")
@@ -147,6 +148,8 @@ class ProfileFragment : Fragment() {
     fun ProfileCard(currentUser: User?, userDB: UserDB?) {
 
         var updatedUser = viewModel.updatedUser.observeAsState()
+        var userDatabase = viewModel.currentUserDB.observeAsState()
+
         Column {
 
 
@@ -155,7 +158,7 @@ class ProfileFragment : Fragment() {
                 .fillMaxWidth()
                 .height(200.dp)
                 .background(
-                    color = colorResource(id = R.color.mostaza),
+                    color = colorResource(id = R.color.primary),
                     shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
 
                     )
@@ -186,7 +189,7 @@ class ProfileFragment : Fragment() {
                         )
                     }else{
                         GlideImage(
-                            model = userDB?.imageProfile ?: currentUser?.imageProfile,
+                            model = userDatabase.value?.imageProfile ?: currentUser?.imageProfile,
                             contentDescription = "foto",
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -199,7 +202,7 @@ class ProfileFragment : Fragment() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (args.isNotNull()){
+                if (args.profile != 3000){
 
                     Text(
                         text = updatedUser.value?.firstName?: "nombre",
@@ -271,7 +274,7 @@ class ProfileFragment : Fragment() {
                 // Move the camera to the desired location
 
 
-                if (args.isNotNull()){
+                if (args.profile != 3000){
                     var cameraPosition = CameraPosition.Builder()
                         .target(LatLng(updatedUser.value?.lat ?: 10.0000, updatedUser.value?.lat ?: 10.0000)) // Replace with your desired location
                         .zoom(15f) // Zoom level
@@ -296,8 +299,18 @@ class ProfileFragment : Fragment() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Profile(currentUser: User?) {
-        var userDB = viewModel.currentUserDB.value
+        var user = viewModel.currentUser.observeAsState()
+
+        var userDB = viewModel.currentUserDB.observeAsState()
         var updatedUser = viewModel.updatedUser.observeAsState()
+        Log.e("profile, userDB", userDB.value.toString())
+        Log.e("profile, user", user.value.toString())
+        Log.e("profile, updated User", updatedUser.value.toString())
+
+
+
+
+
 
         Scaffold(
             topBar = {
@@ -325,8 +338,8 @@ class ProfileFragment : Fragment() {
                                 )
                             }
                             IconButton(onClick = {
-                                if (userDB != null) {
-                                    viewModel.deleteUserDB(UserDB(userDB.id, userDB.userId, userDB.firstName, userDB.lastName, userDB.birthday, userDB.cedula, userDB.gender, userDB.imageProfile, userDB.email, userDB.password, userDB.rol, userDB.phone, userDB.lgn, userDB.lag, userDB.listActivities, userDB.listOfMaterias) )
+                                if (userDB.value != null) {
+                                    viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lag, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
                                 }
                                 view?.findNavController()?.navigate(R.id.action_profileFragment_to_login) }) {
                                 Icon(
@@ -343,23 +356,30 @@ class ProfileFragment : Fragment() {
            
             LazyColumn{
                 item {
-                    ProfileCard(currentUser, userDB)
+                    ProfileCard(currentUser, userDB.value)
 
                 }
                 item {
                     Column {
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        if (args.isNotNull() && updatedUser.isNotNull()){
+                        if (args.profile != 3000){
+                            Spacer(modifier = Modifier.height(10.dp))
+
                             Text(text = "Email",
                                 style = MaterialTheme.typography.h3,
-                                color = Color.LightGray
+                                color = Color.Gray,
+                                modifier = Modifier.padding(start = 20.dp),
+                                fontSize = 23.sp
+
                             )
                             OutlinedButton(
-                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
+                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
                                 Text(text = "${updatedUser.value?.email}")
                             }
-                            
+                            Spacer(modifier = Modifier.height(3.dp))
+
+
 //                            Text(text = "Email: ${updatedUser.value?.email}",
 //                                style = MaterialTheme.typography.h6,
 //                                modifier = Modifier.padding(10.dp),
@@ -368,113 +388,95 @@ class ProfileFragment : Fragment() {
 
                             Text(text = "Cedula",
                                 style = MaterialTheme.typography.h3,
-                                color = Color.LightGray
+                                color = Color.Gray,
+                                modifier = Modifier.padding(start = 20.dp),
+                                fontSize = 23.sp
+
                             )
                             OutlinedButton(
-                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "${updatedUser.value?.cedula}")
+                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
+                                Text(text = updatedUser.value?.cedula.toString())
                             }
-//                            Text(text = "Cedula: ${updatedUser.value?.cedula}",
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//                            )
+                            Spacer(modifier = Modifier.height(3.dp))
 
 
-//                            Text(text = "Telefono: ${updatedUser.value?.phone}",
-//
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//
-//                            )
                             Text(text = "Telefono",
                                 style = MaterialTheme.typography.h3,
-                                color = Color.LightGray
+                                color = Color.Gray,
+                                modifier = Modifier.padding(start = 20.dp),
+                                fontSize = 23.sp
+
                             )
                             OutlinedButton(
-                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
+                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
                                 Text(text = "0${updatedUser.value?.phone}")
                             }
+                            Spacer(modifier = Modifier.height(3.dp))
 
-                        }else{
+
+                        }else if(userDB.isNotNull() || currentUser.isNotNull()){
+                            Spacer(modifier = Modifier.height(10.dp))
                             Text(text = "Email",
                                 style = MaterialTheme.typography.h3,
-                                color = Color.LightGray
+                                color = Color.Gray,
+                                modifier = Modifier.padding(start = 20.dp),
+                                fontSize = 23.sp
+
                             )
                             OutlinedButton(
-                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "${currentUser?.email ?: userDB?.email}")
+                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "${currentUser?.email ?: userDB?.value?.email}")
                             }
+                            Spacer(modifier = Modifier.height(3.dp))
 
-//                            Text(text = "Email: ${updatedUser.value?.email}",
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//                            )
+
 
                             Text(text = "Cedula",
                                 style = MaterialTheme.typography.h3,
-                                color = Color.LightGray
+                                color = Color.Gray,
+                                modifier = Modifier.padding(start = 20.dp),
+                                fontSize = 23.sp
+
                             )
                             OutlinedButton(
-                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "${currentUser?.cedula ?: userDB?.cedula}")
+                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "${currentUser?.cedula ?: userDB?.value?.cedula}")
                             }
-//                            Text(text = "Cedula: ${updatedUser.value?.cedula}",
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//                            )
+                            Spacer(modifier = Modifier.height(3.dp))
 
 
-//                            Text(text = "Telefono: ${updatedUser.value?.phone}",
-//
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//
-//                            )
                             Text(text = "Telefono",
                                 style = MaterialTheme.typography.h3,
-                                color = Color.LightGray
+                                color = Color.Gray,
+                                modifier = Modifier.padding(start = 20.dp),
+                                fontSize = 23.sp
+
                             )
                             OutlinedButton(
-                                modifier = Modifier.padding(start = 10.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "0${currentUser?.phone ?: userDB?.phone}")
+                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
+                                Text(text = "0${currentUser?.phone ?: userDB?.value?.phone}")
                             }
-                            
-//                            Text(text = "Email: ${userDB?.email ?: currentUser?.email.toString()}",
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//                            )
-//                            Text(text = "Cedula: ${userDB?.cedula ?: currentUser?.cedula.toString()}",
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//                            )
-//                            Text(text = "Telefono: ${userDB?.phone ?: currentUser?.phone.toString()}",
-//
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//
-//                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+
+
 
                         }
 
 
                     }
+                    Spacer(modifier = Modifier.height(40.dp))
+
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 30.dp)
                     ) {
                         Text(text = "Ubicación",
                             fontSize = 25.sp,
                             )
                        Icon(painterResource(id = R.drawable.ic_location), contentDescription = null)
                     }
-                    SmallMap(currentUser, userDB)
+
+                    SmallMap(currentUser, userDB.value)
                  
                 }
 

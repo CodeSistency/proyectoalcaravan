@@ -584,6 +584,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                 if (response.isSuccessful) {
                     // Handle successful response
                     val user = response.body()
+                    currentMateria.postValue(response.body())
                     Log.e("Get User by ID", "User: $user")
                 } else {
                     errorMessage.postValue("Error: ${response.code()}")
@@ -603,6 +604,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                     // Handle successful response
                     Log.e("Update clase", "Clase updated successfully")
                     getAllMaterias()
+                    getMateriaById(materiaId)
+                    currentMateria.value?.id?.let { getMateriaById(it) }
                 } else {
                     errorMessage.postValue("Error: ${response.code()}")
                 }

@@ -1,6 +1,7 @@
 package com.example.proyectoalcaravan.views.scanner
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import android.view.View
@@ -14,6 +15,12 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -41,15 +48,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
+import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.profesor.ProfesorFragmentDirections
 import java.util.concurrent.Executors
 
 @ExperimentalGetImage
 @Composable
-fun Scanner(view: View) {
+fun Scanner(view: View, viewModel: MainViewModel, context: Context) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var qrCodeValue by remember { mutableStateOf("") }
+
 
     var hasCamPermission by remember {
         mutableStateOf(
@@ -85,6 +94,15 @@ LaunchedEffect(key1 = true) {
 }
 
 if (hasCamPermission) {
+    val infiniteTransition = rememberInfiniteTransition()
+    val offsetY = infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -166,11 +184,18 @@ if (hasCamPermission) {
     // Display the QR code value in a Text composable
 
 
-    if (!qrCodeValue.isNullOrEmpty()){
-        view?.findNavController()
-            ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(qrCodeValue.toInt() ?: 100000))
-    }
-}else{
 
-}
+    if (!qrCodeValue.isNullOrEmpty()) {
+        val qrCodeInt = qrCodeValue.toIntOrNull()
+        if (qrCodeInt != null) {
+            view?.findNavController()
+                ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(qrCodeInt))
+        } else {
+            viewModel.showToast("No es valido este numero", context)
+        }
+    } else {
+        // Handle the case where qrCodeValue is null or empty
+    }
+
+    }
 }

@@ -66,9 +66,11 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.User
+import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.charts.LineChart2
 import com.example.proyectoalcaravan.views.componentes.Header2
+import com.example.proyectoalcaravan.views.componentes.connection.NoInternetMessage
 import com.google.firebase.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.storage
@@ -95,6 +97,11 @@ class AsignacionFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             Log.e("arg", args.student.toString())
             viewModel.getUserById(args.student)
+            (viewModel.currentUser.value?.id ?: viewModel.currentUserDB.value?.userId)?.let {
+                viewModel.getUserRefresh(
+                    it
+                )
+            }
             viewModel.currentMateria.value?.id?.let { viewModel.getActivitiesById(it) }
             setContent {
                 AsignacionContent()
@@ -312,48 +319,55 @@ class AsignacionFragment : Fragment() {
 
                                             if (user.isNotNull() && !notaAsignacion.isNullOrEmpty()) {
 
-                                                val evaluacion = Actividad(
-                                                    calification = notaAsignacion.toInt(),
-                                                    calificationRevision = item.calificationRevision,
-                                                    date = item.date,
-                                                    description = item.description,
-                                                    id = item.id,
-                                                    idClass = item.idClass,
-                                                    imageRevision = item.imageRevision,
-                                                    isCompleted = true,
-                                                    messageStudent = item.messageStudent,
-                                                    title = item.title
-                                                )
+                                                if (notaAsignacion.toInt() > 100 && notaAsignacion.toInt() < 1){
+                                                    viewModel.showToast("Nota invalida", requireContext())
+                                                }else{
+                                                    Log.e("nota string", notaAsignacion.toString())
+                                                    val evaluacion = Actividad(
+                                                        calification = notaAsignacion.toInt(),
+                                                        calificationRevision = item.calificationRevision,
+                                                        date = item.date,
+                                                        description = item.description,
+                                                        id = item.id,
+                                                        idClass = item.idClass,
+                                                        imageRevision = item.imageRevision,
+                                                        isCompleted = true,
+                                                        messageStudent = item.messageStudent,
+                                                        title = item.title
+                                                    )
 
-                                                val updatedListOfActivities = user?.listActivities?.toMutableList()
-                                                val index = updatedListOfActivities?.indexOfFirst { it?.id == evaluacion.id }
+                                                    val updatedListOfActivities = user?.listActivities?.toMutableList()
+                                                    val index = updatedListOfActivities?.indexOfFirst { it?.id == evaluacion.id }
 
-                                                if (index != -1) {
-                                                    if (index != null) {
-                                                        updatedListOfActivities?.set(index, evaluacion)
+                                                    if (index != -1) {
+                                                        if (index != null) {
+                                                            updatedListOfActivities?.set(index, evaluacion)
+                                                        }
                                                     }
+
+                                                    val updateUser = User(
+                                                        id = user?.id,
+                                                        firstName = user?.firstName,
+                                                        lastName = user?.lastName,
+                                                        email = user?.email,
+                                                        password = user?.password,
+                                                        gender = user?.gender,
+                                                        rol = user?.rol,
+                                                        birthday = user?.birthday,
+                                                        imageProfile = user?.imageProfile,
+                                                        phone = user?.phone,
+                                                        cedula = user?.cedula,
+                                                        listActivities = updatedListOfActivities,
+                                                        lgn = user?.lgn,
+                                                        lat = user?.lat,
+                                                        listOfMaterias = user?.listOfMaterias
+                                                    )
+
+                                                    viewModel.updateUser(user?.id ?: 110, updateUser)
+                                                    user?.id?.let { viewModel.getUserById(it) }
                                                 }
 
-                                                val updateUser = User(
-                                                    id = user?.id,
-                                                    firstName = user?.firstName,
-                                                    lastName = user?.lastName,
-                                                    email = user?.email,
-                                                    password = user?.password,
-                                                    gender = user?.gender,
-                                                    rol = user?.rol,
-                                                    birthday = user?.birthday,
-                                                    imageProfile = user?.imageProfile,
-                                                    phone = user?.phone,
-                                                    cedula = user?.cedula,
-                                                    listActivities = updatedListOfActivities,
-                                                    lgn = user?.lgn,
-                                                    lat = user?.lat,
-                                                    listOfMaterias = user?.listOfMaterias
-                                                )
 
-                                                viewModel.updateUser(user?.id ?: 110, updateUser)
-                                                user?.id?.let { viewModel.getUserById(it) }
 
                                         }else{
                                             viewModel.showToast("Coloque una nota", requireContext())
@@ -469,7 +483,7 @@ class AsignacionFragment : Fragment() {
             }
         }
 
-        if (modalVisible){
+        if (isModalNotaVisible){
 
             Dialog(
                 onDismissRequest = { modalVisible = false },
@@ -918,11 +932,36 @@ class AsignacionFragment : Fragment() {
     fun ListContentAsignacion(user: MutableLiveData<User>) {
 //        val actividades by rememberUpdatedState(user?.listActivities ?: emptyList())
         val activities by user.observeAsState()
+        val activitiesCurrentUser by viewModel.currentUser.observeAsState()
+        var currentUserDB = viewModel.currentUserDB.observeAsState()
+        var currentUser = viewModel.currentUser.observeAsState()
+
+
+
+
 
 
         LazyColumn {
+
+
+//            if (currentUserDB.value?.rol == "Estudiante" || currentUser.value?.rol == "Estudiante"){
+//                items(currentUser.value?.listActivities ?: currentUserDB.value?.listActivities ?: emptyList()) { actividad ->
+//
+//                    if (actividad != null) {
+//                        ListItemAsignacion(item = actividad)
+//                    }
+//                }
+//            }else{
+//                items(activities?.listActivities ?: emptyList()) { actividad ->
+//
+//                    if (actividad != null) {
+//                        ListItemAsignacion(item = actividad)
+//                    }
+//                }
+//            }
             items(activities?.listActivities ?: emptyList()) { actividad ->
-                if (actividad != null) {
+
+            if (actividad != null) {
                     ListItemAsignacion(item = actividad)
                 }
             }
@@ -1011,13 +1050,13 @@ class AsignacionFragment : Fragment() {
 
     @Composable
     fun listsOfActivities() {
-        var currentUser = viewModel.currentUser.value
-        var currentUserDB = viewModel.currentUserDB.value
+        var currentUser = viewModel.currentUser.observeAsState()
+        var currentUserDB = viewModel.currentUserDB.observeAsState()
         var user = viewModel.updatedUser
 
 
         if (user != null) {
-            if (currentUser?.rol == "Profesor" || currentUserDB?.rol == "Profesor"){
+            if (currentUser.value?.rol == "Profesor" || currentUserDB.value?.rol == "Profesor"){
                 ListContentAsignacion(user = user)
             }else{
                 user.value?.let { ListContentAsignacionGeneral(listOfActivities = viewModel.activitiesListById, user = it) }
@@ -1046,11 +1085,12 @@ class AsignacionFragment : Fragment() {
         Column {
             Header2(titulo = "Asignaciones", viewModel.currentMateria?.value?.name ?: "", )
 
-            Row(
-                modifier = Modifier.padding(4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                TabsAsignacionWithPagerScreen()
+            if (isOnline(requireContext())){
+                Row(
+                    modifier = Modifier.padding(4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TabsAsignacionWithPagerScreen()
 //                Button(
 //                    onClick = {
 //                        button1 = true
@@ -1072,7 +1112,11 @@ class AsignacionFragment : Fragment() {
 //                    Text(text = "Metricas", style = MaterialTheme.typography.subtitle1)
 //                }
 
+                }
+            }else{
+                NoInternetMessage()
             }
+
 
 //            if (button1) {
 //                if (user != null) {

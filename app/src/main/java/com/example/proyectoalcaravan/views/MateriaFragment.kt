@@ -196,7 +196,7 @@ class MateriaFragment : Fragment() {
 //        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
 
         LazyColumn {
-            items(list) { user ->
+            items(users?.listStudent ?: emptyList()) { user ->
                 ListItemSuscribedUser(user)
             }
         }
@@ -357,6 +357,7 @@ class MateriaFragment : Fragment() {
                                             viewModel.updateUser(user?.id ?: 110, modifiedUser)
 
                                             viewModel.updateMateria(materiaId, materiaUser)
+                                            viewModel.getMateriaById(materiaId)
                                         }
                                         isModalVisible = false
                                     },
