@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.ColumnScopeInstance.weight
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,12 +39,13 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -81,8 +81,7 @@ import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
-import com.example.proyectoalcaravan.views.charts.GenderPerformanceChart
-import com.example.proyectoalcaravan.views.charts.LineChart
+import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
 
@@ -419,9 +418,10 @@ class StudentFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SuspiciousIndentation")
     @Composable
-    fun HorizontalList(gridItems: MutableLiveData<List<Materia>>) {
-        val items by gridItems.observeAsState(initial = emptyList())
+    fun HorizontalList(gridItems: List<Materia>?) {
+//        val items by gridItems.observeAsState(initial = emptyList())
 
             LazyRow(
                 modifier = Modifier
@@ -429,7 +429,7 @@ class StudentFragment : Fragment() {
                     .padding(8.dp)
 
             ) {
-                items(items) { item ->
+                items(gridItems ?: emptyList()) { item ->
                     HorizontalItemCard(item = item)
                 }
             }
@@ -437,6 +437,7 @@ class StudentFragment : Fragment() {
 
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContentAsignacionGeneral(user: MutableLiveData<UserDB?>) {
         val actividades by user.observeAsState()
@@ -444,15 +445,31 @@ class StudentFragment : Fragment() {
         Log.e("user test", user.toString())
         var userRol = viewModel.currentUser.value
         Log.e("user test", userRol.toString())
+        var refresh = viewModel.refreshingCurrentUser.observeAsState()
 
 
-        LazyColumn {
-            items(actividades?.listActivities ?: emptyList()) { actividad ->
-                if (actividad != null) {
-                    ListItemAsignacionGeneral(item = actividad)
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { user.value?.userId?.let {
+            viewModel.getUserRefresh(
+                it, requireContext())
+        } })
+
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(modifier = Modifier.pullRefresh(pullRefreshState)){
+                LazyColumn {
+                    items(actividades?.listActivities ?: emptyList()) { actividad ->
+                        if (actividad != null) {
+                            ListItemAsignacionGeneral(item = actividad)
+                        }
+                    }
                 }
+                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+
             }
         }
+
+
     }
 
     @OptIn(ExperimentalGlideComposeApi::class)
@@ -674,7 +691,7 @@ class StudentFragment : Fragment() {
 
                    }
                 }else{
-                    HorizontalList(gridItems = viewModel.materiasList)
+                    HorizontalList(gridItems = viewModel.currentUser.observeAsState().value?.listOfMaterias)
                 }
 //                HorizontalList(gridItems = viewModel.materiasList)
 

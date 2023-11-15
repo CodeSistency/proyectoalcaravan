@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +19,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -41,6 +45,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -65,8 +70,12 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.local.UserDB
+import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
+import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.profesor.ProfesorFragmentDirections
+import com.example.proyectoalcaravan.views.student.StudentFragmentDirections
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
@@ -296,6 +305,90 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SuspiciousIndentation")
+    @Composable
+    fun HorizontalList(gridItems: List<Materia>?) {
+//        val items by gridItems.observeAsState(initial = emptyList())
+
+        LazyRow(
+            modifier = Modifier
+//                    .fillMaxWidth()
+                .padding(8.dp)
+
+        ) {
+            items(gridItems ?: emptyList()) { item ->
+                HorizontalItemCard(item = item)
+            }
+        }
+
+
+    }
+
+    @Composable
+    fun HorizontalItemCard(item: Materia) {
+        var user = viewModel.currentUser.value
+
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .height(120.dp)
+                .width(180.dp)
+                .clip(RoundedCornerShape(16.dp))
+//                .background(generateRandomColor())
+                .background(
+
+//                            brush = Brush . linearGradient (
+//                            colors = listOf(Color.Black, Color.Transparent),
+//                    start = Offset(0.5f, 1.0f),
+//                    end = Offset(0.5f, 0.5f)
+//                )
+                    color = generateRandomColor(),
+                )
+                .clickable {
+                    viewModel.getActivitiesById(item.id, requireContext())
+//                    viewModel.getMateriaById(item.id)
+//                    viewModel.currentMateria.postValue(item)
+                    if (viewModel.currentUser.value?.rol == "Estudiante") {
+
+                        view
+                            ?.findNavController()
+                            ?.navigate(
+                                StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+                                    user?.id ?: 1000
+                                )
+                            )
+                    } else {
+                        viewModel.getMateriaById(item.id, requireContext())
+                        viewModel.currentMateria.postValue(item)
+                        view
+                            ?.findNavController()
+                            ?.navigate(R.id.action_profileFragment_to_asignacionFragment)
+                    }
+
+                },
+//            contentAlignment = Alignment.Center
+        ) {
+            // Display text at the middle left
+            Text(
+                text = item.name,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterStart),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_book),
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+//                    .padding(end = 30.dp, top = (-30).dp)
+            )
+        }
+    }
+
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Profile(currentUser: User?) {
@@ -331,7 +424,15 @@ class ProfileFragment : Fragment() {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = {view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000)) }) {
+                            IconButton(onClick = {
+                                if (args.profile != 3000){
+                                    view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000))
+                                }else{
+                                    view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,user?.value?.id?: userDB.value?.id ?: 1000))
+                                }
+
+                                 })
+                            {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_editar),
                                     contentDescription = "Settings"
@@ -365,98 +466,126 @@ class ProfileFragment : Fragment() {
 
                         if (args.profile != 3000){
                             Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "Email:",
+                                    style = MaterialTheme.typography.h3,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(start = 20.dp),
+                                    fontSize = 23.sp
 
-                            Text(text = "Email",
-                                style = MaterialTheme.typography.h3,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(start = 20.dp),
-                                fontSize = 23.sp
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
 
-                            )
-                            OutlinedButton(
-                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "${updatedUser.value?.email}")
+                                OutlinedButton(
+                                    onClick = { /*TODO*/ }) {
+                                    Text(text = "${updatedUser.value?.email}")
+                                }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
 
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "Cedula:",
+                                    style = MaterialTheme.typography.h3,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(start = 20.dp),
+                                    fontSize = 23.sp
 
-//                            Text(text = "Email: ${updatedUser.value?.email}",
-//                                style = MaterialTheme.typography.h6,
-//                                modifier = Modifier.padding(10.dp),
-//                                color = Color.DarkGray
-//                            )
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
 
-                            Text(text = "Cedula",
-                                style = MaterialTheme.typography.h3,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(start = 20.dp),
-                                fontSize = 23.sp
-
-                            )
-                            OutlinedButton(
-                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
-                                Text(text = updatedUser.value?.cedula.toString())
+                                OutlinedButton(
+                                    onClick = { /*TODO*/ }) {
+                                    Text(text = "${updatedUser.value?.cedula}")
+                                }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
 
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "Telefono:",
+                                    style = MaterialTheme.typography.h3,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(start = 20.dp),
+                                    fontSize = 23.sp
 
-                            Text(text = "Telefono",
-                                style = MaterialTheme.typography.h3,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(start = 20.dp),
-                                fontSize = 23.sp
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
 
-                            )
-                            OutlinedButton(
-                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "0${updatedUser.value?.phone}")
+                                OutlinedButton(
+                                    onClick = { /*TODO*/ }) {
+                                    Text(text = "0${updatedUser.value?.phone}")
+                                }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
+
 
 
                         }else if(userDB.isNotNull() || currentUser.isNotNull()){
                             Spacer(modifier = Modifier.height(10.dp))
-                            Text(text = "Email",
-                                style = MaterialTheme.typography.h3,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(start = 20.dp),
-                                fontSize = 23.sp
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "Email:",
+                                    style = MaterialTheme.typography.h3,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(start = 20.dp),
+                                    fontSize = 23.sp
 
-                            )
-                            OutlinedButton(
-                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "${currentUser?.email ?: userDB?.value?.email}")
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+
+                                OutlinedButton(
+                                    onClick = { /*TODO*/ }) {
+                                    Text(text = "${currentUser?.email ?: userDB?.value?.email}")
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(3.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "Cedula:",
+                                    style = MaterialTheme.typography.h3,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(start = 20.dp),
+                                    fontSize = 23.sp
+
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+
+                                OutlinedButton(
+                                    onClick = { /*TODO*/ }) {
+                                    Text(text = "${currentUser?.cedula ?: userDB?.value?.cedula}")
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(3.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(text = "Telefono:",
+                                    style = MaterialTheme.typography.h3,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(start = 20.dp),
+                                    fontSize = 23.sp
+
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+
+                                OutlinedButton(
+                                onClick = { /*TODO*/ }) {
+                                    Text(text = "0${currentUser?.phone ?: userDB?.value?.phone}")
+                                }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
 
 
 
-                            Text(text = "Cedula",
-                                style = MaterialTheme.typography.h3,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(start = 20.dp),
-                                fontSize = 23.sp
-
-                            )
-                            OutlinedButton(
-                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "${currentUser?.cedula ?: userDB?.value?.cedula}")
-                            }
-                            Spacer(modifier = Modifier.height(3.dp))
-
-
-                            Text(text = "Telefono",
-                                style = MaterialTheme.typography.h3,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(start = 20.dp),
-                                fontSize = 23.sp
-
-                            )
-                            OutlinedButton(
-                                modifier = Modifier.padding(start = 40.dp), onClick = { /*TODO*/ }) {
-                                Text(text = "0${currentUser?.phone ?: userDB?.value?.phone}")
-                            }
-                            Spacer(modifier = Modifier.height(3.dp))
 
 
 
@@ -465,6 +594,15 @@ class ProfileFragment : Fragment() {
 
                     }
                     Spacer(modifier = Modifier.height(40.dp))
+
+                    if (args.profile != 3000){
+                        HorizontalList(gridItems = viewModel.updatedUser.observeAsState().value?.listOfMaterias)
+
+                    }else{
+                        HorizontalList(gridItems = viewModel.currentUser.observeAsState().value?.listOfMaterias)
+
+                    }
+
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

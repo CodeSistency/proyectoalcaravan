@@ -235,7 +235,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         val phoneValues = ContentValues().apply {
             put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
             put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-            put(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber)
+            put(ContactsContract.CommonDataKinds.Phone.NUMBER, "0${phoneNumber}")
             put(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
         }
 
@@ -308,7 +308,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
         val phoneNumber = "1234567890" // Replace with the actual phone number you want to call
-        val uri = Uri.parse("tel:$number")
+        val uri = Uri.parse("tel:0$number")
         val callIntent = Intent(Intent.ACTION_DIAL, uri)
 
         try {

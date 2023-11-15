@@ -33,10 +33,12 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
@@ -49,7 +51,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -316,105 +320,192 @@ class MateriaFragment : Fragment() {
             Dialog(
                 onDismissRequest = { isModalVisible = false },
                 content = {
-                    Column(
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                            .fillMaxWidth()
+                            .shadow(elevation = 10.dp, shape = RectangleShape)
                     ) {
-                        Card(
+                        Column(
                             modifier = Modifier
                                 .background(Color.White)
-                                .width(500.dp)
-                                .height(300.dp),
-                            elevation = 8.dp
-
+                                .fillMaxWidth()
+                                .padding(16.dp),
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            Text(
+                                text = "¿Estás seguro que quiere eliminar?",
+                                modifier = Modifier.padding(bottom = 16.dp),
+                                fontSize = 20.sp
+                            )
+
+                            Row(
+                                modifier = Modifier,
+                                horizontalArrangement = Arrangement.End
                             ) {
-                                Text(
-                                    text = "Estas seguro que deseas eliminar este usuario",
-                                    style = MaterialTheme.typography.body2,
-                                    fontSize = 15.sp,
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .padding(10.dp)
-
-                                )
-                                Button(
-                                    onClick = {
-                                        val currentMateria = viewModel.currentMateria.value
-                                        if (currentMateria != null) {
-                                            val materiaId = currentMateria.id
-                                            val teacherId = currentMateria.idTeacher
-                                            val materiaName = currentMateria.name
-
-                                            // Filter out the selected user
-                                            val filteredUsers = currentMateria.listStudent?.filterNot { it.id == user.id }
-                                            Log.e("remove user", filteredUsers.toString())
-
-                                            // Update the Materia object with the filtered users
-                                            val materiaUser = Materia(
-                                                id = materiaId,
-                                                name = materiaName,
-                                                idTeacher = teacherId,
-                                                listStudent = filteredUsers
-                                            )
-
-                                            val materiaIdToRemove = user.listOfMaterias?.find { it.id == materiaId }?.id ?: 0
-                                            val updatedListOfMaterias = user.listOfMaterias?.filterNot { it.id == materiaIdToRemove }
-
-                                            val modifiedUser = User(
-                                                id = user.id, // Replace with the actual property name for the user ID
-                                                firstName = user.firstName,
-                                                lastName = user.lastName,
-                                                email = user.email,
-                                                password = user.password,
-                                                gender = user.gender,
-                                                rol = user.rol,
-                                                birthday = user.birthday,
-                                                imageProfile = user.imageProfile,
-                                                phone = user.phone,
-                                                cedula = user.cedula,
-                                                listActivities = user.listActivities,
-                                                lgn = user.lgn,
-                                                lat = user.lat,
-                                                listOfMaterias = updatedListOfMaterias
-                                            )
-                                            viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext())
-
-                                            viewModel.updateMateria(materiaId, materiaUser, requireContext())
-                                            viewModel.getMateriaById(materiaId, requireContext())
-                                        }
-                                        isModalVisible = false
-                                    },
-
-                                    ) {
-                                    Text(text = "Eliminar")
+                                TextButton(onClick = { isModalVisible = false }) {
+                                    Text(text = "Cancelar")
                                 }
-                                Button(onClick = {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                TextButton(onClick = {
+                                    val currentMateria = viewModel.currentMateria.value
+                                    if (currentMateria != null) {
+                                        val materiaId = currentMateria.id
+                                        val teacherId = currentMateria.idTeacher
+                                        val materiaName = currentMateria.name
 
+                                        // Filter out the selected user
+                                        val filteredUsers = currentMateria.listStudent?.filterNot { it.id == user.id }
+                                        Log.e("remove user", filteredUsers.toString())
 
+                                        // Update the Materia object with the filtered users
+                                        val materiaUser = Materia(
+                                            id = materiaId,
+                                            name = materiaName,
+                                            idTeacher = teacherId,
+                                            listStudent = filteredUsers
+                                        )
+
+                                        val materiaIdToRemove = user.listOfMaterias?.find { it.id == materiaId }?.id ?: 0
+                                        val updatedListOfMaterias = user.listOfMaterias?.filterNot { it.id == materiaIdToRemove }
+
+                                        val modifiedUser = User(
+                                            id = user.id, // Replace with the actual property name for the user ID
+                                            firstName = user.firstName,
+                                            lastName = user.lastName,
+                                            email = user.email,
+                                            password = user.password,
+                                            gender = user.gender,
+                                            rol = user.rol,
+                                            birthday = user.birthday,
+                                            imageProfile = user.imageProfile,
+                                            phone = user.phone,
+                                            cedula = user.cedula,
+                                            listActivities = user.listActivities,
+                                            lgn = user.lgn,
+                                            lat = user.lat,
+                                            listOfMaterias = updatedListOfMaterias
+                                        )
+                                        viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext())
+
+                                        viewModel.updateMateria(materiaId, materiaUser, requireContext())
+                                        viewModel.getMateriaById(materiaId, requireContext())
+                                    }
                                     isModalVisible = false
                                 }) {
-                                    Text(text = "Cancelar")
-
+                                    Text(text = "Eliminar")
                                 }
                             }
-
                         }
                     }
                 }
             )
         }
+
+//        if (isModalVisible) {
+//            Dialog(
+//                onDismissRequest = { isModalVisible = false },
+//                content = {
+//                    Column(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .padding(16.dp),
+//                        horizontalAlignment = Alignment.CenterHorizontally,
+//                        verticalArrangement = Arrangement.Center
+//                    ) {
+//                        Card(
+//                            modifier = Modifier
+//                                .background(Color.White)
+//                                .width(500.dp)
+//                                .height(300.dp),
+//                            elevation = 8.dp
+//
+//                        ) {
+//                            Column(
+//                                horizontalAlignment = Alignment.CenterHorizontally
+//                            ) {
+//                                Text(
+//                                    text = "Estas seguro que deseas eliminar este usuario",
+//                                    style = MaterialTheme.typography.body2,
+//                                    fontSize = 15.sp,
+//                                    modifier = Modifier
+//                                        .align(Alignment.CenterHorizontally)
+//                                        .padding(10.dp)
+//
+//                                )
+//                                Button(
+//                                    onClick = {
+//                                        val currentMateria = viewModel.currentMateria.value
+//                                        if (currentMateria != null) {
+//                                            val materiaId = currentMateria.id
+//                                            val teacherId = currentMateria.idTeacher
+//                                            val materiaName = currentMateria.name
+//
+//                                            // Filter out the selected user
+//                                            val filteredUsers = currentMateria.listStudent?.filterNot { it.id == user.id }
+//                                            Log.e("remove user", filteredUsers.toString())
+//
+//                                            // Update the Materia object with the filtered users
+//                                            val materiaUser = Materia(
+//                                                id = materiaId,
+//                                                name = materiaName,
+//                                                idTeacher = teacherId,
+//                                                listStudent = filteredUsers
+//                                            )
+//
+//                                            val materiaIdToRemove = user.listOfMaterias?.find { it.id == materiaId }?.id ?: 0
+//                                            val updatedListOfMaterias = user.listOfMaterias?.filterNot { it.id == materiaIdToRemove }
+//
+//                                            val modifiedUser = User(
+//                                                id = user.id, // Replace with the actual property name for the user ID
+//                                                firstName = user.firstName,
+//                                                lastName = user.lastName,
+//                                                email = user.email,
+//                                                password = user.password,
+//                                                gender = user.gender,
+//                                                rol = user.rol,
+//                                                birthday = user.birthday,
+//                                                imageProfile = user.imageProfile,
+//                                                phone = user.phone,
+//                                                cedula = user.cedula,
+//                                                listActivities = user.listActivities,
+//                                                lgn = user.lgn,
+//                                                lat = user.lat,
+//                                                listOfMaterias = updatedListOfMaterias
+//                                            )
+//                                            viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext())
+//
+//                                            viewModel.updateMateria(materiaId, materiaUser, requireContext())
+//                                            viewModel.getMateriaById(materiaId, requireContext())
+//                                        }
+//                                        isModalVisible = false
+//                                    },
+//
+//                                    ) {
+//                                    Text(text = "Eliminar")
+//                                }
+//                                Button(onClick = {
+//
+//
+//                                    isModalVisible = false
+//                                }) {
+//                                    Text(text = "Cancelar")
+//
+//                                }
+//                            }
+//
+//                        }
+//                    }
+//                }
+//            )
+//        }
     }
 
     @Composable
     fun ListItemAsignacion(item: Actividad) {
         // Replace with your list item implementation
         // You can use Card, ListItem, or any other Composable to represent a single item in the list
+        var isModalVisible by remember {
+            mutableStateOf(false)
+        }
         Card(
             modifier = Modifier
                 .fillMaxSize()
@@ -449,9 +540,53 @@ class MateriaFragment : Fragment() {
 //            modifier = Modifier.padding(16.dp),
 //                color = Color.LightGray
 //            )
-                Text(text = item.id.toString())
+                IconButton(onClick = { isModalVisible = true }) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                }
             }
 
+        }
+
+        if (isModalVisible) {
+            Dialog(
+                onDismissRequest = { isModalVisible = false },
+                content = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(elevation = 10.dp, shape = RectangleShape)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .background(Color.White)
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                        ) {
+                            Text(
+                                text = "¿Estás seguro que quiere eliminar?",
+                                modifier = Modifier.padding(bottom = 16.dp),
+                                fontSize = 20.sp
+                            )
+
+                            Row(
+                                modifier = Modifier,
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                TextButton(onClick = { isModalVisible = false }) {
+                                    Text(text = "Cancelar")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                TextButton(onClick = {
+                                    item.id?.let { viewModel.deleteActivity(it, requireContext()) }
+                                    isModalVisible = false
+                                }) {
+                                    Text(text = "Eliminar")
+                                }
+                            }
+                        }
+                    }
+                }
+            )
         }
     }
 
@@ -467,12 +602,15 @@ class MateriaFragment : Fragment() {
         if (refresh.value == true){
             ShimmerCardList()
         }else{
+
             Box(Modifier.pullRefresh(pullRefreshState)){
                 LazyColumn {
                     items(actividades) { actividad ->
                         ListItemAsignacion(item = actividad)
                     }
                 }
+                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+
             }
         }
 

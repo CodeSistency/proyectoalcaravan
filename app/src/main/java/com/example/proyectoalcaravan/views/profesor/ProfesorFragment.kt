@@ -52,6 +52,7 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
@@ -102,12 +103,12 @@ import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
-import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
 import com.example.proyectoalcaravan.views.charts.GenderPerformanceChart
 import com.example.proyectoalcaravan.views.charts.LineChart2
 import com.example.proyectoalcaravan.views.componentes.connection.NoInternetMessage
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.example.proyectoalcaravan.views.scanner.Scanner
+import com.example.proyectoalcaravan.views.student.StudentFragmentDirections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -458,7 +459,13 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 .padding(8.dp)
                 .clip(shape = MaterialTheme.shapes.medium)
                 .clickable {
-
+                    view
+                        ?.findNavController()
+                        ?.navigate(
+                            ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(
+                                item?.id ?: 3000
+                            )
+                        )
                 },
 
             elevation = 8.dp,
@@ -543,106 +550,143 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
             }
 
+//            if (isModalVisible) {
+//                Dialog(
+//
+//                    onDismissRequest = { isModalVisible = false },
+//                    content = {
+//                        Column(
+//                            modifier = Modifier
+//                                .background(Color.White)
+//                                .fillMaxWidth()
+//                                .padding(16.dp)
+//                                .shadow(elevation = 10.dp, shape = RectangleShape),
+//
+//                            horizontalAlignment = Alignment.CenterHorizontally,
+//                            verticalArrangement = Arrangement.Center
+//                        ) {
+//
+//                                Column(
+//                                    horizontalAlignment = Alignment.CenterHorizontally
+//                                ) {
+//                                    Text(
+//                                        text = "Estas seguro que deseas eliminar este usuario",
+//                                        style = MaterialTheme.typography.subtitle1,
+//                                        fontWeight = FontWeight.Bold,
+//                                        fontSize = 25.sp,
+//                                        modifier = Modifier
+//                                            .align(Alignment.CenterHorizontally)
+//                                            .padding(10.dp)
+//
+//                                    )
+//                                    Button(
+//                                        onClick = {
+//                                            item.id?.let { viewModel.deleteUser(it, requireContext()) }
+//                                            isModalVisible = false
+//                                        },
+//
+//                                        ) {
+//                                        Text(text = "Eliminar")
+//                                    }
+//                                    Button(onClick = {
+//                                        isModalVisible = false
+//                                    }) {
+//                                        Text(text = "Cancelar")
+//
+//                                    }
+//                                }
+//
+//
+//                        }
+//                    }
+//                )
+//            }
+
             if (isModalVisible) {
                 Dialog(
-
                     onDismissRequest = { isModalVisible = false },
                     content = {
-                        Column(
+                        Box(
                             modifier = Modifier
-                                .background(Color.White)
                                 .fillMaxWidth()
-                                .padding(16.dp)
-                                .shadow(elevation = 10.dp, shape = RectangleShape),
-
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                                .shadow(elevation = 10.dp, shape = RectangleShape)
                         ) {
+                            Column(
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                            ) {
+                                Text(
+                                    text = "¿Estás seguro que quiere eliminar?",
+                                    modifier = Modifier.padding(bottom = 16.dp),
+                                    fontSize = 20.sp
+                                )
 
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                Row(
+                                    modifier = Modifier,
+                                    horizontalArrangement = Arrangement.End
                                 ) {
-                                    Text(
-                                        text = "Estas seguro que deseas eliminar este usuario",
-                                        style = MaterialTheme.typography.subtitle1,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 25.sp,
-                                        modifier = Modifier
-                                            .align(Alignment.CenterHorizontally)
-                                            .padding(10.dp)
-
-                                    )
-                                    Button(
-                                        onClick = {
-                                            item.id?.let { viewModel.deleteUser(it, requireContext()) }
-                                            isModalVisible = false
-                                        },
-
-                                        ) {
-                                        Text(text = "Eliminar")
+                                    TextButton(onClick = { isModalVisible = false }) {
+                                        Text(text = "Cancelar")
                                     }
-                                    Button(onClick = {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    TextButton(onClick = {
+                                        item.id?.let { viewModel.deleteUser(it, requireContext()) }
                                         isModalVisible = false
                                     }) {
-                                        Text(text = "Cancelar")
-
+                                        Text(text = "Eliminar")
                                     }
                                 }
-
-
+                            }
                         }
                     }
                 )
             }
-
-            if (isModalContactVisible) {
+            if(isModalContactVisible){
                 Dialog(
                     onDismissRequest = { isModalContactVisible = false },
                     content = {
-                        Column(
-                            modifier = Modifier
-                                .background(Color.White)
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .shadow(elevation = 10.dp, shape = RectangleShape),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(elevation = 10.dp, shape = RectangleShape)){
                             Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color.White)
+                                    .padding(16.dp)
+                                ,
                             ) {
                                 Text(
-                                    text = "Estas seguro que desea agregar añadir este contacto",
-                                    style = MaterialTheme.typography.subtitle1,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 25.sp,
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .padding(10.dp)
-
+                                    text = "¿Estás seguro que quiere agregar este contacto?",
+                                    modifier = Modifier.padding(bottom = 16.dp),
+                                    fontSize = 20.sp
                                 )
-
                                 Text(
-                                    text = "Nombre: ${item.firstName} ${item.lastName}",
-                                    style = MaterialTheme.typography.h6,
-                                    fontSize = 18.sp,
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .padding(5.dp)
+                                    text = "Nombre: ${item.firstName.toString()}",
+                                    fontSize = 17.sp,
+                                    color = Color.Gray
 
                                 )
                                 Text(
-                                    text = "Número: 0${item.phone}",
-                                    style = MaterialTheme.typography.h6,
-                                    fontSize = 18.sp,
-                                    modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .padding(5.dp)
-
+                                    text = "Número: ${item.phone.toString()}",
+                                    fontSize = 17.sp,
+                                    color = Color.Gray
                                 )
-                                Button(
-                                    onClick = {
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    TextButton(onClick = { isModalContactVisible = false }) {
+                                        Text(text = "Cancelar")
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    TextButton(onClick = {
                                         item.phone?.let {
                                             if (isPermissionGranted || viewModel.checkContactPermission(requireActivity())) {
                                                 // Permission already granted, proceed with the contact operation
@@ -655,25 +699,96 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                                 )
                                             }
                                         }
-                                        isModalContactVisible = false
-                                    },
-
-                                    ) {
-                                    Text(text = "Eliminar")
-                                }
-                                Button(onClick = {
-                                    isModalContactVisible = false
-                                }) {
-                                    Text(text = "Cancelar")
-
+                                    }) {
+                                        Text(text = "Añadir")
+                                    }
                                 }
                             }
-
-
                         }
+
                     }
                 )
             }
+
+//            if (isModalContactVisible) {
+//                Dialog(
+//                    onDismissRequest = { isModalContactVisible = false },
+//                    content = {
+//                        Column(
+//                            modifier = Modifier
+//                                .background(Color.White)
+//                                .fillMaxWidth()
+//                                .padding(16.dp)
+//                                .shadow(elevation = 10.dp, shape = RectangleShape),
+//                            horizontalAlignment = Alignment.CenterHorizontally,
+//                            verticalArrangement = Arrangement.Center
+//                        ) {
+//
+//                            Column(
+//                                horizontalAlignment = Alignment.CenterHorizontally
+//                            ) {
+//                                Text(
+//                                    text = "Estas seguro que desea agregar añadir este contacto",
+//                                    style = MaterialTheme.typography.subtitle1,
+//                                    fontWeight = FontWeight.Bold,
+//                                    fontSize = 25.sp,
+//                                    modifier = Modifier
+//                                        .align(Alignment.CenterHorizontally)
+//                                        .padding(10.dp)
+//
+//                                )
+//
+//                                Text(
+//                                    text = "Nombre: ${item.firstName} ${item.lastName}",
+//                                    style = MaterialTheme.typography.h6,
+//                                    fontSize = 18.sp,
+//                                    modifier = Modifier
+//                                        .align(Alignment.CenterHorizontally)
+//                                        .padding(5.dp)
+//
+//                                )
+//                                Text(
+//                                    text = "Número: 0${item.phone}",
+//                                    style = MaterialTheme.typography.h6,
+//                                    fontSize = 18.sp,
+//                                    modifier = Modifier
+//                                        .align(Alignment.CenterHorizontally)
+//                                        .padding(5.dp)
+//
+//                                )
+//                                Button(
+//                                    onClick = {
+//                                        item.phone?.let {
+//                                            if (isPermissionGranted || viewModel.checkContactPermission(requireActivity())) {
+//                                                // Permission already granted, proceed with the contact operation
+//                                                viewModel.insertContact(requireActivity(), item.firstName?: "", item.phone.toString())                            } else {
+//                                                // Permission not granted, request it
+//                                                ActivityCompat.requestPermissions(
+//                                                    context as ComponentActivity,
+//                                                    arrayOf(Manifest.permission.WRITE_CONTACTS),
+//                                                    MY_PERMISSIONS_REQUEST_WRITE_CONTACTS
+//                                                )
+//                                            }
+//                                        }
+//                                        isModalContactVisible = false
+//                                    },
+//
+//                                    ) {
+//                                    Text(text = "Eliminar")
+//                                }
+//                                Button(onClick = {
+//                                    isModalContactVisible = false
+//                                }) {
+//                                    Text(text = "Cancelar")
+//
+//                                }
+//                            }
+//
+//
+//                        }
+//                    }
+//                )
+//            }
 
         }
 
@@ -961,14 +1076,15 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             modifier = Modifier
                 .padding(4.dp)
                 .clip(MaterialTheme.shapes.small)
-                .background(if (isSelected) Color.Gray else Color.Transparent)
+                .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent)
                 .clickable { onTabClick() }
         ) {
             Text(
                 text = text,
                 modifier = Modifier
                     .padding(8.dp)
-                    .background(if (isSelected) Color.Gray else Color.Transparent)
+                    .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent),
+                color = if (isSelected) Color.White else Color.Gray
             )
         }
     }
@@ -988,7 +1104,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     @Composable
     fun TabEmail() {
 
-        var emailSearch by remember { mutableStateOf("") }
+        var emailSearch by remember { mutableStateOf(String()) }
 
         Box(
             modifier = Modifier
@@ -1033,7 +1149,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     @Composable
     fun TabEdad() {
 
-        var edadSearch by remember { mutableStateOf("") }
+        var edadSearch by remember { mutableStateOf(String()) }
 
         Box(
             modifier = Modifier
@@ -1101,7 +1217,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                          .background(Color.LightGray, CircleShape)
                  ) {
                      Icon(
-                         imageVector = Icons.Default.Delete,
+                         painterResource(id = R.drawable.ic_male),
                          contentDescription = null,
                          tint = Color.Gray
                      )
@@ -1115,7 +1231,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                          .background(Color.LightGray, CircleShape)
                  ) {
                      Icon(
-                         imageVector = Icons.Default.Delete,
+                         painterResource(id = R.drawable.ic_female),
                          contentDescription = null,
                          tint = Color.Gray
                      )
@@ -1145,7 +1261,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Row(
-                    modifier = Modifier.padding(3.dp),
+                    Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1157,7 +1273,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                             .background(Color.LightGray, CircleShape)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            painterResource(id = R.drawable.ic_alphabet),
                             contentDescription = null,
                             tint = Color.Gray
                         )
@@ -1167,7 +1283,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
 
                 Row(
-                    modifier = Modifier.padding(3.dp),
+                    Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -1178,7 +1294,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                             .background(Color.LightGray, CircleShape)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            painterResource(id = R.drawable.ic_date),
                             contentDescription = null,
                             tint = Color.Gray
                         )
@@ -1188,7 +1304,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
 
                 Row(
-                    modifier = Modifier.padding(3.dp),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -1199,7 +1315,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                             .background(Color.LightGray, CircleShape)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            painterResource(id = R.drawable.ic_sort),
                             contentDescription = null,
                             tint = Color.Gray
                         )
@@ -1210,30 +1326,30 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
 
 
+//                Row(
+//                    modifier = Modifier.padding(3.dp),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//
+//                    IconButton(
+//                        onClick = { viewModel.sortByAge(true) },
+//                        modifier = Modifier
+//                            .size(38.dp)
+//                            .background(Color.LightGray, CircleShape)
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Default.Delete,
+//                            contentDescription = null,
+//                            tint = Color.Gray
+//                        )
+//                    }
+//                    Spacer(modifier = Modifier.width(10.dp))
+//
+//                    Text(text = "Ordenar por edad")
+//                }
+
                 Row(
-                    modifier = Modifier.padding(3.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    IconButton(
-                        onClick = { viewModel.sortByAge(true) },
-                        modifier = Modifier
-                            .size(38.dp)
-                            .background(Color.LightGray, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            tint = Color.Gray
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
-
-                    Text(text = "Ordenar por edad")
-                }
-
-                Row(
-                    modifier = Modifier.padding(3.dp),
+                    modifier = Modifier.padding(10.dp),
 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -1321,9 +1437,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     1 -> Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
                         GenderPerformanceChart(viewModel = viewModel)
                     }
-                    2 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
-                        AgeRangePerformanceChart(viewModel = viewModel)
-                    }
+//                    2 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+//                        AgeRangePerformanceChart(viewModel = viewModel, requireContext())
+//                    }
                 }
             }
 
@@ -1494,8 +1610,17 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Filter by")
-                        Icon(painter = painterResource(R.drawable.ic_filters), contentDescription = null)
+                        Text(text = "Filtrar por:")
+                        Row (
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            OutlinedButton(onClick = { viewModel.resetFilters(requireContext())}) {
+                                Text(text = "Reset")
+                            }
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Icon(painter = painterResource(R.drawable.ic_filters), contentDescription = null)
+
+                        }
                     }
                     TabsBottomSheetWithPagerScreen()
 

@@ -29,7 +29,18 @@ fun isOnline (context: Context): Boolean {
 
 @Composable
 fun generateRandomColor(): Color {
-    // Generate a random color
-    return Color(Random.nextFloat(), Random.nextFloat(), Random.nextFloat())
-}
+    // Define a list of basic colors
+    val basicColors = listOf(
+        Color.Red,
+        Color.Green,
+        Color.Blue,
+        Color.Yellow,
+        Color.Magenta,
+        Color.Cyan,
+        Color.Gray
+    )
 
+    // Choose a random color from the list
+    val randomColorIndex = Random.nextInt(basicColors.size)
+    return basicColors[randomColorIndex]
+}
