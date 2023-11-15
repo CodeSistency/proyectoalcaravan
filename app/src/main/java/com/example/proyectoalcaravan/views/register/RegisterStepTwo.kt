@@ -77,7 +77,7 @@ class RegisterStepTwo : Fragment() {
 //            }
 //        }
         if (args.update){
-            viewModel.getUserById(args.profile)
+            viewModel.getUserById(args.profile, requireContext())
             binding.tvRegistroTitulo.text = "Actualizar"
 
         }
@@ -237,9 +237,9 @@ class RegisterStepTwo : Fragment() {
                     storageRef.downloadUrl.addOnSuccessListener { uri ->
                         val downloadUri = uri.toString()
                         user.imageProfile = downloadUri
-                        viewModel.createUser(user)
+                        viewModel.createUser(user, requireContext())
 //                        viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
-                        viewModel.getAllUsers()
+                        viewModel.getAllUsers(requireContext())
                         viewModel.profileImage.postValue(null)
                         view
                             ?.findNavController()

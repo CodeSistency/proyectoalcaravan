@@ -77,10 +77,10 @@ class LoginFragment : Fragment() {
         askNotificationPermission()
 
         viewModel.getUserDB(1)
-        viewModel.getAllUsers()
-        viewModel.getUserStudents("Estudiante")
-        viewModel.getAllMaterias()
-        viewModel.getAllActivities()
+        viewModel.getAllUsers(requireContext())
+        viewModel.getUserStudents("Estudiante", requireContext())
+        viewModel.getAllMaterias(requireContext())
+        viewModel.getAllActivities(requireContext())
 
         if(viewModel.userList?.value?.isNullOrEmpty() == true){
             Log.e("no hay", "no hay")
@@ -88,7 +88,7 @@ class LoginFragment : Fragment() {
         }
 
         binding.loginBtn.setOnClickListener{
-            viewModel.getAllUsers()
+            viewModel.getAllUsers(requireContext())
 
             val email = binding.etEmail.text.toString()
             val password = binding.password.text.toString()

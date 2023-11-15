@@ -132,7 +132,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                viewModel.getUserStudents("Estudiante")
+                viewModel.getUserStudents("Estudiante", requireContext())
                 ProfesorContent()
 
             }
@@ -248,7 +248,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     onDismissRequest = { expanded = false }
                 ) {
                     DropdownMenuItem(onClick = {
-                        viewModel.getUserStudents("Estudiante")
+                        viewModel.getUserStudents("Estudiante", requireContext())
                         selectedOption = "todos"
                         expanded = false
                     }) {
@@ -288,14 +288,14 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                 onDismissRequest = { expanded = false }
                             ) {
                                 DropdownMenuItem(onClick = {
-                                    viewModel.getAUserByGender("Femenino")
+                                    viewModel.getAUserByGender("Femenino", requireContext())
                                     selectedOptionGender = "Mujer"
                                     expandedGender = false
                                 }) {
                                     Text("Mujer")
                                 }
                                 DropdownMenuItem(onClick = {
-                                    viewModel.getAUserByGender("Masculino")
+                                    viewModel.getAUserByGender("Masculino", requireContext())
                                     selectedOptionGender = "Hombre"
                                     expandedGender = false
                                 }) {
@@ -412,7 +412,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                     singleLine = true,
                                     shape = MaterialTheme.shapes.medium)
                                 Button(onClick = {
-                                    viewModel.getUserStudentsByEmail(emailSearch)
+                                    viewModel.getUserStudentsByEmail(emailSearch, requireContext())
                                     isModalVisibleEmail = false
                                     expanded = false
                                 }) {
@@ -574,7 +574,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                     )
                                     Button(
                                         onClick = {
-                                            item.id?.let { viewModel.deleteUser(it) }
+                                            item.id?.let { viewModel.deleteUser(it, requireContext()) }
                                             isModalVisible = false
                                         },
 
@@ -697,7 +697,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         var isPermissionGranted by remember { mutableStateOf(false) }
         var refresh = viewModel.refreshing.observeAsState()
 
-        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserStudents("Estudiante") })
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserStudents("Estudiante", requireContext()) })
 
         if (refresh.value == true){
             ShimmerCardList()

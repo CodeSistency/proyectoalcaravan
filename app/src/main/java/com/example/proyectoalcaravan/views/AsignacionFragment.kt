@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -35,6 +36,8 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -71,6 +74,7 @@ import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.charts.LineChart2
 import com.example.proyectoalcaravan.views.componentes.Header2
 import com.example.proyectoalcaravan.views.componentes.connection.NoInternetMessage
+import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.google.firebase.Firebase
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.storage
@@ -96,13 +100,14 @@ class AsignacionFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             Log.e("arg", args.student.toString())
-            viewModel.getUserById(args.student)
+            viewModel.getUserById(args.student, requireContext())
             (viewModel.currentUser.value?.id ?: viewModel.currentUserDB.value?.userId)?.let {
                 viewModel.getUserRefresh(
-                    it
+                    it,
+                    requireContext()
                 )
             }
-            viewModel.currentMateria.value?.id?.let { viewModel.getActivitiesById(it) }
+            viewModel.currentMateria.value?.id?.let { viewModel.getActivitiesById(it, requireContext()) }
             setContent {
                 AsignacionContent()
 
@@ -112,8 +117,8 @@ class AsignacionFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getUserById(args.student)
-        viewModel.currentMateria.value?.id?.let { viewModel.getActivitiesById(it) }
+        viewModel.getUserById(args.student, requireContext())
+        viewModel.currentMateria.value?.id?.let { viewModel.getActivitiesById(it, requireContext()) }
         Log.e("onResume activitiesListByIdCompose", viewModel.activitiesListByIdCompose.toString())
         Log.e("onResume activitiesListById", viewModel.activitiesListById.value.toString())
     }
@@ -363,8 +368,8 @@ class AsignacionFragment : Fragment() {
                                                         listOfMaterias = user?.listOfMaterias
                                                     )
 
-                                                    viewModel.updateUser(user?.id ?: 110, updateUser)
-                                                    user?.id?.let { viewModel.getUserById(it) }
+                                                    viewModel.updateUser(user?.id ?: 110, updateUser, requireContext())
+                                                    user?.id?.let { viewModel.getUserById(it, requireContext()) }
                                                 }
 
 
@@ -612,11 +617,11 @@ class AsignacionFragment : Fragment() {
 
 
 
-                                                viewModel.updateUser(user?.id ?: 110, updateUser)
-                                                user?.id?.let { viewModel.getUserById(it) }
+                                                viewModel.updateUser(user?.id ?: 110, updateUser, requireContext())
+                                                user?.id?.let { viewModel.getUserById(it, requireContext()) }
                                                 viewModel.profileImage.postValue(null)
 //                                                    profileImageUri = null
-                                                viewModel.getAllUsers()
+                                                viewModel.getAllUsers(requireContext())
                                                 modalVisible = false
 
                                             }.addOnFailureListener { exception ->
@@ -876,11 +881,11 @@ class AsignacionFragment : Fragment() {
 
 
 
-                                                    viewModel.updateUser(user?.id ?: 110, updateUser)
-                                                    user?.id?.let { viewModel.getUserById(it) }
+                                                    viewModel.updateUser(user?.id ?: 110, updateUser, requireContext())
+                                                    user?.id?.let { viewModel.getUserById(it, requireContext()) }
                                                     viewModel.profileImage.postValue(null)
 //                                                    profileImageUri = null
-                                                    viewModel.getAllUsers()
+                                                    viewModel.getAllUsers(requireContext())
                                                     modalVisible = false
 
                                                 }.addOnFailureListener { exception ->
@@ -928,6 +933,7 @@ class AsignacionFragment : Fragment() {
 
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContentAsignacion(user: MutableLiveData<User>) {
 //        val actividades by rememberUpdatedState(user?.listActivities ?: emptyList())
@@ -938,10 +944,14 @@ class AsignacionFragment : Fragment() {
 
 
 
+        var refresh = viewModel.refreshingUpdatedUser.observeAsState()
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getAllMaterias(requireContext()) })
 
-
-
-        LazyColumn {
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(Modifier.pullRefresh(pullRefreshState)){
+                LazyColumn {
 
 
 //            if (currentUserDB.value?.rol == "Estudiante" || currentUser.value?.rol == "Estudiante"){
@@ -959,13 +969,17 @@ class AsignacionFragment : Fragment() {
 //                    }
 //                }
 //            }
-            items(activities?.listActivities ?: emptyList()) { actividad ->
-
-            if (actividad != null) {
-                    ListItemAsignacion(item = actividad)
+                    items(activities?.listActivities ?: emptyList()) { actividad ->
+                        if (actividad != null) {
+                            ListItemAsignacion(item = actividad)
+                        }
+                    }
                 }
             }
         }
+
+
+
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -1073,11 +1087,11 @@ class AsignacionFragment : Fragment() {
         var currentUserDB = viewModel.currentUserDB.value
 
         LaunchedEffect(key1 = true ){
-            currentUserDB?.userId?.let { viewModel.getUserRefresh(it) }
+            currentUserDB?.userId?.let { viewModel.getUserRefresh(it, requireContext()) }
         }
 
         LaunchedEffect(key1 = true ){
-            viewModel.currentMateria.value?.let { viewModel.getActivitiesById(viewModel.currentMateria.value!!.id) }
+            viewModel.currentMateria.value?.let { viewModel.getActivitiesById(viewModel.currentMateria.value!!.id, requireContext()) }
         }
 
         var user = viewModel.updatedUser.value

@@ -30,6 +30,7 @@ import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.repository.MainRepository
+import com.example.proyectoalcaravan.utils.isOnline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -45,6 +46,22 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var updatedUser = MutableLiveData<User>()
     var currentUserDB = MutableLiveData<UserDB?>()
     var refreshing = MutableLiveData<Boolean>(false)
+    var refreshingUserById = MutableLiveData<Boolean>(false)
+    var refreshingMaterias = MutableLiveData<Boolean>(false)
+    var refreshingMateriasById = MutableLiveData<Boolean>(false)
+    var refreshingActividad = MutableLiveData<Boolean>(false)
+    var refreshingActividadById = MutableLiveData<Boolean>(false)
+    var refreshingCurrentUser = MutableLiveData<Boolean>(false)
+    var refreshingUpdatedUser = MutableLiveData<Boolean>(false)
+    var conexion = MutableLiveData<Boolean>(true)
+
+
+
+
+
+
+
+
 
 
     //Listas de datos
@@ -190,9 +207,9 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     //Reset Filters
-    fun resetFilters() {
+    fun resetFilters(context: Context) {
         // Reset all filters and show all users
-        getUserStudents("Estudiante")
+        getUserStudents("Estudiante", context)
         filteredUserList.value = userStudentsList.value
     }
 
@@ -248,7 +265,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         }
 
         if (password.isNullOrEmpty()){
-             isPasswordValid = false
+            isPasswordValid = false
         }else {
             isPasswordValid = pattern.matches(password.toString())
         }
@@ -304,7 +321,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
             // show() method display the toast with
             // exception message.
-            Toast.makeText(context, "An error occurred", Toast.LENGTH_LONG)
+            Toast.makeText(context, "Un error ha ocurrido", Toast.LENGTH_LONG)
                 .show()
         }
     }
@@ -350,53 +367,71 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
 
- //Metodos Retrofit para users
-    fun getAllUsers() {
-
-        val response = repository.getAllUsers()
-        response.enqueue(object : Callback<List<User>> {
-            override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
-                if (response.isSuccessful) {
-                    userList.postValue(response.body())
-                    Log.e("Lista de usuariosss", response.body().toString())
-                } else {
-                    Log.e("Lista de usuariosss", response.body().toString())
-                    errorMessage.postValue("Error: ${response.code()}")
+    //Metodos Retrofit para users
+    fun getAllUsers(context: Context) {
+        if(isOnline(context)){
+            conexion.postValue(true)
+            val response = repository.getAllUsers()
+            response.enqueue(object : Callback<List<User>> {
+                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                    if (response.isSuccessful) {
+                        userList.postValue(response.body())
+                        Log.e("Lista de usuariosss", response.body().toString())
+                    } else {
+                        Log.e("Lista de usuariosss", response.body().toString())
+                        errorMessage.postValue("Error: ${response.code()}")
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<List<User>>, t: Throwable) {
-                errorMessage.postValue(t.message)
-                Log.e("erorrrrrrr", "${t.message}")
-            }
-        })
+                override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                    Log.e("erorrrrrrr", "${t.message}")
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
+
     }
 
-    fun getUserStudents(rol: String) {
-        refreshing.postValue(true)
-        val response = repository.getUserStudents(rol)
-        response.enqueue(object : Callback<List<User>> {
-            override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
-                if (response.isSuccessful) {
-                    userStudentsList.postValue(response.body())
-                    Log.e("Lista de estudiantes list", response.body().toString())
-                    refreshing.postValue(false)
+    fun getUserStudents(rol: String, context: Context) {
 
-                } else {
-                    Log.e("Lista fallida de estudiantes", response.body().toString())
-                    errorMessage.postValue("Error: ${response.code()}")
-                    refreshing.postValue(false)
+        if (isOnline(context)){
+            conexion.postValue(true)
+            refreshing.postValue(true)
+            val response = repository.getUserStudents(rol)
+            response.enqueue(object : Callback<List<User>> {
+                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                    if (response.isSuccessful) {
+                        userStudentsList.postValue(response.body())
+                        Log.e("Lista de estudiantes list", response.body().toString())
+                        refreshing.postValue(false)
 
+                    } else {
+                        Log.e("Lista fallida de estudiantes", response.body().toString())
+                        errorMessage.postValue("Error: ${response.code()}")
+                        refreshing.postValue(false)
+
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<List<User>>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+                override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
+
     }
 
-    fun getAUserStudentsByFirstName(name: String) {
+    fun getAUserStudentsByFirstName(name: String, context: Context) {
         val response = repository.getUserStudentsByFirstName(name)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
@@ -416,7 +451,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
 
-    fun getUserStudentsByEmail(email: String) {
+    fun getUserStudentsByEmail(email: String, context: Context) {
         val response = repository.getUserStudentsByEmail(email)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
@@ -435,7 +470,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         })
     }
 
-    fun getAUserByGender(gender: String) {
+    fun getAUserByGender(gender: String, context: Context) {
         val response = repository.getUserStudentsByGender(gender)
         response.enqueue(object : Callback<List<User>> {
             override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
@@ -456,186 +491,298 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
     //CREATE USER
-    fun createUser(user: User) {
-        repository.createUser(user).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
-                if (response.isSuccessful) {
-                    getAllUsers()
-                    getUserStudents("Estudiante")
-                    // Handle successful response
-                    Log.e("Create User", "User created successfully")
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun createUser(user: User, context: Context) {
+        if(isOnline(context)){
+            conexion.postValue(true)
+            repository.createUser(user).enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+                    if (response.isSuccessful) {
+                        getAllUsers(context)
+                        getUserStudents("Estudiante", context)
+                        // Handle successful response
+                        Log.e("Create User", "User created successfully")
+                        showToast("Usuario creado exitosamente", context)
 
-            override fun onFailure(call: Call<User>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        showToast("Usuario no ha sido creado, vuelva a intentar", context)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<User>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+
+        }
+
     }
 
     //UPDATE USER
-    fun updateUser(userId: Int, user: User) {
-        repository.updateUser(userId, user).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
-                if (response.isSuccessful) {
-                    getAllUsers()
-                    getUserStudents("Estudiante")
-                    // Handle successful response
-                    Log.e("Update User", "User updated successfully")
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun updateUser(userId: Int, user: User, context: Context) {
+        if (isOnline(context)){
+            conexion.postValue(true)
+            repository.updateUser(userId, user).enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+                    if (response.isSuccessful) {
+                        getAllUsers(context)
+                        getUserStudents("Estudiante", context)
+                        // Handle successful response
+                        Log.e("Update User", "User updated successfully")
+                        showToast("Usuario actualizado exitosamente", context)
 
-            override fun onFailure(call: Call<User>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        showToast("Usuario no ha sido actualizado, vuelva a intentar", context)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<User>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+
+        }
+
     }
 
     //DELETE USER
-    fun deleteUser(userId: Int) {
-        repository.deleteUser(userId).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) {
-                    getAllUsers()
-                    getUserStudents("Estudiante")
-                    // Handle successful response
-                    Log.e("Delete User", "User deleted successfully")
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun deleteUser(userId: Int, context: Context) {
+        if (isOnline(context)){
+            conexion.postValue(true)
+            repository.deleteUser(userId).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        getAllUsers(context)
+                        getUserStudents("Estudiante", context)
+                        // Handle successful response
+                        Log.e("Delete User", "User deleted successfully")
+                        showToast("Usuario eliminado exitosamente", context)
 
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        showToast("Usuario no ha sido eliminado, vuelva a intentar", context)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
     }
 
-    fun getUserById(userId: Int) {
-        repository.getUserById(userId).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
-                if (response.isSuccessful) {
-                    // Handle successful response
-                    //Checkear esto
+    fun getUserById(userId: Int, context: Context) {
+        if (isOnline(context)){
+            conexion.postValue(true)
+            refreshingUpdatedUser.postValue(true)
+            repository.getUserById(userId).enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+                    if (response.isSuccessful) {
+                        // Handle successful response
+                        //Checkear esto
 //                    currentUser.postValue(response.body())
-                    updatedUser.postValue(response.body())
-                    val user = response.body()
-                    Log.e("Get User by ID", "User: $user")
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+                        updatedUser.postValue(response.body())
+                        refreshingUpdatedUser.postValue(false)
 
-            override fun onFailure(call: Call<User>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+                        val user = response.body()
+                        Log.e("Get User by ID", "User: $user")
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        refreshingUpdatedUser.postValue(false)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<User>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
     }
 
-    fun getUserRefresh(userId: Int) {
-        repository.getUserById(userId).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
-                if (response.isSuccessful) {
-                    // Handle successful response
-                    //Checkear esto
-                    currentUser.postValue(response.body())
+    fun getUserRefresh(userId: Int, context: Context) {
+        if(isOnline(context)){
+            conexion.postValue(true)
+            repository.getUserById(userId).enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+                    if (response.isSuccessful) {
+                        // Handle successful response
+                        //Checkear esto
+                        currentUser.postValue(response.body())
 //                    updatedUser.postValue(response.body())
-                    val user = response.body()
-                    Log.e("Get User by ID", "User: $user")
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
+                        val user = response.body()
+                        Log.e("Get User by ID", "User: $user")
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<User>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+                override fun onFailure(call: Call<User>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
     }
 
     //Metodos retrofit para materias:
 
-    fun getAllMaterias() {
-        val response = repository.getAllMaterias()
-        response.enqueue(object : Callback<List<Materia>> {
-            override fun onResponse(call: Call<List<Materia>>, response: Response<List<Materia>>) {
-                if (response.isSuccessful) {
-                    materiasList.postValue(response.body())
-                    Log.e("Lista de usuarios", response.body().toString())
-                } else {
-                    Log.e("Lista de usuarios", response.body().toString())
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun getAllMaterias(context: Context) {
+        if (isOnline(context)){
+            conexion.postValue(true)
+            refreshingMaterias.postValue(true)
 
-            override fun onFailure(call: Call<List<Materia>>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+            val response = repository.getAllMaterias()
+            response.enqueue(object : Callback<List<Materia>> {
+                override fun onResponse(call: Call<List<Materia>>, response: Response<List<Materia>>) {
+                    if (response.isSuccessful) {
+                        materiasList.postValue(response.body())
+                        refreshingMaterias.postValue(false)
+
+                        Log.e("Lista de usuarios", response.body().toString())
+                    } else {
+                        Log.e("Lista de usuarios", response.body().toString())
+                        errorMessage.postValue("Error: ${response.code()}")
+                        refreshingMaterias.postValue(false)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Materia>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+
+        }
+
     }
 
-    fun getMateriaById(materiaId: Int) {
-        repository.getMateriaById(materiaId).enqueue(object : Callback<Materia> {
-            override fun onResponse(call: Call<Materia>, response: Response<Materia>) {
-                if (response.isSuccessful) {
-                    // Handle successful response
-                    val user = response.body()
-                    currentMateria.postValue(response.body())
-                    Log.e("Get User by ID", "User: $user")
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun getMateriaById(materiaId: Int, context: Context) {
+        if(isOnline(context)){
+            conexion.postValue(true)
+            refreshingMateriasById.postValue(true)
 
-            override fun onFailure(call: Call<Materia>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+            repository.getMateriaById(materiaId).enqueue(object : Callback<Materia> {
+                override fun onResponse(call: Call<Materia>, response: Response<Materia>) {
+                    if (response.isSuccessful) {
+                        // Handle successful response
+                        val user = response.body()
+                        currentMateria.postValue(response.body())
+                        refreshingMateriasById.postValue(false)
+
+                        Log.e("Get User by ID", "User: $user")
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        refreshingMateriasById.postValue(false)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<Materia>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
     }
 
-    fun updateMateria(materiaId: Int, materia: Materia) {
-        repository.updateMateria(materiaId, materia).enqueue(object : Callback<Materia> {
-            override fun onResponse(call: Call<Materia>, response: Response<Materia>) {
-                if (response.isSuccessful) {
-                    // Handle successful response
-                    Log.e("Update clase", "Clase updated successfully")
-                    getAllMaterias()
-                    getMateriaById(materiaId)
-                    currentMateria.value?.id?.let { getMateriaById(it) }
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun updateMateria(materiaId: Int, materia: Materia, context: Context) {
+        if (isOnline(context)){
+            conexion.postValue(true)
 
-            override fun onFailure(call: Call<Materia>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+            repository.updateMateria(materiaId, materia).enqueue(object : Callback<Materia> {
+                override fun onResponse(call: Call<Materia>, response: Response<Materia>) {
+                    if (response.isSuccessful) {
+                        // Handle successful response
+                        Log.e("Update clase", "Clase updated successfully")
+                        getAllMaterias(context)
+                        getMateriaById(materiaId, context)
+                        currentMateria.value?.id?.let { getMateriaById(it, context) }
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<Materia>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+
+        }
+
     }
 
     //Metodos retrofit para actividades:
 
-    fun getAllActivities() {
-        val response = repository.getAllActivities()
-        response.enqueue(object : Callback<List<Actividad>> {
-            override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
-                if (response.isSuccessful) {
-                    activitiesList.postValue(response.body())
-                    Log.e("Lista de actividades", response.body().toString())
-                } else {
-                    Log.e("Lista fallida de actividades", response.body().toString())
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun getAllActivities(context: Context) {
+        if (isOnline(context)){
+            conexion.postValue(true)
+            refreshingActividad.postValue(true)
 
-            override fun onFailure(call: Call<List<Actividad>>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+            val response = repository.getAllActivities()
+            response.enqueue(object : Callback<List<Actividad>> {
+                override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
+                    if (response.isSuccessful) {
+                        activitiesList.postValue(response.body())
+                        refreshingActividad.postValue(false)
+
+                        Log.e("Lista de actividades", response.body().toString())
+                    } else {
+                        Log.e("Lista fallida de actividades", response.body().toString())
+                        refreshingActividad.postValue(false)
+
+                        errorMessage.postValue("Error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Actividad>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
     }
 
 //    fun getActivityByIdClass(activityId: Int) {
@@ -656,54 +803,83 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 //        })
 //    }
 
-    fun getActivitiesById(activityId: Int) {
-        val response = repository.getActivityByIdClass(activityId)
-        response.enqueue(object : Callback<List<Actividad>> {
-            override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
-                if (response.isSuccessful) {
-                    activitiesListById.postValue(response.body())
-                    activitiesListByIdCompose = response.body()
-                    Log.e("Lista de actividades", response.body().toString())
-                } else {
-                    Log.e("Lista fallida de actividades", response.body().toString())
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun getActivitiesById(activityId: Int, context: Context) {
+        if(isOnline(context)){
+            conexion.postValue(true)
+            refreshingActividadById.postValue(true)
 
-            override fun onFailure(call: Call<List<Actividad>>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+            val response = repository.getActivityByIdClass(activityId)
+            response.enqueue(object : Callback<List<Actividad>> {
+                override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
+                    if (response.isSuccessful) {
+                        activitiesListById.postValue(response.body())
+                        activitiesListByIdCompose = response.body()
+                        refreshingActividadById.postValue(false)
+
+                        Log.e("Lista de actividades", response.body().toString())
+                    } else {
+                        Log.e("Lista fallida de actividades", response.body().toString())
+                        errorMessage.postValue("Error: ${response.code()}")
+                        refreshingActividadById.postValue(true)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Actividad>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
     }
 
-    fun createActivity(actividad: Actividad) {
-        repository.createActivity(actividad).enqueue(object : Callback<Actividad> {
-            override fun onResponse(call: Call<Actividad>, response: Response<Actividad>) {
-                if (response.isSuccessful) {
-                    getAllActivities()
-                    getUserById(currentUser.value?.id ?: 10000)
-                    currentMateria.value?.let { getActivitiesById(it.id) }
-                    // Handle successful response
-                    Log.e("Create Actividad", "Actividad created successfully")
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun createActivity(actividad: Actividad, context: Context) {
 
-            override fun onFailure(call: Call<Actividad>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+        if (isOnline(context)){
+            conexion.postValue(true)
+            repository.createActivity(actividad).enqueue(object : Callback<Actividad> {
+                override fun onResponse(call: Call<Actividad>, response: Response<Actividad>) {
+                    if (response.isSuccessful) {
+                        getAllActivities(context)
+                        getUserById(currentUser.value?.id ?: 10000, context)
+                        currentMateria.value?.let { getActivitiesById(it.id, context) }
+                        // Handle successful response
+
+                        Log.e("Create Actividad", "Actividad created successfully")
+                        showToast("Actividad creada exitosamente", context)
+
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        showToast("Actividad no ha sido creada, vuelva a intentar", context)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<Actividad>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+        }
+
     }
 
     //UPDATE USER
-    fun updateActivity(actividadId: Int, actividad: Actividad) {
+    fun updateActivity(actividadId: Int, actividad: Actividad, context: Context) {
         repository.updateActivity(actividadId, actividad).enqueue(object : Callback<Actividad> {
             override fun onResponse(call: Call<Actividad>, response: Response<Actividad>) {
                 if (response.isSuccessful) {
-                    getAllActivities()
+                    getAllActivities(context)
                     // Handle successful response
                     Log.e("Update Actividad", "Actividad updated successfully")
+
                 } else {
                     errorMessage.postValue("Error: ${response.code()}")
                 }
@@ -716,11 +892,11 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     //DELETE USER
-    fun deleteActivity(actividadId: Int) {
+    fun deleteActivity(actividadId: Int, context: Context) {
         repository.deleteActivity(actividadId).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
-                    getAllActivities()
+                    getAllActivities(context)
                     // Handle successful response
                     Log.e("Delete Actividad", "Actividad deleted successfully")
                 } else {
@@ -759,7 +935,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         }
     }
 
-//    fun UpdateUserDB(userId: Int) {
+    //    fun UpdateUserDB(userId: Int) {
 //        viewModelScope.launch(Dispatchers.IO) {
 //            try {
 //                var userDB = repository.getUserByIdDB(userId)
@@ -793,4 +969,3 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         }
     }
 }
-

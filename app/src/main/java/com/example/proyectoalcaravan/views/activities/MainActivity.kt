@@ -41,10 +41,10 @@ class MainActivity : AppCompatActivity() {
         val repository = MainRepository(retrofitService, userDao)
         viewModel = ViewModelProvider(this, MyViewModelFactory(repository)).get(MainViewModel::class.java)
         viewModel.getUserDB(1)
-        viewModel.getAllUsers()
-        viewModel.getAllActivities()
-        viewModel.getAllMaterias()
-        viewModel.getUserStudents("Estudiante")
+        viewModel.getAllUsers(this)
+        viewModel.getAllActivities(this)
+        viewModel.getAllMaterias(this)
+        viewModel.getUserStudents("Estudiante", this)
 
 
         if (viewModel.currentUserDB.value != null && viewModel.currentUserDB?.value!!.rol.isNotNull()) {

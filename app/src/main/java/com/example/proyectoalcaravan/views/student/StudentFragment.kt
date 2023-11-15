@@ -189,7 +189,7 @@ class StudentFragment : Fragment() {
                 .fillMaxSize()
                 .padding(4.dp)
                 .clickable {
-                    viewModel.getActivitiesById(item.id)
+                    viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
                     if (viewModel.currentUser.value?.rol == "Estudiante") {
@@ -202,7 +202,7 @@ class StudentFragment : Fragment() {
                                 )
                             )
                     } else {
-                        viewModel.getMateriaById(item.id)
+                        viewModel.getMateriaById(item.id, requireContext())
                         viewModel.currentMateria.postValue(item)
                         view
                             ?.findNavController()
@@ -375,7 +375,7 @@ class StudentFragment : Fragment() {
                     color = generateRandomColor(),
                 )
                 .clickable {
-                    viewModel.getActivitiesById(item.id)
+                    viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
                     if (viewModel.currentUser.value?.rol == "Estudiante") {
@@ -388,7 +388,7 @@ class StudentFragment : Fragment() {
                                 )
                             )
                     } else {
-                        viewModel.getMateriaById(item.id)
+                        viewModel.getMateriaById(item.id, requireContext())
                         viewModel.currentMateria.postValue(item)
                         view
                             ?.findNavController()
@@ -517,7 +517,7 @@ class StudentFragment : Fragment() {
                     Text(text = item.calificationRevision.toString())
                 }else{
                     IconButton(onClick = {
-                        viewModel.getActivitiesById(item.idClass)
+                        viewModel.getActivitiesById(item.idClass, requireContext())
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
 //                        if (viewModel.currentUserDB.value?.rol == "Estudiante") {

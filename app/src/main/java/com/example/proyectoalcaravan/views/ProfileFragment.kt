@@ -130,7 +130,7 @@ class ProfileFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 if(args.isNotNull()){
-                    viewModel.getUserById(args.profile)
+                    viewModel.getUserById(args.profile, requireContext())
                 }
                 Profile(viewModel.currentUser.observeAsState().value)
 //                MyFragmentContent(viewModel)

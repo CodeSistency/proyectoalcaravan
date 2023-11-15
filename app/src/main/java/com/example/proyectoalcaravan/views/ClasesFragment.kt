@@ -26,9 +26,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -53,6 +56,7 @@ import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.componentes.Header
+import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 
 
 class ClasesFragment : Fragment() {
@@ -62,7 +66,7 @@ class ClasesFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.getAllMaterias()
+        viewModel.getAllMaterias(requireContext())
     }
 
     override fun onCreateView(
@@ -87,7 +91,7 @@ fun ListItem(item: Materia) {
             .padding(4.dp)
             .clickable {
                 viewModel.currentMateria.postValue(item)
-                viewModel.getActivitiesById(item.id)
+                viewModel.getActivitiesById(item.id, requireContext())
                 view
                     ?.findNavController()
                     ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
@@ -157,7 +161,7 @@ fun ListItem(item: Materia) {
 //                )
                 .clickable {
                     viewModel.currentMateria.postValue(item)
-                    viewModel.getActivitiesById(item.id)
+                    viewModel.getActivitiesById(item.id, requireContext())
                     view
                         ?.findNavController()
                         ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
@@ -184,6 +188,7 @@ fun ListItem(item: Materia) {
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun Grid(gridItems: MutableLiveData<List<Materia>>) {
         val items by gridItems.observeAsState(initial = emptyList())
@@ -200,15 +205,27 @@ fun ListItem(item: Materia) {
 //                }
 //            }
 //        }
+        var refresh = viewModel.refreshingMaterias.observeAsState()
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 128.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            items(items) { item ->
-                GridItemCard(item)
+
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getAllMaterias(requireContext()) })
+
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(Modifier.pullRefresh(pullRefreshState)){
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 128.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    items(items) { item ->
+                        GridItemCard(item)
+                    }
+                }
             }
         }
+
+
     }
 
 

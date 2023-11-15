@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -36,6 +37,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -63,6 +66,7 @@ import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.componentes.Header
+import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -85,8 +89,8 @@ class MateriaFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         return ComposeView(requireContext()).apply {
-            viewModel.getAllMaterias()
-            viewModel.getAllUsers()
+            viewModel.getAllMaterias(requireContext())
+            viewModel.getAllUsers(requireContext())
             setContent {
                 MateriaContent()
 
@@ -99,6 +103,7 @@ class MateriaFragment : Fragment() {
         viewModel.activitiesListById.postValue(arrayListOf())
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContentUsers(
         userList: MutableLiveData<List<User>>,
@@ -112,11 +117,22 @@ class MateriaFragment : Fragment() {
         // Get the set of user IDs already in the class
         val usersInClassIds = list.map { it.id }.toSet()
 
-        LazyColumn {
-            items(users.filter { user -> user.id !in usersInClassIds }) { user ->
-                ListItemUser(user, selectedUsers)
+        var refresh = viewModel.refreshingMateriasById.observeAsState()
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserStudents("Estudiante", requireContext()) })
+
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(Modifier.pullRefresh(pullRefreshState)){
+                LazyColumn {
+                    items(users.filter { user -> user.id !in usersInClassIds }) { user ->
+                        ListItemUser(user, selectedUsers)
+                    }
+                }
             }
         }
+
+
     }
 
     @OptIn(ExperimentalGlideComposeApi::class)
@@ -189,17 +205,29 @@ class MateriaFragment : Fragment() {
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContentUsersSuscribed(userList: MutableLiveData<Materia>) {
         val users by userList.observeAsState()
         val list = users?.listStudent ?: emptyList()
 //        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
+        var refresh = viewModel.refreshingMateriasById.observeAsState()
 
-        LazyColumn {
-            items(users?.listStudent ?: emptyList()) { user ->
-                ListItemSuscribedUser(user)
+
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getAllMaterias(requireContext()) })
+
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(Modifier.pullRefresh(pullRefreshState)){
+                LazyColumn {
+                    items(users?.listStudent ?: emptyList()) { user ->
+                        ListItemSuscribedUser(user)
+                    }
+                }
             }
         }
+
 
         // You can use selectedUsers for your further processing.
     }
@@ -220,7 +248,8 @@ class MateriaFragment : Fragment() {
                 .clickable {
                     viewModel.currentMateria.value?.id?.let {
                         viewModel.getActivitiesById(
-                            it
+                            it,
+                            requireContext()
                         )
                     }
 
@@ -354,10 +383,10 @@ class MateriaFragment : Fragment() {
                                                 lat = user.lat,
                                                 listOfMaterias = updatedListOfMaterias
                                             )
-                                            viewModel.updateUser(user?.id ?: 110, modifiedUser)
+                                            viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext())
 
-                                            viewModel.updateMateria(materiaId, materiaUser)
-                                            viewModel.getMateriaById(materiaId)
+                                            viewModel.updateMateria(materiaId, materiaUser, requireContext())
+                                            viewModel.getMateriaById(materiaId, requireContext())
                                         }
                                         isModalVisible = false
                                     },
@@ -426,15 +455,27 @@ class MateriaFragment : Fragment() {
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContentAsignacion(listOfActivities: MutableLiveData<List<Actividad>>) {
         val actividades by listOfActivities.observeAsState(initial = emptyList())
 
-        LazyColumn {
-            items(actividades) { actividad ->
-                ListItemAsignacion(item = actividad)
+        var refresh = viewModel.refreshingActividadById.observeAsState()
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getActivitiesById(
+            viewModel.currentMateria.value?.id ?: 1000, requireContext()) })
+
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(Modifier.pullRefresh(pullRefreshState)){
+                LazyColumn {
+                    items(actividades) { actividad ->
+                        ListItemAsignacion(item = actividad)
+                    }
+                }
             }
         }
+
     }
 
 
@@ -633,13 +674,13 @@ class MateriaFragment : Fragment() {
                                                     )
 
                                                     // Call viewModel.updateUser for each user in the list
-                                                    viewModel.updateUser(user?.id ?: 110, modifiedUser)
+                                                    viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext())
 
                                                     // Update the materia with the modified user list
                                                 }
                                             }
 
-                                            viewModel.updateMateria(materiaId, Materia(materiaId, teacherId, selectedUsers, materiaName))
+                                            viewModel.updateMateria(materiaId, Materia(materiaId, teacherId, selectedUsers, materiaName), requireContext())
                                         }
                                     },
                                     modifier = Modifier
@@ -747,7 +788,8 @@ class MateriaFragment : Fragment() {
                                                         description = descripcionAsignacion,
                                                         date = viewModel.birthday.value,
 
-                                                        )
+                                                        ),
+                                                    requireContext()
                                                 )
                                             }else{
                                                 viewModel.showToast("Coloca una fecha", requireContext())
@@ -755,7 +797,7 @@ class MateriaFragment : Fragment() {
                                             }
 
                                             if (materiaId != null) {
-                                                viewModel.getActivitiesById(materiaId)
+                                                viewModel.getActivitiesById(materiaId, requireContext())
                                             }
 
                                         }else{
