@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +46,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.LinearGradient
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -152,7 +154,9 @@ fun ListItem(item: Materia) {
                 .height(130.dp)
 //                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(generateRandomColor())
+                .background(Color.White)
+                .border(2.dp, colorResource(id = R.color.blue_dark))
+//                .background(generateRandomColor())
 //                .background(
 //                    brush = Brush.linearGradient(
 //                        colors = listOf(Color.Black, Color.Transparent),
@@ -175,7 +179,7 @@ fun ListItem(item: Materia) {
                 modifier = Modifier
                     .padding(8.dp)
                     .align(Alignment.CenterStart),
-                color = Color.White,
+                color = Color.Gray,
                 fontWeight = FontWeight.Bold
             )
             Icon(

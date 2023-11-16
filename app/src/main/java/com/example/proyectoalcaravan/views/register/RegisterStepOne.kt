@@ -42,11 +42,11 @@ class RegisterStepOne : Fragment() {
         }
 
         binding.registerStepOneButton.setOnClickListener{
-            if(viewModel.isFormValid()){
+            if(viewModel.isFormValid(requireContext())){
 
                 view.findNavController().navigate(R.id.action_registerStepOne2_to_registerStepTwo2)
             }else {
-                Toast.makeText(requireContext(), "Invalid email or password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Email o clave invalida", Toast.LENGTH_SHORT).show()
             }
 
         }

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -313,8 +314,8 @@ class StudentFragment : Fragment() {
 //                    colorResource(id = R.color.primary),
                     brush = Brush.verticalGradient(
                         listOf(
-                            colorResource(id = R.color.secondary),
-                            colorResource(id = R.color.primary)
+                            colorResource(id = R.color.accent),
+                            colorResource(id = R.color.blue_dark)
                         )
                     ),
 
@@ -364,15 +365,8 @@ class StudentFragment : Fragment() {
                 .width(180.dp)
                 .clip(RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
-                .background(
-
-//                            brush = Brush . linearGradient (
-//                            colors = listOf(Color.Black, Color.Transparent),
-//                    start = Offset(0.5f, 1.0f),
-//                    end = Offset(0.5f, 0.5f)
-//                )
-                    color = generateRandomColor(),
-                )
+                .background(Color.White)
+                .border(2.dp, colorResource(id = R.color.blue_dark))
                 .clickable {
                     viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
@@ -403,7 +397,7 @@ class StudentFragment : Fragment() {
                 modifier = Modifier
                     .padding(8.dp)
                     .align(Alignment.CenterStart),
-                color = Color.White,
+                color = Color.Gray,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp
             )
@@ -624,7 +618,7 @@ class StudentFragment : Fragment() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(colorResource(id = R.color.secondary)),                ){
+                        .background(colorResource(id = R.color.accent)),                ){
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -695,8 +689,15 @@ class StudentFragment : Fragment() {
                 }
 //                HorizontalList(gridItems = viewModel.materiasList)
 
-                if(userDB.value?.listActivities?.isNullOrEmpty() == true){
+                if(userDB.value?.listActivities?.isNullOrEmpty() == true || user.value?.listActivities?.isNullOrEmpty() == true){
                         //Tengo que hacer progress bar
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(text = "No hay entregas")
+                    }
                     }else{
                         ListContentAsignacionGeneral(user = userDB)
 

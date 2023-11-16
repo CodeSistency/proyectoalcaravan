@@ -36,6 +36,8 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
@@ -323,8 +325,10 @@ class AsignacionFragment : Fragment() {
 
 
                                             if (user.isNotNull() && !notaAsignacion.isNullOrEmpty()) {
+                                                val notaValue = notaAsignacion.toIntOrNull()
 
-                                                if (notaAsignacion.toInt() > 100 && notaAsignacion.toInt() < 1){
+
+                                                if (notaValue == null || notaValue > 100){
                                                     viewModel.showToast("Nota invalida", requireContext())
                                                 }else{
                                                     Log.e("nota string", notaAsignacion.toString())
@@ -468,12 +472,16 @@ class AsignacionFragment : Fragment() {
                         val calificationRevision = completedActivity.calificationRevision
 
                         // Display something different for completed activities
-                        Text(
-                            text = "Completado - Calificación: $calificationRevision",
-                            style = MaterialTheme.typography.h6,
-                            color = Color.Green,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = calificationRevision.toString(),
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                        }
+
                     } else {
                         // Handle the case where the completed activity is not found
                     }
@@ -665,6 +673,7 @@ class AsignacionFragment : Fragment() {
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContentAsignacionGeneral(listOfActivities: MutableLiveData<List<Actividad>>, user: User) {
         val actividades by listOfActivities.observeAsState(initial = emptyList())
@@ -673,12 +682,28 @@ class AsignacionFragment : Fragment() {
         var userRol = viewModel.currentUser.value
         Log.e("user test", userRol.toString())
 
+        var refresh = viewModel.refreshingUpdatedUser.observeAsState()
 
-        LazyColumn {
-            items(actividades) { actividad ->
-                ListItemAsignacion(item = actividad, user = user)
+
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { user.id?.let {
+            viewModel.getUserById(
+                it, requireContext())
+        } })
+
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(modifier = Modifier.pullRefresh(pullRefreshState)){
+                LazyColumn {
+                    items(actividades) { actividad ->
+                        ListItemAsignacion(item = actividad, user = user)
+                    }
+                }
+                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+
             }
         }
+
     }
 
     @OptIn(ExperimentalGlideComposeApi::class)
@@ -935,41 +960,28 @@ class AsignacionFragment : Fragment() {
 
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun ListContentAsignacion(user: MutableLiveData<User>) {
-//        val actividades by rememberUpdatedState(user?.listActivities ?: emptyList())
+    fun ListContentAsignacion(user: MutableLiveData<User?>) {
         val activities by user.observeAsState()
         val activitiesCurrentUser by viewModel.currentUser.observeAsState()
-        var currentUserDB = viewModel.currentUserDB.observeAsState()
-        var currentUser = viewModel.currentUser.observeAsState()
 
+        // Assuming viewModel.currentMateria.value is a LiveData
+        val currentMateriaId by viewModel.currentMateria.observeAsState()
 
+        var activitiesFiltered = activities?.listActivities?.filter { actividad ->
+            actividad?.idClass == currentMateriaId?.id
+        }
 
         var refresh = viewModel.refreshingUpdatedUser.observeAsState()
-        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getAllMaterias(requireContext()) })
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, {
+            viewModel.getAllMaterias(requireContext())
+        })
 
-        if (refresh.value == true){
+        if (refresh.value == true) {
             ShimmerCardList()
-        }else{
-            Box(Modifier.pullRefresh(pullRefreshState)){
+        } else {
+            Box(Modifier.pullRefresh(pullRefreshState)) {
                 LazyColumn {
-
-
-//            if (currentUserDB.value?.rol == "Estudiante" || currentUser.value?.rol == "Estudiante"){
-//                items(currentUser.value?.listActivities ?: currentUserDB.value?.listActivities ?: emptyList()) { actividad ->
-//
-//                    if (actividad != null) {
-//                        ListItemAsignacion(item = actividad)
-//                    }
-//                }
-//            }else{
-//                items(activities?.listActivities ?: emptyList()) { actividad ->
-//
-//                    if (actividad != null) {
-//                        ListItemAsignacion(item = actividad)
-//                    }
-//                }
-//            }
-                    items(activities?.listActivities ?: emptyList()) { actividad ->
+                    items(activitiesFiltered ?: emptyList()) { actividad ->
                         if (actividad != null) {
                             ListItemAsignacion(item = actividad)
                         }
@@ -977,9 +989,6 @@ class AsignacionFragment : Fragment() {
                 }
             }
         }
-
-
-
     }
 
     @OptIn(ExperimentalFoundationApi::class)

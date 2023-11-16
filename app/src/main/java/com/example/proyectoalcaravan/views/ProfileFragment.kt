@@ -9,7 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -165,9 +167,9 @@ class ProfileFragment : Fragment() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(220.dp)
                 .background(
-                    color = colorResource(id = R.color.primary),
+                    color = colorResource(id = R.color.blue_dark),
                     shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
 
                     )
@@ -188,14 +190,19 @@ class ProfileFragment : Fragment() {
                         .background(Color.White),
 
                 ) {
-                    if (args.isNotNull()){
-                        GlideImage(
-                            model = updatedUser.value?.imageProfile,
-                            contentDescription = "foto",
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            contentScale = ContentScale.Fit
-                        )
+                    if (args.profile != 3000){
+                        if(updatedUser.value != null){
+                            GlideImage(
+                                model = updatedUser.value?.imageProfile,
+                                contentDescription = "foto",
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                contentScale = ContentScale.Fit
+                            )
+                        }else{
+                            
+                        }
+                        
                     }else{
                         GlideImage(
                             model = userDatabase.value?.imageProfile ?: currentUser?.imageProfile,
@@ -212,18 +219,24 @@ class ProfileFragment : Fragment() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (args.profile != 3000){
+                    
+                    if(updatedUser.value != null){
+                        Text(
+                            text = updatedUser.value?.firstName?: "nombre",
+                            style = MaterialTheme.typography.h6,
+                            color = Color.White,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        Text(
+                            text = updatedUser.value?.lastName?: "apellido",
+                            style = MaterialTheme.typography.body1,
+                            color = Color.White
+                        )
+                    }else{
 
-                    Text(
-                        text = updatedUser.value?.firstName?: "nombre",
-                        style = MaterialTheme.typography.h6,
-                        color = Color.White,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    Text(
-                        text = updatedUser.value?.lastName?: "apellido",
-                        style = MaterialTheme.typography.body1,
-                        color = Color.White
-                    )
+                    }
+
+
                 }else{
                     Text(
                         text = userDB?.firstName ?: currentUser?.firstName.toString(),
@@ -335,15 +348,8 @@ class ProfileFragment : Fragment() {
                 .width(180.dp)
                 .clip(RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
-                .background(
-
-//                            brush = Brush . linearGradient (
-//                            colors = listOf(Color.Black, Color.Transparent),
-//                    start = Offset(0.5f, 1.0f),
-//                    end = Offset(0.5f, 0.5f)
-//                )
-                    color = generateRandomColor(),
-                )
+                .background(Color.White)
+                .border(2.dp, colorResource(id = R.color.blue_dark))
                 .clickable {
                     viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
@@ -374,7 +380,7 @@ class ProfileFragment : Fragment() {
                 modifier = Modifier
                     .padding(8.dp)
                     .align(Alignment.CenterStart),
-                color = Color.White,
+                color = Color.Gray,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp
             )
@@ -409,7 +415,7 @@ class ProfileFragment : Fragment() {
             topBar = {
                 TopAppBar(
                     title = { Text(text = "Perfil") },
-                    backgroundColor = MaterialTheme.colors.primary,
+                    backgroundColor = colorResource(id = R.color.accent),
                     navigationIcon = {
                         IconButton(onClick = { view?.findNavController()?.popBackStack()
 
@@ -442,6 +448,7 @@ class ProfileFragment : Fragment() {
                                 if (userDB.value != null) {
                                     viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lag, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
                                 }
+                                viewModel.loggedIn.postValue(false)
                                 view?.findNavController()?.navigate(R.id.action_profileFragment_to_login) }) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_logout),
@@ -465,63 +472,74 @@ class ProfileFragment : Fragment() {
                         Spacer(modifier = Modifier.height(10.dp))
 
                         if (args.profile != 3000){
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = "Email:",
-                                    style = MaterialTheme.typography.h3,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(start = 20.dp),
-                                    fontSize = 23.sp
+                            if(updatedUser.value != null){
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = "Email:",
+                                        style = MaterialTheme.typography.h3,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(start = 20.dp),
+                                        fontSize = 23.sp
 
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
 
-                                OutlinedButton(
-                                    onClick = { /*TODO*/ }) {
-                                    Text(text = "${updatedUser.value?.email}")
+                                    OutlinedButton(
+                                        onClick = { /*TODO*/ }) {
+                                        Text(text = "${updatedUser.value?.email}")
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(3.dp))
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = "Cedula:",
+                                        style = MaterialTheme.typography.h3,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(start = 20.dp),
+                                        fontSize = 23.sp
+
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+
+                                    OutlinedButton(
+                                        onClick = { /*TODO*/ }) {
+                                        Text(text = "${updatedUser.value?.cedula}")
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(3.dp))
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = "Telefono:",
+                                        style = MaterialTheme.typography.h3,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(start = 20.dp),
+                                        fontSize = 23.sp
+
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+
+                                    OutlinedButton(
+                                        onClick = { /*TODO*/ }) {
+                                        Text(text = "0${updatedUser.value?.phone}")
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(3.dp))
+
+                            }else{
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(text = "Usuario no encontrado")
                                 }
                             }
-                            Spacer(modifier = Modifier.height(3.dp))
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = "Cedula:",
-                                    style = MaterialTheme.typography.h3,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(start = 20.dp),
-                                    fontSize = 23.sp
-
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-
-                                OutlinedButton(
-                                    onClick = { /*TODO*/ }) {
-                                    Text(text = "${updatedUser.value?.cedula}")
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(3.dp))
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = "Telefono:",
-                                    style = MaterialTheme.typography.h3,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(start = 20.dp),
-                                    fontSize = 23.sp
-
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-
-                                OutlinedButton(
-                                    onClick = { /*TODO*/ }) {
-                                    Text(text = "0${updatedUser.value?.phone}")
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(3.dp))
 
 
 

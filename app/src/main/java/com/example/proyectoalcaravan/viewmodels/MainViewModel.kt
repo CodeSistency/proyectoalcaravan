@@ -43,7 +43,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var currentUser = MutableLiveData<User>()
     var currentMateria = MutableLiveData<Materia>()
     var currentActividad = MutableLiveData<Actividad>()
-    var updatedUser = MutableLiveData<User>()
+    var updatedUser = MutableLiveData<User?>()
     var currentUserDB = MutableLiveData<UserDB?>()
     var refreshing = MutableLiveData<Boolean>(false)
     var refreshingUserById = MutableLiveData<Boolean>(false)
@@ -91,6 +91,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     val rol = MutableLiveData<String>()
     val genero = MutableLiveData<String>()
     val listOfActivities = MutableLiveData<List<Actividad?>>(listOf())
+    var loggedIn = MutableLiveData<Boolean>(false)
 
     val profileImage = MutableLiveData<Uri?>()
 
@@ -251,39 +252,43 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
 
-    fun isFormValid(): Boolean {
-        val email = email.value
-        val password = password.value
-
-        val pattern = "^(?=.*[0-9])(?=.*[a-zA-Z]).{6,}$".toRegex()
-
-        var isEmailValid = false
-        var isPasswordValid = false
-
-        if (email != null){
-            isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        }
-
-        if (password.isNullOrEmpty()){
-            isPasswordValid = false
-        }else {
-            isPasswordValid = pattern.matches(password.toString())
-        }
-
+    fun isFormValid(context: Context): Boolean {
         var validado = false
 
-        if(isEmailValid && isPasswordValid) {
-            Log.e("e", "algo")
-            if (!userList.value.isNullOrEmpty()) {
-                for (user in userList.value!!) {
-                    validado = user.email != email
-                }
-            } else validado = true
-        } else validado = false
+        if (isOnline(context)){
+            val email = email.value
+            val password = password.value
+
+            val pattern = "^(?=.*[0-9])(?=.*[a-zA-Z]).{6,}$".toRegex()
+
+            var isEmailValid = false
+            var isPasswordValid = false
+
+            if (email != null){
+                isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+            }
+
+            if (password.isNullOrEmpty()){
+                isPasswordValid = false
+            }else {
+                isPasswordValid = pattern.matches(password.toString())
+            }
+
+
+            if(isEmailValid && isPasswordValid) {
+                Log.e("e", "algo")
+                if (!userList.value.isNullOrEmpty()) {
+                    for (user in userList.value!!) {
+                        validado = user.email != email
+                    }
+                } else validado = true
+            } else validado = false
 
 
 
+        }
         return validado
+
     }
 
     fun showToast(message: String, context: Context) {
@@ -363,6 +368,83 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 //    }
 
     fun navigateRegister() {
+
+    }
+
+    fun getLoggedIn(email: String, password:String, context: Context) {
+
+        if (isOnline(context)){
+            conexion.postValue(true)
+            refreshingCurrentUser.postValue(true)
+            Log.e("Logged in", "Logging In")
+
+            repository.getLoggedIn(email, password).enqueue(object : Callback<List<User>> {
+                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                    if (response.isSuccessful) {
+                        // Handle successful response
+                        //Checkear esto
+//                    currentUser.postValue(response.body())
+                        if(response.body()?.isNullOrEmpty() == true){
+
+                            showToast("No se ha encontrado a ningun usuario", context)
+
+                        }else{
+                            val user = (response.body()?.get(0) ?: emptyList<User>()) as User?
+                            currentUser.postValue((response.body()?.get(0) ?: emptyList<User>()) as User?)
+                            refreshingCurrentUser.postValue(false)
+                            loggedIn.postValue(true)
+                            createUserDB(UserDB(1, user?.id, user?.firstName, user?.lastName, user?.birthday, user?.cedula, user?.gender, user?.imageProfile,user?.email, user?.password, user?.rol, user?.phone, user?.lgn, user?.lat, user?.listActivities, user?.listOfMaterias))
+
+                            Log.e("Logged in", "User: $user")
+                            showToast("Has iniciado sesión correctamente", context)
+                        }
+
+
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        refreshingCurrentUser.postValue(false)
+                        loggedIn.postValue(false)
+                        Log.e("Logged in", "Fallo")
+
+                        showToast("Ha ocurrido un error", context)
+
+
+
+                    }
+                }
+
+                override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                    Log.e("Logged in fallo", "${t.message}")
+
+                }
+
+
+            })
+
+            val response = repository.getAllUsers()
+            response.enqueue(object : Callback<List<User>> {
+                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                    if (response.isSuccessful) {
+                        userList.postValue(response.body())
+                        Log.e("Lista de usuariosss", response.body().toString())
+                    } else {
+                        Log.e("Lista de usuariosss", response.body().toString())
+                        errorMessage.postValue("Error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                    Log.e("erorrrrrrr", "${t.message}")
+                }
+            })
+        }else{
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+
+        }
+
 
     }
 
@@ -532,6 +614,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                     if (response.isSuccessful) {
                         getAllUsers(context)
                         getUserStudents("Estudiante", context)
+                        getUserById(userId, context)
                         // Handle successful response
                         Log.e("Update User", "User updated successfully")
                         showToast("Usuario actualizado exitosamente", context)
@@ -606,6 +689,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                     } else {
                         errorMessage.postValue("Error: ${response.code()}")
                         refreshingUpdatedUser.postValue(false)
+                        updatedUser.postValue(null)
+
 
                     }
                 }
@@ -897,6 +982,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     getAllActivities(context)
+                    getActivitiesById(actividadId, context)
                     // Handle successful response
                     Log.e("Delete Actividad", "Actividad deleted successfully")
                 } else {

@@ -85,42 +85,37 @@ class RegisterStepTwo : Fragment() {
 
             viewModel.updatedUser.observe(viewLifecycleOwner){ dataUser->
                 Log.e("updated User", dataUser.toString())
-                val firstName = dataUser.firstName ?: ""
-                val lastName = dataUser.lastName ?: ""
-                val email = dataUser.email ?: ""
+                Log.e("updated User", dataUser.toString())
+                val firstName = dataUser?.firstName ?: ""
+                val lastName = dataUser?.lastName ?: ""
+                val email = dataUser?.email ?: ""
 
-                val cedula = dataUser.cedula.toString() // Convert to String
-                val phone = "0"+dataUser.phone.toString() // Convert to String
-                val edad = dataUser.edad?.let {
-                    it.toString()
-                } ?: "0"
-                val lat = dataUser.lat.toString()
-                val role = dataUser.rol.toString()
-                val gender = dataUser.gender.toString()
-                val birthday = dataUser.gender.toString()
-                val password = dataUser.gender.toString()
-                val userId = dataUser.id
+                val cedula = dataUser?.cedula.toString() // Convert to String
+                val phone = "0" + dataUser?.phone.toString() // Convert to String
+                val edad = dataUser?.edad?.toString() ?: "0"
+                val lat = dataUser?.lat.toString()
+                val role = dataUser?.rol.toString()
+                val gender = dataUser?.gender.toString()
+                val birthday = dataUser?.gender.toString()
+                val password = dataUser?.gender.toString()
+                val userId = dataUser?.id
 
                 val imageUri = viewModel.profileImage.value
 
-                val listOfActivities = dataUser.listActivities
-                val listOfMaterias = dataUser.listOfMaterias
+                val listOfActivities = dataUser?.listActivities
+                val listOfMaterias = dataUser?.listOfMaterias
 
-
-
-
-                val lgn = dataUser.lgn.toString()
-                val image = dataUser.imageProfile.toString()
+                val lgn = dataUser?.lgn.toString()
+                val image = dataUser?.imageProfile.toString()
 
                 binding.etNombre.setText(firstName)
                 binding.etApellido.setText(lastName)
-                binding.etCedula.isEnabled = false
+                 binding.etCedula.isEnabled = false
                 binding.etCedula.setText(cedula)
                 binding.etTelefono.setText(phone)
                 viewModel.rol.postValue(role)
                 viewModel.genero.postValue(gender)
                 viewModel.genero.postValue(birthday)
-
 
                 binding.etEdad.setText(edad)
 
@@ -176,7 +171,7 @@ class RegisterStepTwo : Fragment() {
                     if (validado) {
                         // Check if firstName and lastName contain numbers
                         if (edad != null) {
-                            if (edad.toInt() > 120 || edad.toInt() < 14) {
+                            if (edad.toInt() > 100 || edad.toInt() < 14) {
                                 showToast("La edad no es valida")
                                 validado = false
                             }
@@ -188,7 +183,7 @@ class RegisterStepTwo : Fragment() {
 
                     if (validado) {
                         // Check if telefono is not null and is a number
-                        if (phone != null && phone.matches(Regex("\\d+"))) {
+                        if (phone != null) {
                             // Check if telefono starts with 0 and has a maximum length of 11 digits
                             if (phone.startsWith("0") && phone.length == 11) {
                                 // Phone number is valid
@@ -352,7 +347,7 @@ class RegisterStepTwo : Fragment() {
 
                 if (validado) {
                     // Check if telefono is not null and is a number
-                    if (telefono != null && telefono.matches(Regex("\\d+"))) {
+                    if (telefono != null) {
                         // Check if telefono starts with 0 and has a maximum length of 11 digits
                         if (telefono.startsWith("0") && telefono.length == 11) {
                             // Phone number is valid

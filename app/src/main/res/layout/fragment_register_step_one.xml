@@ -89,6 +89,7 @@
             app:layout_constraintStart_toStartOf="@id/passwordTextInputLayout"
             app:layout_constraintEnd_toEndOf="@id/passwordTextInputLayout"
             app:backgroundTint="@color/blue_dark"
+            android:textColor="@color/white"
             android:textSize="20dp"
             android:text="Siguiente"/>
 

@@ -16,7 +16,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentLoginBinding
 import com.example.proyectoalcaravan.model.local.UserDB
@@ -30,6 +33,8 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<MainViewModel>()
+    private lateinit var navController: NavController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -92,28 +97,52 @@ class LoginFragment : Fragment() {
 
             val email = binding.etEmail.text.toString()
             val password = binding.password.text.toString()
-            if (isOnline(requireContext())){
-                val isUserValid = isUserValid(email, password)
 
-                if (isUserValid != null) {
+            viewModel.getLoggedIn(email, password, requireContext())
 
+            viewModel.loggedIn.observe(viewLifecycleOwner){ it ->
+                if (it){
+                    
+                    viewModel.currentUser.observe(viewLifecycleOwner){
+                        if (it.rol == "Estudiante"){
+                            if(view.findNavController().isNotNull()){
+                                view.findNavController().navigate(R.id.action_login_to_studentFragment)
+                                viewModel.getUserDB(1)
 
-                    viewModel.createUserDB(UserDB(1, isUserValid.id, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat, isUserValid.listActivities, isUserValid.listOfMaterias))
-
-
-                    if (isUserValid.rol == "Estudiante"){
-                        view.findNavController().navigate(R.id.action_login_to_studentFragment)
+                            }
                     } else {
+                        if (view.findNavController().isNotNull())
                         view.findNavController().navigate(R.id.action_login_to_profesorFragment)
+                            viewModel.getUserDB(1)
 
+
+                        }
                     }
-                } else {
-                    Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
+//                    view.findNavController().navigate(R.id.action_login_to_studentFragment)
                 }
-            }else{
-                Toast.makeText(requireContext(), "No hay conexión a internet", Toast.LENGTH_SHORT).show()
-
             }
+//            if (isOnline(requireContext())){
+//                val isUserValid = isUserValid(email, password)
+//
+//                if (isUserValid != null) {
+//
+//
+//                    viewModel.createUserDB(UserDB(1, isUserValid.id, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat, isUserValid.listActivities, isUserValid.listOfMaterias))
+//
+//
+//                    if (isUserValid.rol == "Estudiante"){
+//                        view.findNavController().navigate(R.id.action_login_to_studentFragment)
+//                    } else {
+//                        view.findNavController().navigate(R.id.action_login_to_profesorFragment)
+//
+//                    }
+//                } else {
+//                    Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
+//                }
+//            }else{
+//                Toast.makeText(requireContext(), "No hay conexión a internet", Toast.LENGTH_SHORT).show()
+//
+//            }
 
 
 

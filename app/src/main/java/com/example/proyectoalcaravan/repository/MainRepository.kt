@@ -12,6 +12,8 @@ class MainRepository(private val retrofitService: RetrofitService, val userDao: 
 
     //Usuarios Retrofit
     fun getAllUsers() = retrofitService.getAllUsers()
+
+    fun getLoggedIn(email: String, password: String): Call<List<User>> = retrofitService.LoginRetrofit(email, password)
     fun getUserStudentsByFirstName(name: String): Call<List<User>> = retrofitService.getUserStudentsByFirstName(name)
     fun getUserStudentsByEmail(email: String): Call<List<User>> = retrofitService.getUserStudentsByEmail(email)
     fun getUserStudentsByGender(gender: String): Call<List<User>> = retrofitService.getUserStudentsByGender(gender)

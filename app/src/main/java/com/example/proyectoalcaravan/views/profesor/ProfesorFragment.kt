@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,11 +20,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -38,8 +35,6 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -66,6 +61,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -81,6 +77,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -96,19 +93,15 @@ import androidx.core.app.ComponentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
-import co.yml.charts.common.extensions.isNotNull
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.User
-import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
 import com.example.proyectoalcaravan.views.charts.GenderPerformanceChart
-import com.example.proyectoalcaravan.views.charts.LineChart2
-import com.example.proyectoalcaravan.views.componentes.connection.NoInternetMessage
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.example.proyectoalcaravan.views.scanner.Scanner
-import com.example.proyectoalcaravan.views.student.StudentFragmentDirections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -237,87 +230,87 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .offset(x = 45.dp)
-                    .padding(5.dp)
-            ){
-                DropdownMenu(
-
-
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    DropdownMenuItem(onClick = {
-                        viewModel.getUserStudents("Estudiante", requireContext())
-                        selectedOption = "todos"
-                        expanded = false
-                    }) {
-                        Text("Todos")
-                    }
-                    DropdownMenuItem(onClick = {
-                        selectedOption = "email"
+//            Box(
+//                modifier = Modifier
+//                    .offset(x = 45.dp)
+//                    .padding(5.dp)
+//            ){
+//                DropdownMenu(
+//
+//
+//                    expanded = expanded,
+//                    onDismissRequest = { expanded = false }
+//                ) {
+//                    DropdownMenuItem(onClick = {
+//                        viewModel.getUserStudents("Estudiante", requireContext())
+//                        selectedOption = "todos"
 //                        expanded = false
-                        isModalVisibleEmail = true
-                    }) {
-                        Text("Email")
-                    }
-                    DropdownMenuItem(onClick = {
-                        selectedOption = "edad"
-//                            expanded = false
-                        isModalVisibleEdad = true
-
-                    }) {
-                        Text("Edad")
-                    }
-                    DropdownMenuItem(onClick = {
-                        selectedOption = "genero"
-                        expandedGender = true
-                    }) {
-                        Text("Genero")
-
-                        Box(
-                            modifier = Modifier
-                                .offset(x = 105.dp)
-                                .padding(5.dp)
-                        ){
-                            DropdownMenu(
-                                modifier = Modifier
-                                    .wrapContentHeight(),
-//                            .align(Alignment.CenterVertically),
-                                expanded = expandedGender,
-                                onDismissRequest = { expanded = false }
-                            ) {
-                                DropdownMenuItem(onClick = {
-                                    viewModel.getAUserByGender("Femenino", requireContext())
-                                    selectedOptionGender = "Mujer"
-                                    expandedGender = false
-                                }) {
-                                    Text("Mujer")
-                                }
-                                DropdownMenuItem(onClick = {
-                                    viewModel.getAUserByGender("Masculino", requireContext())
-                                    selectedOptionGender = "Hombre"
-                                    expandedGender = false
-                                }) {
-                                    Text("Hombre")
-                                }
-                            }
-                        }
-
-
-                    }
-
-                    DropdownMenuItem(onClick = {
-
-                        expanded = false
-                    }) {
-                        OutlinedButton(onClick = { expanded = false }) {
-                            Text(text = "Cerrar")
-                        }
-                    }
-                }
-            }
+//                    }) {
+//                        Text("Todos")
+//                    }
+//                    DropdownMenuItem(onClick = {
+//                        selectedOption = "email"
+////                        expanded = false
+//                        isModalVisibleEmail = true
+//                    }) {
+//                        Text("Email")
+//                    }
+//                    DropdownMenuItem(onClick = {
+//                        selectedOption = "edad"
+////                            expanded = false
+//                        isModalVisibleEdad = true
+//
+//                    }) {
+//                        Text("Edad")
+//                    }
+//                    DropdownMenuItem(onClick = {
+//                        selectedOption = "genero"
+//                        expandedGender = true
+//                    }) {
+//                        Text("Genero")
+//
+//                        Box(
+//                            modifier = Modifier
+//                                .offset(x = 105.dp)
+//                                .padding(5.dp)
+//                        ){
+//                            DropdownMenu(
+//                                modifier = Modifier
+//                                    .wrapContentHeight(),
+////                            .align(Alignment.CenterVertically),
+//                                expanded = expandedGender,
+//                                onDismissRequest = { expanded = false }
+//                            ) {
+//                                DropdownMenuItem(onClick = {
+//                                    viewModel.getAUserByGender("Femenino", requireContext())
+//                                    selectedOptionGender = "Mujer"
+//                                    expandedGender = false
+//                                }) {
+//                                    Text("Mujer")
+//                                }
+//                                DropdownMenuItem(onClick = {
+//                                    viewModel.getAUserByGender("Masculino", requireContext())
+//                                    selectedOptionGender = "Hombre"
+//                                    expandedGender = false
+//                                }) {
+//                                    Text("Hombre")
+//                                }
+//                            }
+//                        }
+//
+//
+//                    }
+//
+//                    DropdownMenuItem(onClick = {
+//
+//                        expanded = false
+//                    }) {
+//                        OutlinedButton(onClick = { expanded = false }) {
+//                            Text(text = "Cerrar")
+//                        }
+//                    }
+//                }
+//            }
 
 
 
@@ -482,7 +475,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     contentDescription = "foto",
                     modifier = Modifier
                         .size(60.dp)
-                        .clip(CircleShape)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Fit
+
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -900,16 +895,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         BottomAppBar(
             modifier = Modifier
                 .padding(16.dp) // Add padding to separate from the screen
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = gradientColors,
-//                        start = Offset(0f, 0f), // Adjust the start and end offsets as needed
-//                        end = Offset(100f, 100f)
-                    ),
-                    shape = CircleShape
-                )
+
                 .shadow(8.dp, CircleShape), // Add shadow with a specified elevation
-            cutoutShape = CircleShape // You can use CircleShape or RoundedCornerShape as per your preference
+            cutoutShape = CircleShape,
+            backgroundColor = colorResource(id = R.color.accent)// You can use CircleShape or RoundedCornerShape as per your preference
         ) {
             BottomNavigationItem(
                 selected = true,
@@ -955,6 +944,25 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         }
     }
 
+//    @Composable
+//    fun getCustomGradient(startColor: Color, endColor: Color, percentage: Float): Brush {
+//        val context = LocalDensity.current
+//        val density = context.density
+//        val startY = 0f
+//        val endY = 100f
+//
+//        val shader = LinearGradientShader(
+//            startX = 0f,
+//            startY = startY,
+//            endX = 0f,
+//            endY = endY,
+//            colors = intArrayOf(startColor.toArgb(), endColor.toArgb()),
+//            colorStops = floatArrayOf(0f, percentage)
+//        )
+//
+//        return Brush(shader = shader)
+//    }
+
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun Header3(titulo: String, subtitulo: String, scope: CoroutineScope, state: ModalBottomSheetState){
@@ -966,8 +974,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 //                    Color.Blue.copy(alpha = 0.8F),
                     brush = Brush.verticalGradient(
                         listOf(
-                            colorResource(id = R.color.secondary),
-                            colorResource(id = R.color.primary)
+//                            colorResource(id = R.color.secondary),
+//                            colorResource(id = R.color.primary)
+                            colorResource(id = R.color.accent),
+                            colorResource(id = R.color.blue_dark)
                         )
                     ),
                     shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
@@ -1007,9 +1017,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     }
 
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     @Composable
-    fun TabsBottomSheetWithPagerScreen() {
+    fun TabsBottomSheetWithPagerScreen(state: ModalBottomSheetState, scope: CoroutineScope, ) {
         var selectedTabIndex by remember { mutableStateOf(0) }
 
         val tabs = listOf("Ordenar", "Email", "Sexo")
@@ -1023,7 +1033,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(6.dp)
+                .padding(2.dp)
         ) {
             // Tabs
             Row(
@@ -1049,7 +1059,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             // Animated Content
             HorizontalPager(
@@ -1062,7 +1072,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 when (page) {
                     0 -> TabOrdernar()
                     1 -> TabEmail()
-                    2 -> TabSexo()
+                    2 -> TabSexo(state, scope)
                 }
             }
 
@@ -1129,7 +1139,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         )
                     , // Rounded corners
                     value = emailSearch,
-                    onValueChange = { viewModel.setEmailFilter(it)
+                    onValueChange = {emailSearch = it
+                        viewModel.setEmailFilter(it)
                         viewModel
                     },
                     placeholder = {
@@ -1190,8 +1201,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun TabSexo() {
+    fun TabSexo(state: ModalBottomSheetState, scope: CoroutineScope) {
 
 
         Box(
@@ -1211,7 +1223,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
              ) {
 
                  IconButton(
-                     onClick = { viewModel.setGenderFilter("Masculino") },
+                     onClick = { viewModel.setGenderFilter("Masculino")  },
                      modifier = Modifier
                          .size(100.dp)
                          .background(Color.LightGray, CircleShape)
@@ -1219,13 +1231,12 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                      Icon(
                          painterResource(id = R.drawable.ic_male),
                          contentDescription = null,
-                         tint = Color.Gray
                      )
                  }
 
 
                  IconButton(
-                     onClick = { viewModel.setGenderFilter("Femenino") },
+                     onClick = { viewModel.setGenderFilter("Femenino")  },
                      modifier = Modifier
                          .size(100.dp)
                          .background(Color.LightGray, CircleShape)
@@ -1233,7 +1244,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                      Icon(
                          painterResource(id = R.drawable.ic_female),
                          contentDescription = null,
-                         tint = Color.Gray
+
                      )
                  }
              }
@@ -1437,9 +1448,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     1 -> Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
                         GenderPerformanceChart(viewModel = viewModel)
                     }
-//                    2 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
-//                        AgeRangePerformanceChart(viewModel = viewModel, requireContext())
-//                    }
+                    2 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                        AgeRangePerformanceChart(viewModel = viewModel, context = requireContext())
+                    }
                 }
             }
 
@@ -1500,7 +1511,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(colorResource(id = R.color.secondary)),                ){
+                        .background(colorResource(id = R.color.accent)),                ){
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1622,7 +1633,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
                         }
                     }
-                    TabsBottomSheetWithPagerScreen()
+                    TabsBottomSheetWithPagerScreen(state, scope)
 
                     // Range input
 //                    Spacer(modifier = Modifier.height(8.dp))
