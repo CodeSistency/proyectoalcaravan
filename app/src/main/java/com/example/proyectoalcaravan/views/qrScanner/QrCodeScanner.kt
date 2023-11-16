@@ -47,6 +47,7 @@ fun QrCodeScanner(view: View) {
     var code by remember {
         mutableStateOf("")
     }
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraProviderFuture = remember {
@@ -112,6 +113,7 @@ fun QrCodeScanner(view: View) {
                         ContextCompat.getMainExecutor(context),
                         QrCodeAnalyzer { result ->
                             code = result
+                            Log.e("result qr", result)
                         }
                     )
                     try {

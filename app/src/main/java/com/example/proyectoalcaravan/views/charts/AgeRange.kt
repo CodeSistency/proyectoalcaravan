@@ -267,12 +267,13 @@ fun AgeRangePerformanceChart(viewModel: MainViewModel, context: Context) {
     if (userListStudents.isNotEmpty()) {
         val ageRanges = listOf("18-25", "26-35", "36-45", "46-55", "56+")
         val performanceByAgeRange = calculatePerformanceByAgeRange(userListStudents, ageRanges)
+        Log.e("Performance", performanceByAgeRange.toString())
 
         val barEntries = performanceByAgeRange.mapIndexed { index, performance ->
             BarEntry(index.toFloat(), performance)
         }
 
-        val barDataSet = BarDataSet(barEntries, "Performance by Age Range").apply {
+        val barDataSet = BarDataSet(barEntries, "Rendimiento por rango de edad").apply {
             setColors(Color.GREEN)
             setDrawValues(true)
         }

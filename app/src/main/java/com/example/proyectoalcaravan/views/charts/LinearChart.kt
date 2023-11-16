@@ -30,7 +30,7 @@ fun LineChart(viewModel: MainViewModel) {
             activity?.calificationRevision?.let { Entry((index + 1).toFloat(), it.toFloat()) }
         }
 
-        val dataSet = LineDataSet(entries, "Calification Revisions")
+        val dataSet = LineDataSet(entries, "Calificaciones")
         dataSet.color = Color.BLUE
         dataSet.circleColors = listOf(Color.BLUE)
         dataSet.valueTextSize = 12f
@@ -41,7 +41,7 @@ fun LineChart(viewModel: MainViewModel) {
                 factory = { context ->
                     LineChart(context).apply {
                         data = LineData(dataSet)
-                        description.text = "Calification Revisions"
+                        description.text = "Calificaciones"
                         axisLeft.axisMinimum = 0f
                         axisLeft.axisMaximum = 100f
                         invalidate()

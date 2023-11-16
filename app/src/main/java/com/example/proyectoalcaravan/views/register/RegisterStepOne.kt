@@ -31,6 +31,8 @@ class RegisterStepOne : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.getAllUsers(requireContext())
+
         binding.editTextEmail?.doOnTextChanged { text, _, _, _ ->
             viewModel.email.value = text?.toString()
             Log.e("email", text.toString())
@@ -42,7 +44,7 @@ class RegisterStepOne : Fragment() {
         }
 
         binding.registerStepOneButton.setOnClickListener{
-            if(viewModel.isFormValid(requireContext())){
+            if(viewModel.isFormValid()){
 
                 view.findNavController().navigate(R.id.action_registerStepOne2_to_registerStepTwo2)
             }else {

@@ -12,19 +12,15 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.proyectoalcaravan.views.profesor.ProfesorActivity
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.views.register.RegisterStepOne
-import com.example.proyectoalcaravan.views.student.StudentActivity
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.Materia
@@ -54,14 +50,6 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var refreshingCurrentUser = MutableLiveData<Boolean>(false)
     var refreshingUpdatedUser = MutableLiveData<Boolean>(false)
     var conexion = MutableLiveData<Boolean>(true)
-
-
-
-
-
-
-
-
 
 
     //Listas de datos
@@ -252,43 +240,40 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
 
-    fun isFormValid(context: Context): Boolean {
+    fun isFormValid(): Boolean {
+        val email = email.value
+        val password = password.value
+
+        val pattern = "^(?=.*[0-9])(?=.*[a-zA-Z]).{6,}$".toRegex()
+
+        var isEmailValid = false
+        var isPasswordValid = false
+
+        if (email != null){
+            isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        }
+
+        if (password.isNullOrEmpty()){
+            isPasswordValid = false
+        }else {
+            isPasswordValid = pattern.matches(password.toString())
+        }
+
         var validado = false
 
-        if (isOnline(context)){
-            val email = email.value
-            val password = password.value
-
-            val pattern = "^(?=.*[0-9])(?=.*[a-zA-Z]).{6,}$".toRegex()
-
-            var isEmailValid = false
-            var isPasswordValid = false
-
-            if (email != null){
-                isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-            }
-
-            if (password.isNullOrEmpty()){
-                isPasswordValid = false
-            }else {
-                isPasswordValid = pattern.matches(password.toString())
-            }
-
-
-            if(isEmailValid && isPasswordValid) {
-                Log.e("e", "algo")
-                if (!userList.value.isNullOrEmpty()) {
-                    for (user in userList.value!!) {
-                        validado = user.email != email
-                    }
-                } else validado = true
+        if(isEmailValid && isPasswordValid) {
+            Log.e("e", "algo")
+            if (!userList.value.isNullOrEmpty()) {
+                for (user in userList.value!!) {
+                    Log.e("error email", "${user.email != email}")
+                    validado = user.email != email
+                }
             } else validado = false
+        } else validado = false
 
 
 
-        }
         return validado
-
     }
 
     fun showToast(message: String, context: Context) {
@@ -331,26 +316,6 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         }
     }
 
-    fun goToActivity(context: Context) {
-        val intent = Intent(context, StudentActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        context.startActivity(intent)
-    }
-
-    fun goToStudent(context: Context) {
-        val intent = Intent(context, StudentActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        context.startActivity(intent)
-    }
-
-    fun goToProfesor(context: Context) {
-        val intent = Intent(context, ProfesorActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        context.startActivity(intent)
-    }
 
 
     fun goToRegisterStepOne(activity: AppCompatActivity) {
@@ -391,6 +356,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                         }else{
                             val user = (response.body()?.get(0) ?: emptyList<User>()) as User?
                             currentUser.postValue((response.body()?.get(0) ?: emptyList<User>()) as User?)
+                            currentUserCompose = (response.body()?.get(0) ?: emptyList<User>()) as User?
+
                             refreshingCurrentUser.postValue(false)
                             loggedIn.postValue(true)
                             createUserDB(UserDB(1, user?.id, user?.firstName, user?.lastName, user?.birthday, user?.cedula, user?.gender, user?.imageProfile,user?.email, user?.password, user?.rol, user?.phone, user?.lgn, user?.lat, user?.listActivities, user?.listOfMaterias))
@@ -403,6 +370,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                     } else {
                         errorMessage.postValue("Error: ${response.code()}")
                         refreshingCurrentUser.postValue(false)
+                        currentUserCompose = null
                         loggedIn.postValue(false)
                         Log.e("Logged in", "Fallo")
 
@@ -683,6 +651,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 //                    currentUser.postValue(response.body())
                         updatedUser.postValue(response.body())
                         refreshingUpdatedUser.postValue(false)
+                        updatedUserCompose = response.body()
 
                         val user = response.body()
                         Log.e("Get User by ID", "User: $user")
@@ -690,6 +659,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                         errorMessage.postValue("Error: ${response.code()}")
                         refreshingUpdatedUser.postValue(false)
                         updatedUser.postValue(null)
+                        updatedUserCompose = null
+
 
 
                     }
@@ -716,11 +687,14 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                         // Handle successful response
                         //Checkear esto
                         currentUser.postValue(response.body())
+                        currentUserCompose = response.body()
 //                    updatedUser.postValue(response.body())
                         val user = response.body()
                         Log.e("Get User by ID", "User: $user")
                     } else {
                         errorMessage.postValue("Error: ${response.code()}")
+                        currentUserCompose = null
+
                     }
                 }
 

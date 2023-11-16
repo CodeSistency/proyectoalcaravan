@@ -140,7 +140,8 @@ class ProfileFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                if(args.isNotNull()){
+                if(args.profile != 3000){
+                    Log.e("profile", args.profile.toString())
                     viewModel.getUserById(args.profile, requireContext())
                 }
                 Profile(viewModel.currentUser.observeAsState().value)
@@ -349,7 +350,7 @@ class ProfileFragment : Fragment() {
                 .clip(RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
                 .background(Color.White)
-                .border(2.dp, colorResource(id = R.color.blue_dark))
+                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
                 .clickable {
                     viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
@@ -472,7 +473,7 @@ class ProfileFragment : Fragment() {
                         Spacer(modifier = Modifier.height(10.dp))
 
                         if (args.profile != 3000){
-                            if(updatedUser.value != null){
+//                            if(updatedUser.value != null){
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -530,16 +531,16 @@ class ProfileFragment : Fragment() {
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(3.dp))
-
-                            }else{
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    Text(text = "Usuario no encontrado")
-                                }
-                            }
+//
+//                            }else{
+//                                Column(
+//                                    horizontalAlignment = Alignment.CenterHorizontally,
+//                                    verticalArrangement = Arrangement.Center,
+//                                    modifier = Modifier.fillMaxSize()
+//                                ) {
+//                                    Text(text = "Usuario no encontrado")
+//                                }
+//                            }
 
 
 

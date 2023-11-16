@@ -11,10 +11,12 @@ import android.view.ViewGroup
 import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -96,6 +101,7 @@ import androidx.navigation.findNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
+import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
@@ -1386,13 +1392,104 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         }
     }
 
+    @Composable
+    fun GridItemCard(item: Materia) {
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .height(110.dp)
+//                .size(150.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.White)
+                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
+//                .background(generateRandomColor())
+//                .background(
+//                    brush = Brush.linearGradient(
+//                        colors = listOf(Color.Black, Color.Transparent),
+//                        start = Offset(0.5f, 1.0f),
+//                        end = Offset(0.5f, 0.5f)
+//                    )
+//                )
+                .clickable {
+                    viewModel.currentMateria.postValue(item)
+                    viewModel.getActivitiesById(item.id, requireContext())
+                    view
+                        ?.findNavController()
+                        ?.navigate(R.id.action_profesorFragment_to_materiaFragment)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            // Display text at the middle left
+            Text(
+                text = item.name,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterStart),
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_book),
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+//                    .absolutePadding(top = (-30).dp, right = (-30).dp)
+            )
+        }
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    fun Grid(gridItems: MutableLiveData<List<Materia>>) {
+        val items by gridItems.observeAsState(initial = emptyList())
+//        LazyColumn {
+//            items(items = items.chunked(2)) { rowItems ->
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(8.dp)
+//                ) {
+//                    for (item in rowItems) {
+//                        GridItemCard(item = item)
+//                    }
+//                }
+//            }
+//        }
+        var refresh = viewModel.refreshingMaterias.observeAsState()
+
+
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getAllMaterias(requireContext()) })
+
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(Modifier.pullRefresh(pullRefreshState)){
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 128.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    items(items) { item ->
+                        GridItemCard(item)
+                    }
+                }
+                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+
+            }
+        }
+
+
+    }
+
+
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun TabsHomeWithPagerScreen() {
         var selectedTabIndex by remember { mutableStateOf(0) }
 
-        val tabs = listOf("Listado", "Rendimiento", "Metricas")
+        val tabs = listOf("Listado", "Materias", "Rendimiento", "Metricas")
 
 
         // Pager state
@@ -1445,12 +1542,16 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     0 -> Column(modifier = Modifier.padding(bottom = 50.dp, start = 5.dp, end = 5.dp)) {
                         ListContent(userList = filteredUserList )
                     }
-                    1 -> Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                    1 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                        Grid(gridItems = viewModel.materiasList)
+                    }
+                    2 -> Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
                         GenderPerformanceChart(viewModel = viewModel)
                     }
-                    2 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                    3 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
                         AgeRangePerformanceChart(viewModel = viewModel, context = requireContext())
                     }
+
                 }
             }
 
@@ -1551,11 +1652,11 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
 
             },
-            bottomBar = { BottomAppBarContent() }
+//            bottomBar = { BottomAppBarContent() }
         ) {
             Column(
 //                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+//                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Header3(titulo = "Administra", subtitulo ="tus clases", scope, state )
 //                ListContent(userList = viewModel.userStudentsList)

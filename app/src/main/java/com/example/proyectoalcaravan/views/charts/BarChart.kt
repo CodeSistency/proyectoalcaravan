@@ -147,9 +147,9 @@ fun BarCharts(
                 xAxis.valueFormatter = object : ValueFormatter() {
                     override fun getAxisLabel(value: Float, axis: AxisBase?): String {
                         return if (value == 0f) {
-                            "Women"
+                            "Femenino"
                         } else {
-                            "Men"
+                            "Masculino"
                         }
                     }
                 }
@@ -167,12 +167,12 @@ fun BarCharts(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Female: $femaleAverage",
+            text = "Femenino: $femaleAverage",
 //            color = femaleColor,
             style = MaterialTheme.typography.body1
         )
         Text(
-            text = "Male: $maleAverage",
+            text = "Masculino: $maleAverage",
 //            color = maleColor,
             style = MaterialTheme.typography.body1
         )
@@ -197,9 +197,9 @@ fun GenderPerformanceChart(viewModel: MainViewModel) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 BarCharts(
                     entries,
-                    "Average Performance by Gender",
+                    "Rendimiento por generos",
+                    Color.MAGENTA,
                     Color.BLUE,
-                    Color.RED,
                     femaleAverage,
                     maleAverage
                 )

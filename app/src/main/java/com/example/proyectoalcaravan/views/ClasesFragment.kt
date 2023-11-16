@@ -155,7 +155,7 @@ fun ListItem(item: Materia) {
 //                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
-                .border(2.dp, colorResource(id = R.color.blue_dark))
+                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
 //                .background(
 //                    brush = Brush.linearGradient(
@@ -180,7 +180,8 @@ fun ListItem(item: Materia) {
                     .padding(8.dp)
                     .align(Alignment.CenterStart),
                 color = Color.Gray,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_book),

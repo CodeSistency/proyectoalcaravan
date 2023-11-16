@@ -1,6 +1,7 @@
 package com.example.proyectoalcaravan.views.login
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -47,6 +48,7 @@ class LoginFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -106,13 +108,13 @@ class LoginFragment : Fragment() {
                     viewModel.currentUser.observe(viewLifecycleOwner){
                         if (it.rol == "Estudiante"){
                             if(view.findNavController().isNotNull()){
-                                view.findNavController().navigate(R.id.action_login_to_studentFragment)
+                                view.findNavController().navigate(R.id.studentFragment)
                                 viewModel.getUserDB(1)
 
                             }
                     } else {
                         if (view.findNavController().isNotNull())
-                        view.findNavController().navigate(R.id.action_login_to_profesorFragment)
+                        view.findNavController().navigate(R.id.profesorFragment)
                             viewModel.getUserDB(1)
 
 

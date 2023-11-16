@@ -309,6 +309,8 @@ class AsignacionFragment : Fragment() {
                                             onValueChange = {
                                                 if (it.all { char -> char.isDigit() }) {
                                                     notaAsignacion = it
+
+                                                    Log.e("changin", item.toString())
                                                 }
                                             },
 
@@ -322,8 +324,6 @@ class AsignacionFragment : Fragment() {
                                         )
                                         Button(onClick = {
 
-
-
                                             if (user.isNotNull() && !notaAsignacion.isNullOrEmpty()) {
                                                 val notaValue = notaAsignacion.toIntOrNull()
 
@@ -333,8 +333,8 @@ class AsignacionFragment : Fragment() {
                                                 }else{
                                                     Log.e("nota string", notaAsignacion.toString())
                                                     val evaluacion = Actividad(
-                                                        calification = notaAsignacion.toInt(),
-                                                        calificationRevision = item.calificationRevision,
+                                                        calification = item.calification,
+                                                        calificationRevision = notaAsignacion.toInt(),
                                                         date = item.date,
                                                         description = item.description,
                                                         id = item.id,
@@ -360,6 +360,7 @@ class AsignacionFragment : Fragment() {
                                                         lastName = user?.lastName,
                                                         email = user?.email,
                                                         password = user?.password,
+                                                        edad = user?.edad,
                                                         gender = user?.gender,
                                                         rol = user?.rol,
                                                         birthday = user?.birthday,
@@ -419,17 +420,15 @@ class AsignacionFragment : Fragment() {
         var mensaje by remember { mutableStateOf(String()) }
         var modalVisible by remember { mutableStateOf(false) }
 //        val user by viewModel.updatedUser.observeAsState()
-        var updatedUser = viewModel.updatedUser.value
+        var updatedUser = viewModel.updatedUser.observeAsState()
+        var updatedUserCompose = viewModel.updatedUserCompose
+
         var currentUser = viewModel.currentUser.value
         var currentUserDB = viewModel.currentUserDB.value
 
         val profileImageUri by viewModel.profileImage.observeAsState()
 
-        LaunchedEffect(user, modalVisible){
-            Log.e("user role", user?.rol.toString())
-            Log.e("user in asignacion", user.toString())
 
-        }
 
         Card(
             modifier = Modifier
@@ -463,9 +462,14 @@ class AsignacionFragment : Fragment() {
 
 
                 // Add your conditional rendering logic here
-                if (user.listActivities?.any { it?.id == item.id && it?.isCompleted == true } == true) {
+//                if (updatedUser.value?.listActivities?.any { it?.id == item.id && it?.isCompleted == true } == true) {
+                if (updatedUserCompose?.listActivities?.any { it?.id == item.id && it?.isCompleted == true } == true) {
+
                     // Find the completed activity
-                    val completedActivity = user.listActivities?.firstOrNull { it?.id == item.id && it?.isCompleted == true }
+//                    val completedActivity = updatedUser.value?.listActivities?.firstOrNull { it?.id == item.id && it?.isCompleted == true }
+                    val completedActivity = updatedUserCompose?.listActivities?.firstOrNull {
+                        it?.id == item.id && it?.isCompleted == true }
+
 
                     if (completedActivity != null) {
                         // Perform some action or access properties of the completed activity
@@ -591,61 +595,73 @@ class AsignacionFragment : Fragment() {
 
                                     if (profileImageUri.isNotNull() && !mensaje.isNullOrEmpty()){
                                         // Define a reference to Firebase Storage
-                                        val storageRef = storage.reference.child("${user?.email}.jpg")
+                                        if(evaluacion.messageStudent.isNullOrEmpty()){
+                                            viewModel.showToast("Ha ocurrido un error", requireContext())
+                                        }else{
+                                            val storageRef = storage.reference.child("${user?.email}.jpg")
 
-                                        // Upload the image to Firebase Storage
-                                        val uploadTask = storageRef.putFile(profileImageUri!!)
+                                            // Upload the image to Firebase Storage
+                                            val uploadTask = storageRef.putFile(profileImageUri!!)
 
-                                        uploadTask.addOnSuccessListener { taskSnapshot ->
-                                            // The image has been successfully uploaded
-                                            storageRef.downloadUrl.addOnSuccessListener { uri ->
-                                                val downloadUri = uri.toString()
-                                                evaluacion?.imageRevision = downloadUri
+                                            uploadTask.addOnSuccessListener { taskSnapshot ->
+                                                // The image has been successfully uploaded
+                                                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                                                    val downloadUri = uri.toString()
+                                                    evaluacion?.imageRevision = downloadUri
 
-                                                val updateUser = User(
-                                                    id = user?.id, // Replace with the actual property name for the user ID
-                                                    firstName = user?.firstName,
-                                                    lastName = user?.lastName,
-                                                    email = user?.email,
-                                                    password = user?.password,
-                                                    gender = user?.gender,
-                                                    rol = user?.rol,
-                                                    birthday = user?.birthday,
-                                                    imageProfile = user?.imageProfile,
-                                                    phone = user?.phone,
-                                                    cedula = user?.cedula,
-                                                    listActivities = user?.listActivities?.plus(
-                                                        evaluacion
-                                                    ),
-                                                    lgn = user?.lgn,
-                                                    lat = user?.lat,
-                                                    listOfMaterias = user?.listOfMaterias
+                                                    val updatedUserAsignacion = User(
+                                                        id = user?.id, // Replace with the actual property name for the user ID
+                                                        firstName = user?.firstName,
+                                                        lastName = user?.lastName,
+                                                        email = user?.email,
+                                                        password = user?.password,
+                                                        edad = user?.edad,
+                                                        gender = user?.gender,
+                                                        rol = user?.rol,
+                                                        birthday = user?.birthday,
+                                                        imageProfile = user?.imageProfile,
+                                                        phone = user?.phone,
+                                                        cedula = user?.cedula,
+                                                        listActivities = user?.listActivities?.plus(
+                                                            evaluacion
+                                                        ),
+                                                        lgn = user?.lgn,
+                                                        lat = user?.lat,
+                                                        listOfMaterias = user?.listOfMaterias
 
-                                                )
+                                                    )
 
+                                                    Log.e("user asignacion", updatedUser.value.toString())
 
+                                                    viewModel.updateUser(user?.id ?: 110,
+                                                        updatedUserAsignacion, requireContext())
 
-                                                viewModel.updateUser(user?.id ?: 110, updateUser, requireContext())
-                                                user?.id?.let { viewModel.getUserById(it, requireContext()) }
-                                                viewModel.profileImage.postValue(null)
+                                                    updatedUser.value?.let {
+//                                                        viewModel.updateUser(user?.id ?: 110,
+//                                                            it, requireContext())
+                                                    }
+                                                    user?.id?.let { viewModel.getUserById(it, requireContext()) }
+                                                    viewModel.profileImage.postValue(null)
 //                                                    profileImageUri = null
-                                                viewModel.getAllUsers(requireContext())
-                                                modalVisible = false
+                                                    viewModel.getAllUsers(requireContext())
+                                                    modalVisible = false
 
+                                                }.addOnFailureListener { exception ->
+                                                    // Handle the error while trying to get the download URL
+                                                    Log.e("firebase error", "Storage Error: ${exception.message}")
+                                                }
                                             }.addOnFailureListener { exception ->
-                                                // Handle the error while trying to get the download URL
-                                                Log.e("firebase error", "Storage Error: ${exception.message}")
-                                            }
-                                        }.addOnFailureListener { exception ->
-                                            // Handle the error during image upload
-                                            if (exception is StorageException) {
-                                                // Handle storage-specific errors
-                                                Log.e("firebase error", "Storage Error: ${exception.message}")
-                                            } else {
-                                                // Handle other non-storage-related exceptions
-                                                Log.e("firebase error", "Storage Error: ${exception.message}")
+                                                // Handle the error during image upload
+                                                if (exception is StorageException) {
+                                                    // Handle storage-specific errors
+                                                    Log.e("firebase error", "Storage Error: ${exception.message}")
+                                                } else {
+                                                    // Handle other non-storage-related exceptions
+                                                    Log.e("firebase error", "Storage Error: ${exception.message}")
+                                                }
                                             }
                                         }
+
                                     }else{
                                         viewModel.showToast("Llene todos los campos!!", requireContext())
                                     }
@@ -681,11 +697,14 @@ class AsignacionFragment : Fragment() {
         Log.e("user test", user.toString())
         var userRol = viewModel.currentUser.value
         Log.e("user test", userRol.toString())
+//        user?.id?.let { viewModel.getUserById(it, requireContext()) }
 
         var refresh = viewModel.refreshingUpdatedUser.observeAsState()
 
 
         val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { user.id?.let {
+            viewModel.getAllMaterias(requireContext())
+            viewModel.getActivitiesById(viewModel.currentMateria.value?.id ?: 1000, requireContext())
             viewModel.getUserById(
                 it, requireContext())
         } })
@@ -961,6 +980,7 @@ class AsignacionFragment : Fragment() {
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContentAsignacion(user: MutableLiveData<User?>) {
+        user.value?.id?.let { viewModel.getUserById(it, requireContext()) }
         val activities by user.observeAsState()
         val activitiesCurrentUser by viewModel.currentUser.observeAsState()
 
@@ -969,11 +989,15 @@ class AsignacionFragment : Fragment() {
 
         var activitiesFiltered = activities?.listActivities?.filter { actividad ->
             actividad?.idClass == currentMateriaId?.id
-        }
+        } as MutableList<Actividad>? ?: mutableListOf()
+
+
 
         var refresh = viewModel.refreshingUpdatedUser.observeAsState()
         val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, {
+            user.value?.id?.let { viewModel.getUserById(it, requireContext()) }
             viewModel.getAllMaterias(requireContext())
+            viewModel.getActivitiesById(viewModel.currentMateria.value?.id ?: 1000, requireContext())
         })
 
         if (refresh.value == true) {

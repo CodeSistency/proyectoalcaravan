@@ -27,7 +27,8 @@ class BarcodeAnalyzer(
                 .addOnSuccessListener { barcodes ->
                     if (barcodes.isNotEmpty()) {
                         val qrCodeValue = barcodes[0].displayValue
-                        qrCodeValue?.let { it1 -> callback(it1) }
+                        qrCodeValue?.let { it1 -> callback(it1)
+                        Log.e("Qr code", it1.toString())}
                     }
                 }
                 .addOnFailureListener {

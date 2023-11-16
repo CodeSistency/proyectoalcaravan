@@ -366,7 +366,7 @@ class StudentFragment : Fragment() {
                 .clip(RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
                 .background(Color.White)
-                .border(2.dp, colorResource(id = R.color.blue_dark))
+                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
                 .clickable {
                     viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
@@ -385,7 +385,7 @@ class StudentFragment : Fragment() {
                         viewModel.currentMateria.postValue(item)
                         view
                             ?.findNavController()
-                            ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                            ?.navigate(R.id.materiaFragment)
                     }
 
                 },
@@ -412,21 +412,34 @@ class StudentFragment : Fragment() {
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @SuppressLint("SuspiciousIndentation")
     @Composable
     fun HorizontalList(gridItems: List<Materia>?) {
 //        val items by gridItems.observeAsState(initial = emptyList())
+        var refresh = viewModel.refreshingCurrentUser.observeAsState()
 
-            LazyRow(
-                modifier = Modifier
+
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserRefresh(viewModel.currentUserDB.value?.userId ?: 10000, requireContext()) })
+
+        if (refresh.value == true){
+            ShimmerCardList()
+        }else{
+            Box(modifier = Modifier.pullRefresh(pullRefreshState)){
+                LazyRow(
+                    modifier = Modifier
 //                    .fillMaxWidth()
-                    .padding(8.dp)
+                        .padding(8.dp)
 
-            ) {
-                items(gridItems ?: emptyList()) { item ->
-                    HorizontalItemCard(item = item)
+                ) {
+                    items(gridItems ?: emptyList()) { item ->
+                        HorizontalItemCard(item = item)
+                    }
                 }
             }
+        }
+
+
 
 
     }
@@ -658,7 +671,7 @@ class StudentFragment : Fragment() {
                 }
 
             },
-            bottomBar = { BottomAppBarContent() }
+//            bottomBar = { BottomAppBarContent() }
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -685,7 +698,7 @@ class StudentFragment : Fragment() {
 
                    }
                 }else{
-                    HorizontalList(gridItems = viewModel.currentUser.observeAsState().value?.listOfMaterias)
+                    HorizontalList(gridItems = viewModel.currentUserDB.observeAsState().value?.listOfMaterias)
                 }
 //                HorizontalList(gridItems = viewModel.materiasList)
 
@@ -745,7 +758,8 @@ class StudentFragment : Fragment() {
                                     elevation = 4.dp
                                 ) {
                                     Text(text = "Escanea el Qr",
-                                        modifier = Modifier.padding(10.dp))
+                                        modifier = Modifier.padding(20.dp),
+                                        fontSize = 20.sp)
 
                                         if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
                                             Barcode(

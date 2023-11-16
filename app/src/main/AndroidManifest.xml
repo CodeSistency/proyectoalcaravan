@@ -28,38 +28,24 @@
         android:theme="@style/Theme.ProyectoAlcaravan"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".views.activities.SplashScreen"
-            android:theme="@style/SplashTheme"
-            android:exported="true"
-            android:screenOrientation="portrait">
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+<!--        <activity-->
+<!--            android:name=".views.activities.SplashScreen"-->
+<!--            android:theme="@style/SplashTheme"-->
+<!--            android:exported="true"-->
+<!--            android:screenOrientation="portrait">-->
+<!--            >-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".views.profesor.ProfesorFragment"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".views.student.StudentFragment"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+
+
         <activity
             android:name=".views.activities.MainActivity"
             android:exported="true"

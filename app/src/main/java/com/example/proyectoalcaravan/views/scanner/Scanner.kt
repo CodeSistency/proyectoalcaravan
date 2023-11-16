@@ -131,7 +131,7 @@ if (hasCamPermission) {
                 val imageAnalyzer = ImageAnalysis.Builder()
                     .build()
                     .also { it ->
-                        it.setAnalyzer(cameraExecutor, BarcodeAnalyzer { qrCodeValue = it })
+                        it.setAnalyzer(cameraExecutor, BarcodeAnalyzer { qrCodeValue = it.toString() })
                     }
 
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -186,13 +186,11 @@ if (hasCamPermission) {
 
 
     if (!qrCodeValue.isNullOrEmpty()) {
-        val qrCodeInt = qrCodeValue.toIntOrNull()
-        if (qrCodeInt != null) {
+
+
             view?.findNavController()
-                ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(qrCodeInt))
-        } else {
-            viewModel.showToast("No es valido este numero", context)
-        }
+                ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(qrCodeValue.toInt()))
+
     } else {
         // Handle the case where qrCodeValue is null or empty
     }
