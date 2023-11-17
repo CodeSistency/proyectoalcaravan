@@ -89,13 +89,22 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
 
     override fun onMapReady(googleMap: GoogleMap) {
 
+        var location = viewModel.longitude.value?.let { viewModel.latitude.value?.let { it1 ->
+            LatLng(
+                it1, it)
+        } }
 
+        if (location != null) {
+            addMarker(location)
+        }
         map = googleMap
         map.setOnMapClickListener {
             Log.e("latitudee", "${it.latitude}")
             Log.e("longitudee", "${it.longitude}")
             viewModel.latitude.postValue(it.latitude)
             viewModel.longitude.postValue(it.longitude)
+
+
             addMarker(it)
         }
 //        map.setOnPoiClickListener { poi ->

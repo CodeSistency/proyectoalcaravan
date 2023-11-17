@@ -428,6 +428,10 @@ class AsignacionFragment : Fragment() {
 
         val profileImageUri by viewModel.profileImage.observeAsState()
 
+        LaunchedEffect(key1 = true){
+            viewModel.currentMateria.value?.id?.let { viewModel.getActivitiesById(it, requireContext()) }
+        }
+
 
 
         Card(
@@ -743,6 +747,10 @@ class AsignacionFragment : Fragment() {
 
         }
 
+        LaunchedEffect(key1 = true){
+            viewModel.currentMateria.value?.id?.let { viewModel.getActivitiesById(it, requireContext()) }
+        }
+
         Card(
             modifier = Modifier
                 .fillMaxSize()
@@ -980,7 +988,7 @@ class AsignacionFragment : Fragment() {
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContentAsignacion(user: MutableLiveData<User?>) {
-        user.value?.id?.let { viewModel.getUserById(it, requireContext()) }
+//        user.value?.id?.let { viewModel.getUserById(it, requireContext()) }
         val activities by user.observeAsState()
         val activitiesCurrentUser by viewModel.currentUser.observeAsState()
 

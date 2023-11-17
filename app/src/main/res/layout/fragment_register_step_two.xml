@@ -42,6 +42,8 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etNombre"
+            android:textColor="@color/gray"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"/>
@@ -59,6 +61,8 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etApellido"
+            android:textColor="@color/gray"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"/>
@@ -76,6 +80,8 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etCedula"
+            android:textColor="@color/gray"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -94,6 +100,8 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etEdad"
+            android:textColor="@color/gray"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -148,6 +156,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
+            android:textColor="@color/gray"
+
             android:maxLines="1"/>
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -240,13 +250,15 @@
 <!--        android:layout_marginHorizontal="40dp"-->
 <!--        app:layout_constraintTop_toBottomOf="@+id/selectors"-->
 <!--        />-->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/Registrar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Registrar"
         android:layout_marginHorizontal="40dp"
         android:layout_marginVertical="10dp"
+
+        android:backgroundTint="@color/blue_dark"
         app:layout_constraintTop_toBottomOf="@+id/selectImgAndLocContainer"
         />
 <!--    <Button-->
@@ -314,10 +326,12 @@
                 android:scaleType="fitXY"
                 />
             <TextView
+                android:id="@+id/locationText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ubicaciòn"
                 />
+
 
         </LinearLayout>
 

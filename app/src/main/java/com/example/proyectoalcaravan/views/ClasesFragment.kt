@@ -166,14 +166,13 @@ fun ListItem(item: Materia) {
 //                )
                 .clickable {
                     viewModel.currentMateria.postValue(item)
-                    viewModel.getActivitiesById(item.id, requireContext())
+//                    viewModel.getActivitiesById(item.id, requireContext())
                     view
                         ?.findNavController()
                         ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
                 },
             contentAlignment = Alignment.Center
         ) {
-            // Display text at the middle left
             Text(
                 text = item.name,
                 modifier = Modifier
@@ -198,19 +197,7 @@ fun ListItem(item: Materia) {
     @Composable
     fun Grid(gridItems: MutableLiveData<List<Materia>>) {
         val items by gridItems.observeAsState(initial = emptyList())
-//        LazyColumn {
-//            items(items = items.chunked(2)) { rowItems ->
-//                Row(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(8.dp)
-//                ) {
-//                    for (item in rowItems) {
-//                        GridItemCard(item = item)
-//                    }
-//                }
-//            }
-//        }
+
         var refresh = viewModel.refreshingMaterias.observeAsState()
 
 
@@ -241,7 +228,6 @@ fun ListItem(item: Materia) {
     fun ClasesContent() {
         Column {
             Header(titulo = "Materias")
-//            ListContent(materiasList = viewModel.materiasList)
             Grid(gridItems = viewModel.materiasList)
         }
 

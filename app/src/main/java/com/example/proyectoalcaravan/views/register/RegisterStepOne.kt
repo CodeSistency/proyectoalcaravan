@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepOneBinding
+import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 
 
@@ -44,12 +45,22 @@ class RegisterStepOne : Fragment() {
         }
 
         binding.registerStepOneButton.setOnClickListener{
-            if(viewModel.isFormValid()){
+            if (isOnline(requireContext())){
+//                viewModel.getAllUsers(requireContext())
 
-                view.findNavController().navigate(R.id.action_registerStepOne2_to_registerStepTwo2)
-            }else {
-                Toast.makeText(requireContext(), "Email o clave invalida", Toast.LENGTH_SHORT).show()
+//                    if(viewModel.isFormValid()){
+                    if(viewModel.registerStepOne(requireContext())){
+
+                        view.findNavController().navigate(R.id.action_registerStepOne2_to_registerStepTwo2)
+                    }else{
+                        Toast.makeText(requireContext(), "Email o clave invalida", Toast.LENGTH_SHORT).show()
+                    }
+
+            }else{
+                viewModel.showToast("Es necesario el acceso a internet", requireContext())
+
             }
+
 
         }
 

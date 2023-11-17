@@ -603,30 +603,7 @@ class StudentFragment : Fragment() {
 
         Scaffold(
             topBar = {
-//                Row(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(8.dp), // Optional padding
-//                    horizontalArrangement = Arrangement.SpaceBetween
-//                ) {
-//                    if (user != null) {
-//                        Title(user)
-//                    }
-//                    IconButton(onClick = { isModalVisible = true}) {
-//
-////                    IconButton(onClick = { scope.launch { state.show() }}) {
-//                        val iconPainter: Painter = painterResource(R.drawable.qr_detailed_svgrepo_com)
-//                        Icon(
-//
-//                            painter = iconPainter,
-//                            contentDescription = "QR Code",
-//                            modifier = Modifier.size(20.dp)
-//
-//                        )
-//                    }
-//
-//
-//                }
+
 
                 Box(
                     modifier = Modifier
@@ -716,31 +693,7 @@ class StudentFragment : Fragment() {
 
                     }
 
-//                SearchBar()
-//                ListContent()
-//                LazyColumn{
-//                    item {
-//                        LineChart(viewModel = viewModel)
-//                    }
-//                    item {
-//                        GenderPerformanceChart(viewModel = viewModel)
-//                    }
-//                }
-
-//                LineChart(viewModel = viewModel)
-//                GenderPerformanceChart(viewModel = viewModel)
-//                AgeRangePerformanceChart(viewModel = viewModel)
-
-//                AndroidView(
-//                    factory = { context ->
-//                        val fragment = MpaChartsFragment()
-//                        val inflater = LayoutInflater.from(context)
-//                        fragment.onCreateView(inflater, null, null)
-//                    }
-//                )
-
-
-//                newFragment.show(childFragmentManager, "datePicker")
+//
 
                 if (isModalVisible) {
                     Dialog(
@@ -789,7 +742,7 @@ class StudentFragment : Fragment() {
                     sheetContent ={
 
 
-                        if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.cedula.toString())) {
+                        if (BarcodeType.QR_CODE.isValueValid(viewModel.currentUser.value?.id.toString())) {
                             Barcode(
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)

@@ -142,15 +142,12 @@ class ProfileFragment : Fragment() {
             setContent {
                 if(args.profile != 3000){
                     Log.e("profile", args.profile.toString())
-                    viewModel.getUserById(args.profile, requireContext())
+                        Log.e("profile test", args.profile.toString())
+                        viewModel.getUserById(args.profile, requireContext())
+
                 }
                 Profile(viewModel.currentUser.observeAsState().value)
-//                MyFragmentContent(viewModel)
-//                Button(onClick = { checkCamaraPermissions() }) {
-//                    Text(text = "Scanner")
-//                }
-//
-//                Text(text = "${textResult}")
+
             }
         }
     }
@@ -193,6 +190,7 @@ class ProfileFragment : Fragment() {
                 ) {
                     if (args.profile != 3000){
                         if(updatedUser.value != null){
+                            Log.e("updated user test", updatedUser.toString())
                             GlideImage(
                                 model = updatedUser.value?.imageProfile,
                                 contentDescription = "foto",
@@ -222,6 +220,8 @@ class ProfileFragment : Fragment() {
                 if (args.profile != 3000){
                     
                     if(updatedUser.value != null){
+                        Log.e("updated user test", updatedUser.toString())
+
                         Text(
                             text = updatedUser.value?.firstName?: "nombre",
                             style = MaterialTheme.typography.h6,
@@ -234,7 +234,12 @@ class ProfileFragment : Fragment() {
                             color = Color.White
                         )
                     }else{
-
+                        Text(
+                            text = "Usuario no encontrado",
+                            style = MaterialTheme.typography.h6,
+                            color = Color.White,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
                     }
 
 
@@ -473,7 +478,7 @@ class ProfileFragment : Fragment() {
                         Spacer(modifier = Modifier.height(10.dp))
 
                         if (args.profile != 3000){
-//                            if(updatedUser.value != null){
+                            if(updatedUser.value != null){
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -532,15 +537,15 @@ class ProfileFragment : Fragment() {
                                 }
                                 Spacer(modifier = Modifier.height(3.dp))
 //
-//                            }else{
-//                                Column(
-//                                    horizontalAlignment = Alignment.CenterHorizontally,
-//                                    verticalArrangement = Arrangement.Center,
-//                                    modifier = Modifier.fillMaxSize()
-//                                ) {
-//                                    Text(text = "Usuario no encontrado")
-//                                }
-//                            }
+                            }else{
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(text = "Usuario no encontrado")
+                                }
+                            }
 
 
 
@@ -632,8 +637,18 @@ class ProfileFragment : Fragment() {
                             )
                        Icon(painterResource(id = R.drawable.ic_location), contentDescription = null)
                     }
+                    if (args.profile != 3000){
+                        if (updatedUser != null){
+                            SmallMap(currentUser, userDB.value)
+                        }else{
+                            Text(text = "Ubicación no encontrada")
+                        }
 
-                    SmallMap(currentUser, userDB.value)
+                    }else{
+                        SmallMap(currentUser, userDB.value)
+                    }
+                    
+                  
                  
                 }
 

@@ -50,6 +50,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var refreshingCurrentUser = MutableLiveData<Boolean>(false)
     var refreshingUpdatedUser = MutableLiveData<Boolean>(false)
     var conexion = MutableLiveData<Boolean>(true)
+    var registerStepOne = MutableLiveData<Boolean>(false)
+
 
 
     //Listas de datos
@@ -266,7 +268,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             if (!userList.value.isNullOrEmpty()) {
                 for (user in userList.value!!) {
                     Log.e("error email", "${user.email != email}")
-                    validado = user.email != email
+
                 }
             } else validado = false
         } else validado = false
@@ -274,6 +276,64 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
         return validado
+    }
+
+    fun registerStepOne(context: Context): Boolean{
+        val email = email.value
+        val password = password.value
+
+        val pattern = "^(?=.*[0-9])(?=.*[a-zA-Z]).{6,}$".toRegex()
+
+        var isEmailValid = false
+        var isPasswordValid = false
+
+        if (email != null){
+            isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        }
+
+        if (password.isNullOrEmpty()){
+            isPasswordValid = false
+        }else {
+            isPasswordValid = pattern.matches(password.toString())
+        }
+
+//        var validado = false
+
+        if (isEmailValid && isPasswordValid){
+            val response = email?.let { repository.getUserStudentsByEmail(it) }
+            response?.enqueue(object : Callback<List<User>> {
+                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                    if (response.isSuccessful) {
+                        Log.e("Register Step one", "Hay un email")
+                        if(response.body()?.isEmpty() == true){
+                            registerStepOne.postValue(true)
+                            Log.e("email body succesful sin", response.body().toString())
+                        }else{
+                            registerStepOne.postValue(false)
+                            Log.e("email body sucessful con", response.body().toString())
+
+                        }
+
+                    } else {
+                        Log.e("Register Step one", "No hay un email")
+
+                        registerStepOne.postValue(false)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                }
+            })
+        }
+
+        Log.e("validado", registerStepOne.toString())
+
+        return registerStepOne as Boolean
+        return true
+
+
     }
 
     fun showToast(message: String, context: Context) {
@@ -374,7 +434,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                         loggedIn.postValue(false)
                         Log.e("Logged in", "Fallo")
 
-                        showToast("Ha ocurrido un error", context)
+                        showToast("Ha ocurrido un error, verifica si tú contraseña o email son correctos", context)
 
 
 

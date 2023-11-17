@@ -18,6 +18,7 @@ import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentRegisterStepTwoBinding
 import com.example.proyectoalcaravan.model.remote.User
+import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.DatePickerFragment
 import com.example.proyectoalcaravan.views.ImagePickerDialogFragment
@@ -292,155 +293,161 @@ class RegisterStepTwo : Fragment() {
                 val lat = viewModel.latitude.value
                 val imageUri = viewModel.profileImage.value
 
-                if (lat != null) {
-                    if (lgn != null) {
-                        if (email.isNullOrEmpty() || password.isNullOrEmpty() || nombre.isEmpty() || apellido.isEmpty() ||
-                            cedula == null || birthday.isNullOrEmpty() || lat == null || lgn == null || !imageUri.isNotNull() ) {
-                            showToast("Llena todos los campos")
-                            validado = false
-                        }
-                    }
-                }
-
-                binding.Registrar.isEnabled = false
-
-                // Rest of your code for validation and user creation...
-
-                // After all validations and user creation logic
-                if (validado) {
-                    // Enable the button after successful validation and user creation
-                    binding.Registrar.isEnabled = true
-                } else {
-                    // If validation fails, enable the button to allow corrections
-                    binding.Registrar.isEnabled = true
-                }
-
-                if (validado) {
-                    // Check if firstName and lastName contain numbers
-                    if (nombre.any { it.isDigit() } || apellido.any { it.isDigit() }) {
-                        showToast("El nombre y el apellido no pueden contener números")
+                if (isOnline(requireContext())){
+                    if (email.isNullOrEmpty() || password.isNullOrEmpty() || nombre.isEmpty() || apellido.isEmpty() ||
+                        cedula == null || birthday.isNullOrEmpty() || lat == null || lgn == null || !imageUri.isNotNull() ) {
+                        showToast("Llena todos los campos")
                         validado = false
                     }
-                }
 
-                if (validado) {
-                    // Check if firstName and lastName contain numbers
-                    if (cedula != null) {
-                        if (cedula < 1000000 ) {
-                            showToast("La cedula no es valida")
+
+
+                    if (validado) {
+                        if (nombre.any { it.isDigit() } || apellido.any { it.isDigit() }) {
+                            showToast("El nombre y el apellido no pueden contener números")
                             validado = false
                         }
                     }
-                }
-                if (validado) {
-                    // Check if firstName and lastName contain numbers
-                    if (edad != null) {
-                        if (edad > 120 || edad < 14) {
-                            showToast("La edad no es valida")
-                            validado = false
-                        }
-                    }
-                }
 
-
-
-
-                if (validado) {
-                    // Check if telefono is not null and is a number
-                    if (telefono != null) {
-                        // Check if telefono starts with 0 and has a maximum length of 11 digits
-                        if (telefono.startsWith("0") && telefono.length == 11) {
-                            // Phone number is valid
-                            showToast("El número es válido")
-                        } else {
-                            // Phone number is not valid
-                            showToast("El número no es válido")
-                            validado = false
-                        }
-                    } else {
-                        // telefono is null or not a number
-                        showToast("Ingrese un número de teléfono válido")
-                        validado = false
-                    }
-                }
-
-                if (validado) {
-                    if (userList != null) {
-                        for (user in userList) {
-                            if (user.cedula == cedula) {
-                                showToast("Esta cedula ya existe")
+                    if (validado) {
+                        if (cedula != null) {
+                            if (cedula < 1000000 ) {
+                                showToast("La cedula no es valida")
                                 validado = false
-                                break
+                            }
+                        }
+                    }
+                    if (validado) {
+                        // Check if firstName and lastName contain numbers
+                        if (edad != null) {
+                            if (edad > 120 || edad < 14) {
+                                showToast("La edad no es valida")
+                                validado = false
+                            }
+                        }
+                    }
+
+
+
+
+//                if (validado) {
+//                    // Check if telefono is not null and is a number
+//                    if (telefono != null) {
+//                        // Check if telefono starts with 0 and has a maximum length of 11 digits
+//                        if (telefono.length == 11) {
+//                            // Phone number is valid
+//                            showToast("El número es válido")
+//                            validado = true
+//                        } else {
+//                            // Phone number is not valid
+//                            showToast("El número no es válido")
+//                            validado = false
+//                        }
+//                    } else {
+//                        // telefono is null or not a number
+//                        showToast("Ingrese un número de teléfono válido")
+//                        validado = false
+//                    }
+//                }
+
+                    if (validado) {
+                        if (userList != null) {
+                            for (user in userList) {
+                                if (user.cedula == cedula) {
+                                    showToast("Esta cedula ya existe")
+                                    validado = false
+                                    break
+                                }
+                            }
+                        }else{
+                            viewModel.showToast("Ha ocurrido un error, vuelva a intentar", requireContext())
+                            viewModel.getAllUsers(requireContext())
+                            validado = false
+                        }
+                    }
+
+//                if (validado) {
+//                    // Enable the button after successful validation and user creation
+//                    binding.Registrar.isEnabled = true
+//                } else {
+//                    // If validation fails, enable the button to allow corrections
+//                    binding.Registrar.isEnabled = true
+//                }
+
+                    if (validado) {
+                        // All fields are valid, proceed with uploading the image and creating the user
+                        val user = User(
+                            email = email?.lowercase(),
+                            password = password,
+                            firstName = nombre.lowercase(),
+                            lastName = apellido.lowercase(),
+                            cedula = cedula,
+                            edad = edad,
+                            phone = telefono.toLongOrNull(),
+                            imageProfile = "", // Initialize with an empty string
+                            birthday = birthday,
+                            lat = viewModel.latitude.value,
+                            listActivities = viewModel.listOfActivities.value,
+                            lgn = viewModel.longitude.value,
+                            rol = viewModel.rol.value,
+                            gender = viewModel.genero.value,
+                            created = LocalDate.now(),
+                        )
+
+                        binding.Registrar.isEnabled = false
+
+
+                        // Define a reference to Firebase Storage
+                        val storageRef = storage.reference.child("${user.email}.jpg")
+
+                        // Upload the image to Firebase Storage
+                        val uploadTask = imageUri?.let { it1 -> storageRef.putFile(it1) }
+
+                        uploadTask?.addOnSuccessListener { taskSnapshot ->
+                            // The image has been successfully uploaded
+                            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                                val downloadUri = uri.toString()
+                                user.imageProfile = downloadUri
+                                viewModel.createUser(user, requireContext())
+                                //                        viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
+                                viewModel.getAllUsers(requireContext())
+                                viewModel.profileImage.postValue(null)
+                                binding.Registrar.isEnabled = true
+
+                                view
+                                    ?.findNavController()
+                                    ?.navigate(R.id.action_registerStepTwo2_to_login)
+                            }.addOnFailureListener { exception ->
+                                // Handle the error while trying to get the download URL
+                                showToast("Fallo para conseguir la URL: ${exception.message}")
+                            }
+                        }?.addOnFailureListener { exception ->
+                            // Handle the error during image upload
+                            if (exception is StorageException) {
+                                // Handle storage-specific errors
+                                Log.e("firebase error", "Storage Error: ${exception.message}")
+                                showToast("Storage Error: ${exception.message}")
+                            } else {
+                                // Handle other non-storage-related exceptions
+                                showToast("Subida de la imagen ha fallado. Intente de nuevo")
                             }
                         }
                     }
                 }
 
-                if (validado) {
-                    // All fields are valid, proceed with uploading the image and creating the user
-                    val user = User(
-                        email = email?.lowercase(),
-                        password = password,
-                        firstName = nombre.lowercase(),
-                        lastName = apellido.lowercase(),
-                        cedula = cedula,
-                        edad = edad,
-                        phone = telefono.toLongOrNull(),
-                        imageProfile = "", // Initialize with an empty string
-                        birthday = birthday,
-                        lat = viewModel.latitude.value,
-                        listActivities = viewModel.listOfActivities.value,
-                        lgn = viewModel.longitude.value,
-                        rol = viewModel.rol.value,
-                        gender = viewModel.genero.value,
-                        created = LocalDate.now(),
-                    )
 
-                    // Define a reference to Firebase Storage
-                    val storageRef = storage.reference.child("${user.email}.jpg")
-
-                    // Upload the image to Firebase Storage
-                    val uploadTask = storageRef.putFile(imageUri!!)
-
-                    uploadTask.addOnSuccessListener { taskSnapshot ->
-                        // The image has been successfully uploaded
-                        storageRef.downloadUrl.addOnSuccessListener { uri ->
-                            val downloadUri = uri.toString()
-                            user.imageProfile = downloadUri
-                            viewModel.createUser(user, requireContext())
-//                        viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
-                            viewModel.getAllUsers(requireContext())
-                            viewModel.profileImage.postValue(null)
-                            view
-                                ?.findNavController()
-                                ?.navigate(R.id.action_registerStepTwo2_to_login)
-                        }.addOnFailureListener { exception ->
-                            // Handle the error while trying to get the download URL
-                            showToast("Fallo para conseguir la URL: ${exception.message}")
-                        }
-                    }.addOnFailureListener { exception ->
-                        // Handle the error during image upload
-                        if (exception is StorageException) {
-                            // Handle storage-specific errors
-                            Log.e("firebase error", "Storage Error: ${exception.message}")
-                            showToast("Storage Error: ${exception.message}")
-                        } else {
-                            // Handle other non-storage-related exceptions
-                            showToast("Subida de la imagen ha fallado. Intente de nuevo")
-                        }
-                    }
-                }
             }
         }
-
-
-
-
 
 
         //Pintar imagen
         viewModel.profileImage.observe(viewLifecycleOwner){
             binding.btnImagePicker.setImageURI(viewModel.profileImage.value)
+        }
+
+        viewModel.latitude.observe(viewLifecycleOwner){
+            Log.e("lat and lag", viewModel.latitude.toString() + viewModel.longitude.toString())
+            binding.locationText.text = viewModel.latitude.toString() + viewModel.longitude.toString()
         }
 
         binding.fechaNacimientoTextInputLayout.setOnClickListener{
@@ -471,13 +478,37 @@ class RegisterStepTwo : Fragment() {
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
+
         // Apply the adapter to the spinner
         genderSpinner.adapter = genderAdapter
         roleSpinner.adapter = roleAdapter
+        viewModel.updatedUser.observe(viewLifecycleOwner){
+            if (args.profile != 3000){
+                genderSpinner.setSelection(genderAdapter.getPosition(
+                    it?.gender
+                ))
+
+                roleSpinner.setSelection(roleAdapter.getPosition(
+                    it?.rol
+                ))
+//                roleSpinner.setSelection(roleAdapter.getPosition("Profesor"))
+            }
+        }
+
+//       else{
+//
+//        }
+
+
+
+
+
 
         genderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedGender = parent?.getItemAtPosition(position) as String
+
+                Log.e("selected array1", position.toString())
                 viewModel.genero.postValue(selectedGender)
                 viewModel.genero.observe(viewLifecycleOwner){
                     viewModel.genero.postValue(selectedGender)
@@ -496,6 +527,23 @@ class RegisterStepTwo : Fragment() {
 
         roleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+
+//                if (args.profile != 3000){
+//                    var positionUpdated = 0
+//                    if (viewModel.updatedUser.value?.rol == "Estudiante"){
+//                        positionUpdated = 0
+//                    }else{
+//                        positionUpdated = 1
+//                    }
+//                    Log.e("selected array2", position.toString())
+//
+//                    val selectedRole = parent?.getItemAtPosition(positionUpdated) as String
+//
+//                    viewModel.rol.postValue(selectedRole)
+//                    viewModel.rol.observe(viewLifecycleOwner){
+//                        viewModel.rol.postValue(selectedRole)
+//                    }
+//                }
                 val selectedRole = parent?.getItemAtPosition(position) as String
                 viewModel.rol.postValue(selectedRole)
                 viewModel.rol.observe(viewLifecycleOwner){

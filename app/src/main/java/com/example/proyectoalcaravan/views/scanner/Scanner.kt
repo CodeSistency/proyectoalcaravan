@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
+import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.profesor.ProfesorFragmentDirections
 import java.util.concurrent.Executors
@@ -68,6 +69,7 @@ fun Scanner(view: View, viewModel: MainViewModel, context: Context) {
             ) == PackageManager.PERMISSION_GRANTED
         )
     }
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
@@ -75,11 +77,15 @@ fun Scanner(view: View, viewModel: MainViewModel, context: Context) {
 
             if (!granted) {
                 // User denied the permission, show a toast or handle accordingly
-                Toast.makeText(context, "Permiso de la camara denegado, vaya a los ajustes", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Permiso de la camara denegado, vaya a los ajustes",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     )
-    LaunchedEffect(qrCodeValue){
+    LaunchedEffect(qrCodeValue) {
         Log.e("scanner", "scaneado")
     }
 
@@ -87,113 +93,125 @@ fun Scanner(view: View, viewModel: MainViewModel, context: Context) {
 
 
 
-LaunchedEffect(key1 = true) {
-    if (!hasCamPermission){
-        launcher.launch(Manifest.permission.CAMERA)
+    LaunchedEffect(key1 = true) {
+        if (!hasCamPermission) {
+            launcher.launch(Manifest.permission.CAMERA)
+        }
     }
-}
 
-if (hasCamPermission) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val offsetY = infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
+    if (hasCamPermission) {
+        val infiniteTransition = rememberInfiniteTransition()
+        val offsetY = infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            )
         )
-    )
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(900.dp)
-            .background(Color.Black)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ){
-        AndroidView({ context ->
-            val cameraExecutor = Executors.newSingleThreadExecutor()
-            val previewView = PreviewView(context).also {
-                it.scaleType = PreviewView.ScaleType.FILL_CENTER
-            }
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-            cameraProviderFuture.addListener({
-                val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
-                val preview = Preview.Builder()
-                    .build()
-                    .also {
-                        it.setSurfaceProvider(previewView.surfaceProvider)
-                    }
-
-                val imageCapture = ImageCapture.Builder().build()
-
-                val imageAnalyzer = ImageAnalysis.Builder()
-                    .build()
-                    .also { it ->
-                        it.setAnalyzer(cameraExecutor, BarcodeAnalyzer { qrCodeValue = it.toString() })
-                    }
-
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                try {
-                    // Unbind use cases before rebinding
-                    cameraProvider.unbindAll()
-
-                    // Bind use cases to camera
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner, cameraSelector, preview, imageCapture, imageAnalyzer
-                    )
-
-                } catch (exc: Exception) {
-                    Log.e("DEBUG", "Use case binding failed", exc)
-                }
-            }, ContextCompat.getMainExecutor(context))
-            previewView
-        },
-            modifier = Modifier
-                .fillMaxSize())
-
         Box(
             modifier = Modifier
-                .size(250.dp)
-                .background(Color.Transparent)
-                .border(2.dp, Color.White)
-                .drawBehind {
-                    drawLine(
-                        color = Color.White,
-                        start = Offset(0f, size.height / 2),
-                        end = Offset(size.width, size.height / 2),
-                        strokeWidth = 2.dp.toPx()
-                    )
-                }
+                .fillMaxWidth()
+                .height(900.dp)
+                .background(Color.Black)
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            AndroidView(
+                { context ->
+                    val cameraExecutor = Executors.newSingleThreadExecutor()
+                    val previewView = PreviewView(context).also {
+                        it.scaleType = PreviewView.ScaleType.FILL_CENTER
+                    }
+                    val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+                    cameraProviderFuture.addListener({
+                        val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+
+                        val preview = Preview.Builder()
+                            .build()
+                            .also {
+                                it.setSurfaceProvider(previewView.surfaceProvider)
+                            }
+
+                        val imageCapture = ImageCapture.Builder().build()
+
+                        val imageAnalyzer = ImageAnalysis.Builder()
+                            .build()
+                            .also { it ->
+                                it.setAnalyzer(cameraExecutor, BarcodeAnalyzer { qrCodeValue = it })
+                            }
+
+                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+                        try {
+                            // Unbind use cases before rebinding
+                            cameraProvider.unbindAll()
+
+                            // Bind use cases to camera
+                            cameraProvider.bindToLifecycle(
+                                lifecycleOwner, cameraSelector, preview, imageCapture, imageAnalyzer
+                            )
+
+                        } catch (exc: Exception) {
+                            Log.e("DEBUG", "Use case binding failed", exc)
+                        }
+                    }, ContextCompat.getMainExecutor(context))
+                    previewView
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(250.dp)
+                    .background(Color.Transparent)
+                    .border(2.dp, Color.White)
+                    .drawBehind {
+                        drawLine(
+                            color = Color.White,
+                            start = Offset(0f, size.height / 2),
+                            end = Offset(size.width, size.height / 2),
+                            strokeWidth = 2.dp.toPx()
+                        )
+                    }
+            )
+        }
+        Text(
+            text = "QR Code Value: $qrCodeValue",
+            modifier = Modifier
+                .padding(16.dp)
+                .background(Color.Black)
+                .fillMaxWidth(),
+
+            style = TextStyle(color = Color.White)
         )
-    }
-    Text(
-        text = "QR Code Value: $qrCodeValue",
-        modifier = Modifier
-            .padding(16.dp)
-            .background(Color.Black)
-            .fillMaxWidth()
-        ,
-
-        style = TextStyle(color = Color.White)
-    )
 
 
-    // Display the QR code value in a Text composable
+        // Display the QR code value in a Text composable
 
 
+        if (qrCodeValue.isNotEmpty()) {
 
-    if (!qrCodeValue.isNullOrEmpty()) {
+//            var codeInt = qrCodeValue.toInt()
+
+            if (qrCodeValue.toIntOrNull()?.equals(Int) == true) {
+
+                    view?.findNavController()
+                        ?.navigate(
+                            ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(
+                                qrCodeValue.toInt()
+                            )
+                        )
 
 
-            view?.findNavController()
-                ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(qrCodeValue.toInt()))
+            } else {
+                viewModel.showToast("El valor '${qrCodeValue}' no es valido", context)
 
-    } else {
-        // Handle the case where qrCodeValue is null or empty
-    }
+            }
+        }else{
+//            viewModel.showToast("Ha ocurrido un error", context)
+        }
 
     }
 }
