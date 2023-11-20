@@ -57,6 +57,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -106,6 +107,7 @@ import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
 import com.example.proyectoalcaravan.views.charts.GenderPerformanceChart
+import com.example.proyectoalcaravan.views.componentes.ColorList
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.example.proyectoalcaravan.views.scanner.Scanner
 import kotlinx.coroutines.CoroutineScope
@@ -143,7 +145,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     @Composable
     fun Title() {
         var userDB = viewModel.currentUserDB.observeAsState()
-        var user = viewModel.currentUser.value
+        var user = viewModel.currentUser.observeAsState().value
         // Replace "Your Title" with your actual title string
         Text(text = "Hola ${user?.firstName ?: userDB?.value?.firstName}",
             style = MaterialTheme.typography.h1,
@@ -819,20 +821,27 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             ShimmerCardList()
         }else{
             if (users.isNullOrEmpty()){
-                Box(Modifier.pullRefresh(pullRefreshState)){
-                    LazyColumn {
-                        if( userStudents != null){
-                            items(userStudents.value ?: emptyList()) { user ->
-                                Log.e("user specify", user.toString())
-
-                                ListItem(item = user, isPermissionGranted)
-                            }
-                        }
-
-
-                    }
-                    PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "No hay resultados")
                 }
+//                Box(Modifier.pullRefresh(pullRefreshState)){
+//                    LazyColumn {
+//                        if( userStudents != null){
+//                            items(userStudents.value ?: emptyList()) { user ->
+//                                Log.e("user specify", user.toString())
+//
+//                                ListItem(item = user, isPermissionGranted)
+//                            }
+//                        }
+//
+//
+//                    }
+//                    PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+//                }
             }else{
                 Box(Modifier.pullRefresh(pullRefreshState)){
                     LazyColumn {
@@ -850,13 +859,6 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
             }
         }
-
-
-
-
-
-
-
 
     }
 
@@ -1022,19 +1024,21 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         }
     }
 
-
     @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
     @Composable
-    fun TabsBottomSheetWithPagerScreen(state: ModalBottomSheetState, scope: CoroutineScope, ) {
+    fun TabsBottomSheetWithPagerScreen(state: ModalBottomSheetState, scope: CoroutineScope) {
         var selectedTabIndex by remember { mutableStateOf(0) }
 
         val tabs = listOf("Ordenar", "Email", "Sexo")
-
 
         // Pager state
         val pagerState = rememberPagerState(pageCount = {tabs.size})
         val coroutineScope = rememberCoroutineScope()
 
+        // Observe the current page index and update the selectedTabIndex accordingly
+        LaunchedEffect(pagerState.currentPage) {
+            selectedTabIndex = pagerState.currentPage
+        }
 
         Column(
             modifier = Modifier
@@ -1045,8 +1049,6 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-//                    .background(Color.LightGray),
-//                    .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 tabs.forEachIndexed { index, text ->
@@ -1058,8 +1060,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                             // Set the selected page in the pager state
                             coroutineScope.launch {
                                 // Call scroll to on pagerState
-                                pagerState.animateScrollToPage(index)                            }
-
+                                pagerState.animateScrollToPage(index)
+                            }
                         }
                     )
                 }
@@ -1105,6 +1107,89 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         }
     }
 
+
+//    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+//    @Composable
+//    fun TabsBottomSheetWithPagerScreen(state: ModalBottomSheetState, scope: CoroutineScope, ) {
+//        var selectedTabIndex by remember { mutableStateOf(0) }
+//
+//        val tabs = listOf("Ordenar", "Email", "Sexo")
+//
+//
+//        // Pager state
+//        val pagerState = rememberPagerState(pageCount = {tabs.size})
+//        val coroutineScope = rememberCoroutineScope()
+//
+//
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(2.dp)
+//        ) {
+//            // Tabs
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+////                    .background(Color.LightGray),
+////                    .padding(8.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                tabs.forEachIndexed { index, text ->
+//                    TabItem(
+//                        text = text,
+//                        isSelected = index == selectedTabIndex,
+//                        onTabClick = {
+//                            selectedTabIndex = index
+//                            // Set the selected page in the pager state
+//                            coroutineScope.launch {
+//                                // Call scroll to on pagerState
+//                                pagerState.animateScrollToPage(index)                            }
+//
+//                        }
+//                    )
+//                }
+//            }
+//
+//            Spacer(modifier = Modifier.height(2.dp))
+//
+//            // Animated Content
+//            HorizontalPager(
+//                state = pagerState,
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .weight(1f)
+//            ) { page ->
+//                // Content for each tab
+//                when (page) {
+//                    0 -> TabOrdernar()
+//                    1 -> TabEmail()
+//                    2 -> TabSexo(state, scope)
+//                }
+//            }
+//
+//            Spacer(modifier = Modifier.height(8.dp))
+//        }
+//    }
+//
+//    @Composable
+//    fun TabItem(text: String, isSelected: Boolean, onTabClick: () -> Unit) {
+//        Box(
+//            modifier = Modifier
+//                .padding(4.dp)
+//                .clip(MaterialTheme.shapes.small)
+//                .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent)
+//                .clickable { onTabClick() }
+//        ) {
+//            Text(
+//                text = text,
+//                modifier = Modifier
+//                    .padding(8.dp)
+//                    .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent),
+//                color = if (isSelected) Color.White else Color.Gray
+//            )
+//        }
+//    }
+
     @Composable
     fun TabContent(content: String) {
         Box(
@@ -1147,7 +1232,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     value = emailSearch,
                     onValueChange = {emailSearch = it
                         viewModel.setEmailFilter(it)
-                        viewModel
+
                     },
                     placeholder = {
                         Text(text = "Buscar", style = MaterialTheme.typography.body1)
@@ -1155,6 +1240,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp)
                 )
+                Spacer(modifier = Modifier.width(5.dp))
+                IconButton(onClick = { emailSearch = ""}) {
+                    Icon(imageVector = Icons.Default.Clear, contentDescription = null)
+                }
             }
 //            Button(onClick = { /*TODO*/ }) {
 //                Text(text = "Aplicar")
@@ -1394,13 +1483,15 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
     @Composable
     fun GridItemCard(item: Materia) {
+        val backgroundColor = ColorList.colors[item.id % ColorList.colors.size]
+
         Box(
             modifier = Modifier
                 .padding(4.dp)
                 .height(110.dp)
 //                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .background(backgroundColor)
                 .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
 //                .background(
@@ -1498,6 +1589,12 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         val filteredUserList = viewModel.filteredUserList
 
 
+        // Observe the current page index and update the selectedTabIndex accordingly
+        LaunchedEffect(pagerState.currentPage) {
+            selectedTabIndex = pagerState.currentPage
+        }
+
+
 
         Column(
             modifier = Modifier
@@ -1539,16 +1636,18 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             ) { page ->
                 // Content for each tab
                 when (page) {
-                    0 -> Column(modifier = Modifier.padding(bottom = 50.dp, start = 5.dp, end = 5.dp)) {
+                    0 -> Column(
+                        modifier = Modifier.padding(bottom = 20.dp, start = 5.dp, end = 5.dp),
+                                verticalArrangement = Arrangement.Top) {
                         ListContent(userList = filteredUserList )
                     }
-                    1 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                    1 ->Column(modifier = Modifier.padding(bottom = 30.dp)){
                         Grid(gridItems = viewModel.materiasList)
                     }
-                    2 -> Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                    2 -> Column(modifier = Modifier.padding(bottom = 30.dp, start = 10.dp, end = 10.dp)){
                         GenderPerformanceChart(viewModel = viewModel)
                     }
-                    3 ->Column(modifier = Modifier.padding(bottom = 70.dp, start = 10.dp, end = 10.dp)){
+                    3 ->Column(modifier = Modifier.padding(bottom = 30.dp, start = 10.dp, end = 10.dp)){
                         AgeRangePerformanceChart(viewModel = viewModel, context = requireContext())
                     }
 
@@ -1726,9 +1825,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         Row (
                             verticalAlignment = Alignment.CenterVertically
                         ){
-                            OutlinedButton(onClick = { viewModel.resetFilters(requireContext())}) {
-                                Text(text = "Reset")
-                            }
+//                            OutlinedButton(onClick = { viewModel.resetFilters(requireContext())}) {
+//                                Text(text = "Reset")
+//                            }
                             Spacer(modifier = Modifier.width(5.dp))
                             Icon(painter = painterResource(R.drawable.ic_filters), contentDescription = null)
 
@@ -1765,7 +1864,18 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
 
             }) {
-
+            if (state.isVisible) {
+                // Listen for clicks outside the bottom sheet
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            scope.launch {
+                                state.hide()
+                            }
+                        }
+                )
+            }
         }
     }
 

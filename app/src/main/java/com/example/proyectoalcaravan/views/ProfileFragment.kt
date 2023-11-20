@@ -34,14 +34,22 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
@@ -76,6 +85,8 @@ import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.componentes.ColorList
+import com.example.proyectoalcaravan.views.componentes.shimmer.ProfileShimmer
 import com.example.proyectoalcaravan.views.profesor.ProfesorFragmentDirections
 import com.example.proyectoalcaravan.views.student.StudentFragmentDirections
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -83,6 +94,8 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class ProfileFragment : Fragment() {
@@ -140,13 +153,34 @@ class ProfileFragment : Fragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                var user = viewModel.currentUser.observeAsState()
+
+                var userDB = viewModel.currentUserDB.observeAsState()
+                var updatedUser = viewModel.updatedUser.observeAsState()
                 if(args.profile != 3000){
                     Log.e("profile", args.profile.toString())
                         Log.e("profile test", args.profile.toString())
                         viewModel.getUserById(args.profile, requireContext())
+                    if(updatedUser.value == null){
+                        ProfileShimmer()
+
+//                        Profile(viewModel.currentUser.observeAsState().value)
+                    }else{
+//                        ProfileShimmer()
+                        Profile(viewModel.currentUser.observeAsState().value)
+
+                    }
 
                 }
-                Profile(viewModel.currentUser.observeAsState().value)
+                if(user.value == null && userDB.value == null){
+//                    Profile(viewModel.currentUser.observeAsState().value)
+                    ProfileShimmer()
+
+                }else{
+//                    ProfileShimmer()
+                    Profile(viewModel.currentUser.observeAsState().value)
+
+                }
 
             }
         }
@@ -311,7 +345,7 @@ class ProfileFragment : Fragment() {
 
                 }else{
                     var cameraPosition = CameraPosition.Builder()
-                        .target(LatLng(userDB?.lag ?:currentUser?.lat ?: 0.078867, userDB?.lgn ?: currentUser?.lgn ?: 0.078867)) // Replace with your desired location
+                        .target(LatLng(userDB?.lat ?:currentUser?.lat ?: 0.078867, userDB?.lgn ?: currentUser?.lgn ?: 0.078867)) // Replace with your desired location
                         .zoom(15f) // Zoom level
                         .build()
                     googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
@@ -346,6 +380,10 @@ class ProfileFragment : Fragment() {
     @Composable
     fun HorizontalItemCard(item: Materia) {
         var user = viewModel.currentUser.value
+        val backgroundColor = ColorList.colors[item.id % ColorList.colors.size]
+
+        var isClickable by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
 
         Box(
             modifier = Modifier
@@ -354,28 +392,40 @@ class ProfileFragment : Fragment() {
                 .width(180.dp)
                 .clip(RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
-                .background(Color.White)
+//                .background(Color.White)
+                .background(backgroundColor)
+
                 .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
                 .clickable {
-                    viewModel.getActivitiesById(item.id, requireContext())
+                    if (isClickable){
+                        isClickable = false
+
+                        coroutineScope.launch {
+                            delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                            isClickable = true
+
+                            viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
-                    if (viewModel.currentUser.value?.rol == "Estudiante") {
+                            if (viewModel.currentUser.value?.rol == "Estudiante") {
 
-                        view
-                            ?.findNavController()
-                            ?.navigate(
-                                StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
-                                    user?.id ?: 1000
-                                )
-                            )
-                    } else {
-                        viewModel.getMateriaById(item.id, requireContext())
-                        viewModel.currentMateria.postValue(item)
-                        view
-                            ?.findNavController()
-                            ?.navigate(R.id.action_profileFragment_to_asignacionFragment)
+                                view
+                                    ?.findNavController()
+                                    ?.navigate(
+                                        StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+                                            user?.id ?: 1000
+                                        )
+                                    )
+                            } else {
+                                viewModel.getMateriaById(item.id, requireContext())
+                                viewModel.currentMateria.postValue(item)
+                                view
+                                    ?.findNavController()
+                                    ?.navigate(R.id.action_profileFragment_to_asignacionFragment)
+                            }
+                        }
                     }
+
 
                 },
 //            contentAlignment = Alignment.Center
@@ -405,7 +455,7 @@ class ProfileFragment : Fragment() {
     @Composable
     fun Profile(currentUser: User?) {
         var user = viewModel.currentUser.observeAsState()
-
+        var isModalVisible by remember { mutableStateOf(false) }
         var userDB = viewModel.currentUserDB.observeAsState()
         var updatedUser = viewModel.updatedUser.observeAsState()
         Log.e("profile, userDB", userDB.value.toString())
@@ -436,11 +486,12 @@ class ProfileFragment : Fragment() {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+
                             IconButton(onClick = {
                                 if (args.profile != 3000){
                                     view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000))
                                 }else{
-                                    view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,user?.value?.id?: userDB.value?.id ?: 1000))
+                                    view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,10000))
                                 }
 
                                  })
@@ -451,11 +502,15 @@ class ProfileFragment : Fragment() {
                                 )
                             }
                             IconButton(onClick = {
-                                if (userDB.value != null) {
-                                    viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lag, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
-                                }
-                                viewModel.loggedIn.postValue(false)
-                                view?.findNavController()?.navigate(R.id.action_profileFragment_to_login) }) {
+                                isModalVisible = true
+//                                if (userDB.value != null) {
+//                                    viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lag, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
+//                                }
+//                                viewModel.loggedIn.postValue(false)
+//                                view?.findNavController()?.navigate(R.id.action_profileFragment_to_login)
+                            }
+                            )
+                            {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_logout),
                                     contentDescription = "Settings"
@@ -654,6 +709,52 @@ class ProfileFragment : Fragment() {
 
             }
 
+        }
+
+        if (isModalVisible) {
+            Dialog(
+                onDismissRequest = { isModalVisible = false },
+                content = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(elevation = 10.dp, shape = RectangleShape)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .background(Color.White)
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                        ) {
+                            Text(
+                                text = "¿Estás seguro que quiere salir?",
+                                modifier = Modifier.padding(bottom = 16.dp),
+                                fontSize = 20.sp
+                            )
+
+                            Row(
+                                modifier = Modifier,
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                TextButton(onClick = { isModalVisible = false }) {
+                                    Text(text = "Cancelar")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                TextButton(onClick = {
+                                    if (userDB.value != null) {
+                                        viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.edad, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lat, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
+                                    }
+                                    viewModel.loggedIn.postValue(false)
+                                    view?.findNavController()?.navigate(R.id.action_profileFragment_to_login)
+                                    isModalVisible = false
+                                }) {
+                                    Text(text = "Salir")
+                                }
+                            }
+                        }
+                    }
+                }
+            )
         }
     }
 }

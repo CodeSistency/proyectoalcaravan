@@ -18,6 +18,9 @@ interface RetrofitService {
     fun getUserStudents(@Query("rol") rol: String): Call<List<User>>
 
     @GET("users")
+    fun getUserStudentCedula(@Query("cedula") cedula: Int): Call<List<User>>
+
+    @GET("users")
     fun LoginRetrofit(@Query("email") email: String, @Query("password") password: String): Call<List<User>>
 
     @GET("users")

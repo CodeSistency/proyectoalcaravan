@@ -36,6 +36,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -273,42 +274,61 @@ class MateriaFragment : Fragment() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                // Circular user image
-                GlideImage(
-                    model = user.imageProfile,
-                    contentDescription = "foto",
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)  )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Center
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = user.firstName.toString(),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = user.lastName.toString(),
-                        fontSize = 16.sp,
-                        color = Color.Gray,
-                    )
-                }
+                    GlideImage(
+                        model = user.imageProfile,
+                        contentDescription = "foto",
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clip(CircleShape)  )
 
-                IconButton(
-                    onClick = {isModalVisible = true},
-                    modifier = Modifier
-                        .size(38.dp)
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = user.firstName.toString(),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = user.lastName.toString(),
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                        )
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Text(text = "Ir a Actividades",
+                            fontSize = 14.sp,
+                            color = Color.Gray)
+                        Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null, tint = Color.Gray)
+
+                        IconButton(
+                            onClick = {isModalVisible = true},
+                            modifier = Modifier
+                                .size(38.dp)
 //                        .background(Color.Red, CircleShape)
-                ) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color.Gray)
+                        ) {
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color.Gray)
+                        }
+                    }
                 }
+
+
+                // Circular user image
+
+
+
 
 
             }
@@ -374,6 +394,7 @@ class MateriaFragment : Fragment() {
                                             email = user.email,
                                             password = user.password,
                                             gender = user.gender,
+                                            edad = user.edad,
                                             rol = user.rol,
                                             birthday = user.birthday,
                                             imageProfile = user.imageProfile,
@@ -799,6 +820,7 @@ class MateriaFragment : Fragment() {
                                                         email = user.email,
                                                         password = user.password,
                                                         gender = user.gender,
+                                                        edad = user.edad,
                                                         rol = user.rol,
                                                         birthday = user.birthday,
                                                         imageProfile = user.imageProfile,
@@ -819,6 +841,7 @@ class MateriaFragment : Fragment() {
                                             }
 
                                             viewModel.updateMateria(materiaId, Materia(materiaId, teacherId, selectedUsers, materiaName), requireContext())
+                                            isModalVisible = false
                                         }
                                     },
                                     modifier = Modifier
@@ -929,6 +952,7 @@ class MateriaFragment : Fragment() {
                                                         ),
                                                     requireContext()
                                                 )
+                                                isModalAsignacionesVisible = false
                                             }else{
                                                 viewModel.showToast("Coloca una fecha", requireContext())
 

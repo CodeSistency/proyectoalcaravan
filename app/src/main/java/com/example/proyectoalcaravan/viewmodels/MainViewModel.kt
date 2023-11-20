@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -51,6 +52,10 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var refreshingUpdatedUser = MutableLiveData<Boolean>(false)
     var conexion = MutableLiveData<Boolean>(true)
     var registerStepOne = MutableLiveData<Boolean>(false)
+    var modalAsignacion1 = MutableLiveData<Boolean>(false)
+    var modalAsignacion2 = MutableLiveData<Boolean>(false)
+
+
 
 
 
@@ -60,6 +65,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var materiasList = MutableLiveData<List<Materia>>()
     var materiasUserList = MutableLiveData<List<Materia>>()
     var activitiesList = MutableLiveData<List<Actividad>>()
+    var listOfActivitiesFiltered = MutableLiveData<List<Actividad>?>()
+
     var activitiesListById = MutableLiveData<List<Actividad>>()
     var filteredUserList = MutableLiveData<List<User>>()
 
@@ -101,6 +108,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var activitiesListByIdCompose by mutableStateOf<List<Actividad>?>(null)
     var filteredUserListCompose by mutableStateOf<List<User>?>(null)
 
+
     val errorMessageCompose by mutableStateOf<String?>(null)
 
     var alphabetOrderCompose by mutableStateOf<List<User>?>(null)
@@ -116,6 +124,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     val rolCompose by mutableStateOf<String?>(null)
     val generoCompose by mutableStateOf<String?>(null)
     val listOfActivitiesCompose by mutableStateOf<List<Actividad?>>(listOf())
+    var listOfActivitiesFilteredCompose by mutableStateOf<List<Actividad>?>(listOf())
+
 
     val profileImageCompose by mutableStateOf<Uri?>(null)
 
@@ -128,10 +138,29 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 //        filteredUserList.value = userStudentsList.value
 //    }
 
+    fun listWithActivities() {
+        listOfActivitiesFilteredCompose = activitiesListById.value?.map { existingActivity ->
+            updatedUser.value?.listActivities?.find { it?.id == existingActivity.id } ?: existingActivity
+        } ?: emptyList()
+
+        Log.e("compose activities", listOfActivitiesFilteredCompose.toString())
+
+        listOfActivitiesFiltered.postValue(activitiesListById.value?.map { existingActivity ->
+            updatedUser.value?.listActivities?.find { it?.id == existingActivity.id } ?: existingActivity
+        } ?: emptyList())
+
+        Log.e("other activities", listOfActivitiesFiltered.toString())
+
+    }
+
+    val updatedList = activitiesListById.value?.map { existingActivity ->
+        updatedUser.value?.listActivities?.find { it?.id == existingActivity?.id } ?: existingActivity
+    } ?: emptyList()
+
     //Busqueda
     fun setSearchQuery(query: String) {
         filteredUserList.value = if (query.isEmpty()) {
-            userList.value // Show all users when the query is empty
+            userStudentsList.value // Show all users when the query is empty
         } else {
             userList.value?.filter { user ->
                 user.firstName?.contains(query, ignoreCase = true) == true
@@ -201,8 +230,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     fun resetFilters(context: Context) {
         // Reset all filters and show all users
         getUserStudents("Estudiante", context)
-        filteredUserList.value = userStudentsList.value
-    }
+        filteredUserList.value = userStudentsList.value?.toMutableList()    }
 
     fun insertContact(context: ComponentActivity, name: String, phoneNumber: String) {
         val contentResolver: ContentResolver = context.contentResolver
@@ -278,7 +306,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         return validado
     }
 
-    fun registerStepOne(context: Context): Boolean{
+    fun registerStepOne(context: Context): LiveData<Boolean> {
         val email = email.value
         val password = password.value
 
@@ -287,54 +315,149 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         var isEmailValid = false
         var isPasswordValid = false
 
-        if (email != null){
+        if (email != null) {
             isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
         }
 
-        if (password.isNullOrEmpty()){
+        if (password.isNullOrEmpty()) {
             isPasswordValid = false
-        }else {
+        } else {
             isPasswordValid = pattern.matches(password.toString())
         }
 
-//        var validado = false
-
-        if (isEmailValid && isPasswordValid){
+        if (isEmailValid && isPasswordValid) {
             val response = email?.let { repository.getUserStudentsByEmail(it) }
+            val liveData = MutableLiveData<Boolean>()
+
             response?.enqueue(object : Callback<List<User>> {
                 override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
                     if (response.isSuccessful) {
-                        Log.e("Register Step one", "Hay un email")
-                        if(response.body()?.isEmpty() == true){
-                            registerStepOne.postValue(true)
-                            Log.e("email body succesful sin", response.body().toString())
-                        }else{
-                            registerStepOne.postValue(false)
-                            Log.e("email body sucessful con", response.body().toString())
+                        if (response.body()?.isEmpty() == true) {
+                            liveData.postValue(true)
+
+                        } else {
+                            liveData.postValue(false)
+                            showToast("Este correo ya existe", context)
 
                         }
-
                     } else {
-                        Log.e("Register Step one", "No hay un email")
-
-                        registerStepOne.postValue(false)
-
+                        liveData.postValue(false)
                     }
                 }
 
                 override fun onFailure(call: Call<List<User>>, t: Throwable) {
                     errorMessage.postValue(t.message)
+                    showToast("Ha ocurrido un error, vuelva a intentarlo", context)
+
                 }
             })
+
+            return liveData
+        } else {
+            // Handle the case where email or password is not valid
+            val invalidDataLiveData = MutableLiveData<Boolean>()
+            invalidDataLiveData.value = false
+            return invalidDataLiveData
         }
-
-        Log.e("validado", registerStepOne.toString())
-
-        return registerStepOne as Boolean
-        return true
-
-
     }
+
+    fun isCedulaValid(cedula: Int, context: Context): LiveData<Boolean> {
+
+
+        if (cedula != null) {
+            val response = cedula?.let { repository.getUserStudentsByCedula(it) }
+            val liveData = MutableLiveData<Boolean>()
+
+            response?.enqueue(object : Callback<List<User>> {
+                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                    if (response.isSuccessful) {
+                        if (response.body()?.isEmpty() == true) {
+                            liveData.postValue(true)
+                        } else {
+                            liveData.postValue(false)
+                            showToast("Esta cedula ya existe", context)
+
+                        }
+                    } else {
+                        liveData.postValue(false)
+                    }
+                }
+
+                override fun onFailure(call: Call<List<User>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                    showToast("Ha ocurrido un error, vuelva a intentarlo", context)
+
+                }
+            })
+
+            return liveData
+        } else {
+            // Handle the case where email or password is not valid
+            val invalidDataLiveData = MutableLiveData<Boolean>()
+            invalidDataLiveData.value = false
+            return invalidDataLiveData
+        }
+    }
+
+
+
+//    fun registerStepOne(context: Context): Boolean{
+//        val email = email.value
+//        val password = password.value
+//
+//        val pattern = "^(?=.*[0-9])(?=.*[a-zA-Z]).{6,}$".toRegex()
+//
+//        var isEmailValid = false
+//        var isPasswordValid = false
+//
+//        if (email != null){
+//            isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+//        }
+//
+//        if (password.isNullOrEmpty()){
+//            isPasswordValid = false
+//        }else {
+//            isPasswordValid = pattern.matches(password.toString())
+//        }
+//
+////        var validado = false
+//
+//        if (isEmailValid && isPasswordValid){
+//            val response = email?.let { repository.getUserStudentsByEmail(it) }
+//            response?.enqueue(object : Callback<List<User>> {
+//                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+//                    if (response.isSuccessful) {
+//                        Log.e("Register Step one", "Hay un email")
+//                        if(response.body()?.isEmpty() == true){
+//                            registerStepOne.postValue(true)
+//                            Log.e("email body succesful sin", response.body().toString())
+//                        }else{
+//                            registerStepOne.postValue(false)
+//                            Log.e("email body sucessful con", response.body().toString())
+//
+//                        }
+//
+//                    } else {
+//                        Log.e("Register Step one", "No hay un email")
+//
+//                        registerStepOne.postValue(false)
+//
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<List<User>>, t: Throwable) {
+//                    errorMessage.postValue(t.message)
+//                }
+//            })
+//        }
+//
+//        Log.e("validado", registerStepOne.toString())
+//
+//        return registerStepOne as Boolean
+//        return true
+//
+//
+//    }
 
     fun showToast(message: String, context: Context) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -420,7 +543,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
                             refreshingCurrentUser.postValue(false)
                             loggedIn.postValue(true)
-                            createUserDB(UserDB(1, user?.id, user?.firstName, user?.lastName, user?.birthday, user?.cedula, user?.gender, user?.imageProfile,user?.email, user?.password, user?.rol, user?.phone, user?.lgn, user?.lat, user?.listActivities, user?.listOfMaterias))
+                            createUserDB(UserDB(1, user?.id, user?.firstName, user?.lastName, user?.birthday, edad = user?.edad, cedula = user?.cedula, user?.gender, user?.imageProfile,user?.email, user?.password, user?.rol, user?.phone, user?.lgn, user?.lat, user?.listActivities, user?.listOfMaterias))
 
                             Log.e("Logged in", "User: $user")
                             showToast("Has iniciado sesión correctamente", context)
@@ -444,6 +567,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                 override fun onFailure(call: Call<List<User>>, t: Throwable) {
                     errorMessage.postValue(t.message)
                     Log.e("Logged in fallo", "${t.message}")
+                    showToast("Ha ocurrido un error, ${t.message}", context)
+
 
                 }
 
@@ -601,8 +726,149 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
 
     //CREATE USER
-    fun createUser(user: User, context: Context) {
-        if(isOnline(context)){
+//    fun createUser(user: User, context: Context) {
+//        if(isOnline(context)){
+//            conexion.postValue(true)
+//            repository.createUser(user).enqueue(object : Callback<User> {
+//                override fun onResponse(call: Call<User>, response: Response<User>) {
+//                    if (response.isSuccessful) {
+//                        getAllUsers(context)
+//                        getUserStudents("Estudiante", context)
+//                        // Handle successful response
+//                        Log.e("Create User", "User created successfully")
+//                        showToast("Usuario creado exitosamente", context)
+//
+//                    } else {
+//                        errorMessage.postValue("Error: ${response.code()}")
+//                        showToast("Usuario no ha sido creado, vuelva a intentar", context)
+//
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<User>, t: Throwable) {
+//                    errorMessage.postValue(t.message)
+//                }
+//            })
+//        }else{
+//            conexion.postValue(false)
+//            showToast("No hay conexion a internet", context)
+//
+//
+//        }
+//
+//    }
+//
+//    //UPDATE USER
+//    fun updateUser(userId: Int, user: User, context: Context) {
+//        if (isOnline(context)){
+//            conexion.postValue(true)
+//            repository.updateUser(userId, user).enqueue(object : Callback<User> {
+//                override fun onResponse(call: Call<User>, response: Response<User>) {
+//                    if (response.isSuccessful) {
+//                        getAllUsers(context)
+//                        getUserStudents("Estudiante", context)
+//                        getUserById(userId, context)
+//                        // Handle successful response
+//                        Log.e("Update User", "User updated successfully")
+//                        showToast("Usuario actualizado exitosamente", context)
+//
+//                    } else {
+//                        errorMessage.postValue("Error: ${response.code()}")
+//                        showToast("Usuario no ha sido actualizado, vuelva a intentar", context)
+//
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<User>, t: Throwable) {
+//                    errorMessage.postValue(t.message)
+//                }
+//            })
+//        }else{
+//            conexion.postValue(false)
+//            showToast("No hay conexion a internet", context)
+//
+//
+//        }
+//
+//    }
+    fun getUpdatedList(listOfActivities: List<Actividad>, user: User): List<Actividad> {
+        return listOfActivities.map { existingActivity ->
+            user.listActivities?.find { it?.id == existingActivity.id } ?: existingActivity
+        }
+    }
+
+    fun updateListWithActivitiesById(activityId: Int, context: Context): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
+
+        if (isOnline(context)) {
+            conexion.postValue(true)
+            refreshingActividadById.postValue(true)
+
+            repository.getActivityByIdClass(activityId).enqueue(object : Callback<List<Actividad>> {
+                override fun onResponse(call: Call<List<Actividad>>, response: Response<List<Actividad>>) {
+                    if (response.isSuccessful) {
+//                        activitiesListById.postValue(response.body())
+//                        activitiesListByIdCompose = response.body()
+                        Log.e("response", response.body().toString())
+                        refreshingActividadById.postValue(false)
+                        Log.e("is Working", "is Working")
+                        val updatedList = response.body()?.map { existingActivity ->
+                            val userActivity = updatedUser.value?.listActivities?.find { it?.id == existingActivity.id }
+                            if (userActivity != null) {
+                                // Replace properties based on conditions
+                                existingActivity.copy(
+                                    calification = userActivity.calification ?: existingActivity.calification,
+                                    calificationRevision = userActivity.calificationRevision ?: existingActivity.calificationRevision,
+                                    date = userActivity.date ?: existingActivity.date,
+                                    description = userActivity.description ?: existingActivity.description,
+                                    isCompleted = userActivity.isCompleted ?: existingActivity.isCompleted,
+                                    messageStudent = userActivity.messageStudent ?: existingActivity.messageStudent,
+                                    imageRevision = userActivity.imageRevision ?: existingActivity.imageRevision,
+                                    title = userActivity.title ?: existingActivity.title
+                                )
+                            } else {
+                                existingActivity
+                            }
+                        }
+
+                        listOfActivitiesFiltered.value = updatedList
+                        listOfActivitiesFilteredCompose = updatedList
+                        Log.e("filtered updated List", listOfActivitiesFiltered.value.toString())
+                        Log.e("filtered updated List compose", listOfActivitiesFilteredCompose.toString())
+
+                        // Use the getUpdatedListAndCheckEmpty function
+//                        val (isEmpty, updatedList) = getUpdatedListAndCheckEmpty(listOfActivities.value ?: emptyList(), updatedUserCompose ?: User())
+//                        listOfActivities.postValue(updatedList)
+
+//                        liveData.postValue(!isEmpty) // Return true if the updated list is not empty
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        refreshingActividadById.postValue(false)
+                        liveData.postValue(false)
+                    }
+                }
+
+
+
+                override fun onFailure(call: Call<List<Actividad>>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                    refreshingActividadById.postValue(false)
+                    liveData.postValue(false)
+                }
+            })
+        } else {
+            conexion.postValue(false)
+            showToast("No hay conexion a internet", context)
+            liveData.postValue(false)
+        }
+
+        return liveData
+    }
+
+    fun createUser(user: User, context: Context): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
+
+        if (isOnline(context)) {
             conexion.postValue(true)
             repository.createUser(user).enqueue(object : Callback<User> {
                 override fun onResponse(call: Call<User>, response: Response<User>) {
@@ -612,30 +878,36 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                         // Handle successful response
                         Log.e("Create User", "User created successfully")
                         showToast("Usuario creado exitosamente", context)
-
+                        liveData.postValue(true)
                     } else {
                         errorMessage.postValue("Error: ${response.code()}")
                         showToast("Usuario no ha sido creado, vuelva a intentar", context)
-
+                        liveData.postValue(false)
                     }
                 }
 
                 override fun onFailure(call: Call<User>, t: Throwable) {
                     errorMessage.postValue(t.message)
+                    liveData.postValue(false)
                 }
             })
-        }else{
+        } else {
             conexion.postValue(false)
             showToast("No hay conexion a internet", context)
-
-
+            liveData.postValue(false)
         }
 
+        return liveData
     }
 
-    //UPDATE USER
-    fun updateUser(userId: Int, user: User, context: Context) {
-        if (isOnline(context)){
+    // Create User
+
+
+    // Update User
+    fun updateUser(userId: Int, user: User, context: Context): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
+
+        if (isOnline(context)) {
             conexion.postValue(true)
             repository.updateUser(userId, user).enqueue(object : Callback<User> {
                 override fun onResponse(call: Call<User>, response: Response<User>) {
@@ -646,25 +918,96 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                         // Handle successful response
                         Log.e("Update User", "User updated successfully")
                         showToast("Usuario actualizado exitosamente", context)
-
+                        liveData.postValue(true)
                     } else {
                         errorMessage.postValue("Error: ${response.code()}")
                         showToast("Usuario no ha sido actualizado, vuelva a intentar", context)
-
+                        liveData.postValue(false)
                     }
                 }
 
                 override fun onFailure(call: Call<User>, t: Throwable) {
                     errorMessage.postValue(t.message)
+                    liveData.postValue(false)
                 }
             })
-        }else{
+        } else {
             conexion.postValue(false)
-            showToast("No hay conexion a internet", context)
-
-
+            showToast("No hay conexión a internet", context)
+            liveData.postValue(false)
         }
 
+        return liveData
+    }
+
+    fun updateUserAsignacion(userId: Int, user: User, context: Context): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
+
+        if (isOnline(context)) {
+            conexion.postValue(true)
+            repository.updateUser(userId, user).enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+                    if (response.isSuccessful) {
+                        getAllUsers(context)
+                        getUserStudents("Estudiante", context)
+                        getUserById(userId, context)
+                        // Handle successful response
+                        Log.e("Update User", "User updated successfully")
+                        liveData.postValue(true)
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        liveData.postValue(false)
+                    }
+                }
+
+                override fun onFailure(call: Call<User>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                    liveData.postValue(false)
+                }
+            })
+        } else {
+            conexion.postValue(false)
+            showToast("No hay conexión a internet", context)
+            liveData.postValue(false)
+        }
+
+        return liveData
+    }
+
+    fun updateUserList(userId: Int, user: User, context: Context): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
+
+        if (isOnline(context)) {
+            conexion.postValue(true)
+            repository.updateUser(userId, user).enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+                    if (response.isSuccessful) {
+                        getAllUsers(context)
+                        getUserStudents("Estudiante", context)
+                        getUserById(userId, context)
+                        // Handle successful response
+                        Log.e("Update User", "User updated successfully")
+                        showToast("Usuario actualizado exitosamente", context)
+                        liveData.postValue(true)
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        showToast("Usuario no ha sido actualizado, vuelva a intentar", context)
+                        liveData.postValue(false)
+                    }
+                }
+
+                override fun onFailure(call: Call<User>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                    liveData.postValue(false)
+                }
+            })
+        } else {
+            conexion.postValue(false)
+            showToast("No hay conexión a internet", context)
+            liveData.postValue(false)
+        }
+
+        return liveData
     }
 
     //DELETE USER
@@ -1048,6 +1391,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
             try {
                 var userDB = repository.getUserByIdDB(userId)
                 currentUserDB.postValue(userDB)
+                currentUser.postValue(userDB as User)
                 Log.e("User database", "User Database ${currentUserDB}")
             } catch (e: Exception) {
                 Log.e("UserDatabase error", "Error user: ${e.message}")

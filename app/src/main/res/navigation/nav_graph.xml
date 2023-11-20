@@ -27,7 +27,9 @@
             android:defaultValue="false" />
         <action
             android:id="@+id/action_registerStepTwo2_to_login"
-            app:destination="@id/login" />
+            app:destination="@id/login"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true"/>
         <argument
             android:name="profile"
             app:argType="integer"
@@ -35,10 +37,10 @@
         <action
             android:id="@+id/action_registerStepTwo2_to_profileFragment"
             app:destination="@id/profileFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_enter_anim"
-            app:popEnterAnim="@anim/nav_default_enter_anim"
-            app:popExitAnim="@anim/nav_default_enter_anim" />
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"/>
     </fragment>
     <fragment
         android:id="@+id/login"
@@ -48,16 +50,27 @@
         <action
             android:id="@+id/action_login_to_registerStepOne2"
             app:destination="@id/registerStepOne2"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_pop_enter_anim" />
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"
+            />
         <action
             android:id="@+id/action_login_to_studentFragment"
             app:destination="@id/studentFragment"
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_login_to_profesorFragment"
             app:destination="@id/profesorFragment"
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true"/>
     </fragment>
@@ -65,50 +78,73 @@
         android:id="@+id/googleMapsFragment"
         android:name="com.example.proyectoalcaravan.GoogleMapsFragment"
         android:label="fragment_google_maps"
-        tools:layout="@layout/fragment_google_maps" />
+        tools:layout="@layout/fragment_google_maps"
+        app:enterAnim="@anim/scale_up"
+        app:exitAnim="@anim/scale_down"
+        app:popEnterAnim="@anim/scale_up"
+        app:popExitAnim="@anim/scale_down"/>
     <fragment
         android:id="@+id/studentFragment"
         android:name="com.example.proyectoalcaravan.views.student.StudentFragment"
         android:label="fragment_student"
-        tools:layout="@layout/fragment_student" >
+        tools:layout="@layout/fragment_student"
+        app:enterAnim="@anim/scale_up"
+        app:exitAnim="@anim/scale_down"
+        app:popEnterAnim="@anim/scale_up"
+        app:popExitAnim="@anim/scale_down">
         <action
             android:id="@+id/action_studentFragment_to_profileFragment"
             app:destination="@id/profileFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_enter_anim"
-            app:popEnterAnim="@animator/nav_default_enter_anim"
-            app:popExitAnim="@animator/nav_default_enter_anim" />
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down" />
         <action
             android:id="@+id/action_studentFragment_to_registerStepTwo2"
-            app:destination="@id/registerStepTwo2" />
+            app:destination="@id/registerStepTwo2"
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"/>
         <action
             android:id="@+id/action_studentFragment_to_clasesFragment"
-            app:destination="@id/clasesFragment" />
+            app:destination="@id/clasesFragment"
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"/>
         <action
             android:id="@+id/action_studentFragment_to_asignacionFragment"
             app:destination="@id/asignacionFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_enter_anim" />
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"
+            />
     </fragment>
     <fragment
         android:id="@+id/profesorFragment"
         android:name="com.example.proyectoalcaravan.views.profesor.ProfesorFragment"
         android:label="fragment_profesor"
-        tools:layout="@layout/fragment_profesor" >
+        tools:layout="@layout/fragment_profesor"
+        app:enterAnim="@anim/scale_up"
+        app:exitAnim="@anim/scale_down"
+        app:popEnterAnim="@anim/scale_up"
+        app:popExitAnim="@anim/scale_down">
         <action
             android:id="@+id/action_profesorFragment_to_profileFragment"
             app:destination="@id/profileFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@animator/nav_default_enter_anim"
-            app:popEnterAnim="@anim/nav_default_enter_anim"
-            app:popExitAnim="@anim/nav_default_enter_anim" />
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down" />
         <action
             android:id="@+id/action_profesorFragment_to_clasesFragment"
             app:destination="@id/clasesFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_enter_anim"
-            app:popEnterAnim="@anim/nav_default_enter_anim"
-            app:popExitAnim="@anim/nav_default_enter_anim" />
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down" />
         <action
             android:id="@+id/action_profesorFragment_to_materiaFragment"
             app:destination="@id/materiaFragment" />
@@ -121,10 +157,10 @@
         <action
             android:id="@+id/action_profileFragment_to_registerStepTwo2"
             app:destination="@id/registerStepTwo2"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_enter_anim"
-            app:popEnterAnim="@anim/nav_default_enter_anim"
-            app:popExitAnim="@anim/nav_default_enter_anim" >
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down" >
 
         </action>
         <argument android:name="profile"
@@ -134,14 +170,18 @@
             app:destination="@id/login"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true"
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"
             />
         <action
             android:id="@+id/action_profileFragment_to_asignacionFragment"
             app:destination="@id/asignacionFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_enter_anim"
-            app:popEnterAnim="@anim/nav_default_enter_anim"
-            app:popExitAnim="@anim/nav_default_enter_anim" />
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down" />
 
 
     </fragment>
@@ -149,31 +189,51 @@
         android:id="@+id/materiaFragment"
         android:name="com.example.proyectoalcaravan.views.MateriaFragment"
         android:label="fragment_materia"
-        tools:layout="@layout/fragment_materia" >
+        tools:layout="@layout/fragment_materia"
+        app:enterAnim="@anim/scale_up"
+        app:exitAnim="@anim/scale_down"
+        app:popEnterAnim="@anim/scale_up"
+        app:popExitAnim="@anim/scale_down">
         <action
             android:id="@+id/action_materiaFragment_to_asignacionFragment"
             app:destination="@id/asignacionFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_enter_anim"
-            app:popEnterAnim="@anim/nav_default_enter_anim"
-            app:popExitAnim="@anim/nav_default_enter_anim" />
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down" />
     </fragment>
     <fragment
         android:id="@+id/clasesFragment"
         android:name="com.example.proyectoalcaravan.views.ClasesFragment"
         android:label="fragment_clases"
-        tools:layout="@layout/fragment_clases" >
+        tools:layout="@layout/fragment_clases"
+        app:enterAnim="@anim/scale_up"
+        app:exitAnim="@anim/scale_down"
+        app:popEnterAnim="@anim/scale_up"
+        app:popExitAnim="@anim/scale_down">
         <action
             android:id="@+id/action_clasesFragment_to_materiaFragment"
-            app:destination="@id/materiaFragment" />
+            app:destination="@id/materiaFragment"
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"/>
     </fragment>
     <fragment
         android:id="@+id/asignacionFragment"
         android:name="com.example.proyectoalcaravan.views.AsignacionFragment"
         android:label="fragment_asignacion"
-        tools:layout="@layout/fragment_asignacion" >
+        tools:layout="@layout/fragment_asignacion"
+        app:enterAnim="@anim/scale_up"
+        app:exitAnim="@anim/scale_down"
+        app:popEnterAnim="@anim/scale_up"
+        app:popExitAnim="@anim/scale_down">
         <argument android:name="student"
             app:argType="integer"
-            android:defaultValue="1000" />
+            android:defaultValue="1000"
+            app:enterAnim="@anim/scale_up"
+            app:exitAnim="@anim/scale_down"
+            app:popEnterAnim="@anim/scale_up"
+            app:popExitAnim="@anim/scale_down"/>
     </fragment>
 </navigation>

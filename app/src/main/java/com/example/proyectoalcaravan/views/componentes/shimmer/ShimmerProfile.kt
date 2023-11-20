@@ -18,52 +18,60 @@ import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun ProfileShimmer() {
-    // Apply shimmer effect to the entire profile layout
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .background(Color.LightGray)
-            .shimmer() // Apply shimmer effect here
-    ) {
-        // Profile image with a shimmer circle
+    Column(
+        modifier = Modifier.background(Color.White)
+
+    ){
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-        )
-
-        // Spacing between profile image and other elements
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Additional elements with shimmer effect
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .height(200.dp)
+                .padding(20.dp)
+                .background(Color.LightGray)
+                .shimmer() // Apply shimmer effect here
         ) {
-            // Shimmer effect for name
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f) // Adjust width as needed
-                    .height(20.dp)
-                    .background(Color.Gray)
-                    .shimmer() // Apply shimmer effect here
-            )
-
-            // Spacing between elements
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Shimmer effect for bio
+            // Profile image with a shimmer circle
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp)
+                    .height(100.dp)
+                    .clip(CircleShape)
                     .background(Color.Gray)
-                    .shimmer() // Apply shimmer effect here
+                    .shimmer()
             )
+
+            // Spacing between profile image and other elements
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Additional elements with shimmer effect
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Shimmer effect for name
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f) // Adjust width as needed
+                        .height(20.dp)
+                        .background(Color.Gray)
+                        .shimmer() // Apply shimmer effect here
+                )
+
+                // Spacing between elements
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Shimmer effect for bio
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .background(Color.Gray)
+                        .shimmer() // Apply shimmer effect here
+                )
+            }
         }
     }
+    // Apply shimmer effect to the entire profile layout
+
 }

@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.MateriaFragment">
+    tools:context=".views.MateriaFragment"
+    android:id="@+id/compose_materia">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView

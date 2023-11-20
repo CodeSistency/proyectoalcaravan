@@ -1,7 +1,7 @@
 package com.example.proyectoalcaravan.model.remote
 
 data class Actividad(
-    val calification: Int = 0,
+    var calification: Int = 0,
     val calificationRevision: Int = 0,
     val date: String?,
     val description: String,
@@ -9,6 +9,6 @@ data class Actividad(
     val idClass: Int,
     var imageRevision: String? = null,
     val isCompleted: Boolean = false,
-    val messageStudent: String? = "",
+    var messageStudent: String? = "",
     val title: String
 )

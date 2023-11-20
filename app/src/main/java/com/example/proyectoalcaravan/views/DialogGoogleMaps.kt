@@ -1,34 +1,33 @@
-package com.example.proyectoalcaravan
+package com.example.proyectoalcaravan.views
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentGoogleMapsBinding
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import android.Manifest
-import android.util.Log
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.findNavController
-import com.google.android.gms.location.FusedLocationProviderClient
 
-
-class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
+class DialogGoogleMaps : DialogFragment(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private var _binding: FragmentGoogleMapsBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<MainViewModel>()
+
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -38,23 +37,19 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
     ): View? {
         _binding = FragmentGoogleMapsBinding.inflate(inflater, container, false)
         return binding.root
-
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.e("ubicacion", "p0.toString()")
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         binding.goBack.setOnClickListener {
-            view.findNavController().popBackStack()
+            dismiss() // Dismiss the DialogFragment when "Go Back" is clicked
         }
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-//        getLastKnownLocation()
-    }
 
+        // Other onViewCreated logic
+    }
     private fun getLastKnownLocation() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -183,6 +178,4 @@ class GoogleMapsFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMapClickL
         Log.e("log", "$p0")
         saveLocation()
     }
-
-
 }

@@ -49,12 +49,21 @@ class RegisterStepOne : Fragment() {
 //                viewModel.getAllUsers(requireContext())
 
 //                    if(viewModel.isFormValid()){
-                    if(viewModel.registerStepOne(requireContext())){
-
+                viewModel.registerStepOne(requireContext()).observe(viewLifecycleOwner){
+                    if (it){
                         view.findNavController().navigate(R.id.action_registerStepOne2_to_registerStepTwo2)
-                    }else{
-                        Toast.makeText(requireContext(), "Email o clave invalida", Toast.LENGTH_SHORT).show()
-                    }
+
+                     }else{
+                    Toast.makeText(requireContext(), "Email o clave invalida", Toast.LENGTH_SHORT).show()
+
+                }
+                     }
+//                    if(viewModel.registerStepOne(requireContext()) == true){
+//
+//                        view.findNavController().navigate(R.id.action_registerStepOne2_to_registerStepTwo2)
+//                    }else{
+//                        Toast.makeText(requireContext(), "Email o clave invalida", Toast.LENGTH_SHORT).show()
+//                    }
 
             }else{
                 viewModel.showToast("Es necesario el acceso a internet", requireContext())

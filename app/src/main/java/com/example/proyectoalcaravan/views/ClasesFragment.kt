@@ -35,8 +35,13 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,12 +59,16 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.componentes.ColorList
 import com.example.proyectoalcaravan.views.componentes.Header
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class ClasesFragment : Fragment() {
@@ -80,6 +89,8 @@ class ClasesFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 ClasesContent()
+
+                transitionName = "sharedElement"
             }
         }
     }
@@ -92,16 +103,24 @@ fun ListItem(item: Materia) {
         modifier = Modifier
             .fillMaxSize()
             .padding(4.dp)
-            .clickable {
+            .clickable(
+
+            ) {
+                val extras = FragmentNavigatorExtras(
+                    requireView().findViewById<View>(R.id.compose_materia) to "sharedElement"
+                )
+
                 viewModel.currentMateria.postValue(item)
                 viewModel.getActivitiesById(item.id, requireContext())
                 view
                     ?.findNavController()
-                    ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                    ?.navigate(R.id.action_clasesFragment_to_materiaFragment, null, null, extras)
             },
         elevation = 4.dp,
 
     ) {
+
+
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -148,13 +167,18 @@ fun ListItem(item: Materia) {
 
     @Composable
     fun GridItemCard(item: Materia) {
+        var isClickable by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
+        val backgroundColor = ColorList.colors[item.id % ColorList.colors.size]
+
+
         Box(
             modifier = Modifier
                 .padding(4.dp)
                 .height(130.dp)
 //                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .background(backgroundColor)
                 .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
 //                .background(
@@ -165,11 +189,21 @@ fun ListItem(item: Materia) {
 //                    )
 //                )
                 .clickable {
-                    viewModel.currentMateria.postValue(item)
+                    if(isClickable){
+                        isClickable = false
+
+                        // Launch a coroutine to re-enable clickable after a delay
+                        coroutineScope.launch {
+                            delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                            isClickable = true
+                        }
+                        viewModel.currentMateria.postValue(item)
 //                    viewModel.getActivitiesById(item.id, requireContext())
-                    view
-                        ?.findNavController()
-                        ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                        view
+                            ?.findNavController()
+                            ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                    }
+
                 },
             contentAlignment = Alignment.Center
         ) {

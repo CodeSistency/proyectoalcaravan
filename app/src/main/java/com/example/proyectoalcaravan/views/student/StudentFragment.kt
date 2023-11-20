@@ -82,9 +82,12 @@ import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.componentes.ColorList
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class StudentFragment : Fragment() {
@@ -166,7 +169,7 @@ class StudentFragment : Fragment() {
 
     @Composable
     fun Title(userDB: MutableLiveData<UserDB?>) {
-        var user = viewModel.currentUser.value
+        var user = viewModel.currentUser.observeAsState().value
 
         var userDatabase = userDB.observeAsState()
         // Replace "Your Title" with your actual title string
@@ -182,32 +185,56 @@ class StudentFragment : Fragment() {
     @Composable
     fun ListItem(item: Materia) {
 
-        var user = viewModel.currentUser.value
+        var user = viewModel.currentUser.observeAsState()
+        var userDB = viewModel.currentUserDB.observeAsState()
+
+        var isClickable by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
 
         Card(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(4.dp)
                 .clickable {
-                    viewModel.getActivitiesById(item.id, requireContext())
+
+                    if (isClickable) {
+                        isClickable = false
+
+                        coroutineScope.launch {
+                            delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                            isClickable = true
+                        }
+
+                        Log.e("Rol", viewModel.currentUser.value?.rol.toString())
+                        Log.e("Rol", viewModel.currentUserDB.value?.rol.toString())
+
+
+                        if (userDB != null) {
+                            if (viewModel.currentUser.value?.rol == "Estudiante" || viewModel.currentUserDB.value?.rol == "Estudiante") {
+
+                                view
+                                    ?.findNavController()
+                                    ?.navigate(
+                                        StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+                                            user?.value?.id ?: 1000
+                                        )
+                                    )
+                            } else {
+                                viewModel.getMateriaById(item.id, requireContext())
+                                viewModel.currentMateria.postValue(item)
+                                view
+                                    ?.findNavController()
+                                    ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                            }
+                        }
+
+
+                        viewModel.getActivitiesById(item.id, requireContext())
+
+                    }
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
-                    if (viewModel.currentUser.value?.rol == "Estudiante") {
 
-                        view
-                            ?.findNavController()
-                            ?.navigate(
-                                StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
-                                    user?.id ?: 1000
-                                )
-                            )
-                    } else {
-                        viewModel.getMateriaById(item.id, requireContext())
-                        viewModel.currentMateria.postValue(item)
-                        view
-                            ?.findNavController()
-                            ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
-                    }
 
                 },
             elevation = 4.dp,
@@ -357,6 +384,8 @@ class StudentFragment : Fragment() {
     @Composable
     fun HorizontalItemCard(item: Materia) {
         var user = viewModel.currentUser.value
+        val backgroundColor = ColorList.colors[item.id % ColorList.colors.size]
+
 
         Box(
             modifier = Modifier
@@ -365,13 +394,13 @@ class StudentFragment : Fragment() {
                 .width(180.dp)
                 .clip(RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
-                .background(Color.White)
+                .background(backgroundColor)
                 .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
                 .clickable {
                     viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
-                    if (viewModel.currentUser.value?.rol == "Estudiante") {
+                    if (viewModel.currentUser.value?.rol == "Estudiante" || viewModel.currentUserDB.value?.rol == "Estudiante") {
 
                         view
                             ?.findNavController()
@@ -385,7 +414,7 @@ class StudentFragment : Fragment() {
                         viewModel.currentMateria.postValue(item)
                         view
                             ?.findNavController()
-                            ?.navigate(R.id.materiaFragment)
+                            ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
                     }
 
                 },

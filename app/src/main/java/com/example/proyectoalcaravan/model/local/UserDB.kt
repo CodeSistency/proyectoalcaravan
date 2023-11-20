@@ -16,6 +16,7 @@ data class UserDB(
     @ColumnInfo(name = "first_name") val firstName: String?,
     @ColumnInfo(name = "last_name") val lastName: String?,
     @ColumnInfo(name = "birthday") val birthday: String?,
+    @ColumnInfo(name = "edad") val edad: Int?,
     @ColumnInfo(name = "cedula") val cedula: Int?,
     @ColumnInfo(name = "gender") val gender: String?,
     @ColumnInfo(name = "imageProfile") val imageProfile: String?,
@@ -24,7 +25,7 @@ data class UserDB(
     @ColumnInfo(name = "rol") val rol: String?,
     @ColumnInfo(name = "phone") val phone: Long?,
     @ColumnInfo(name = "lgn") val lgn: Double?,
-    @ColumnInfo(name = "lag") val lag: Double?,
+    @ColumnInfo(name = "lat") val lat: Double?,
     @ColumnInfo(name = "listActivities") val listActivities: List<Actividad?>?,
     @ColumnInfo(name = "listOfMaterias") val listOfMaterias: List<Materia>?,
 

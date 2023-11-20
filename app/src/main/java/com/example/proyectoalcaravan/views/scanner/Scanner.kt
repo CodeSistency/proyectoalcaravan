@@ -195,19 +195,14 @@ fun Scanner(view: View, viewModel: MainViewModel, context: Context) {
 
 //            var codeInt = qrCodeValue.toInt()
 
-            if (qrCodeValue.toIntOrNull()?.equals(Int) == true) {
+            if (qrCodeValue.toIntOrNull() != null) {
+                val codeInt = qrCodeValue.toInt()
 
-                    view?.findNavController()
-                        ?.navigate(
-                            ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(
-                                qrCodeValue.toInt()
-                            )
-                        )
-
-
+                view?.findNavController()?.navigate(
+                    ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(codeInt)
+                )
             } else {
                 viewModel.showToast("El valor '${qrCodeValue}' no es valido", context)
-
             }
         }else{
 //            viewModel.showToast("Ha ocurrido un error", context)
