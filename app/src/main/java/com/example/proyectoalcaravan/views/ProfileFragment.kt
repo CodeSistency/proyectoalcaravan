@@ -154,6 +154,8 @@ class ProfileFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 var user = viewModel.currentUser.observeAsState()
+                var refreshing = viewModel.refreshingUpdatedUser.observeAsState()
+                var refreshingCurrent = viewModel.refreshingCurrentUser.observeAsState()
 
                 var userDB = viewModel.currentUserDB.observeAsState()
                 var updatedUser = viewModel.updatedUser.observeAsState()
@@ -161,7 +163,7 @@ class ProfileFragment : Fragment() {
                     Log.e("profile", args.profile.toString())
                         Log.e("profile test", args.profile.toString())
                         viewModel.getUserById(args.profile, requireContext())
-                    if(updatedUser.value == null){
+                    if(refreshing.value == true){
                         ProfileShimmer()
 
 //                        Profile(viewModel.currentUser.observeAsState().value)
@@ -172,7 +174,7 @@ class ProfileFragment : Fragment() {
                     }
 
                 }
-                if(user.value == null && userDB.value == null){
+                if(refreshingCurrent.value == true){
 //                    Profile(viewModel.currentUser.observeAsState().value)
                     ProfileShimmer()
 
@@ -393,11 +395,11 @@ class ProfileFragment : Fragment() {
                 .clip(RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
 //                .background(Color.White)
-                .background(backgroundColor)
+                .background(colorResource(id = R.color.accent))
 
-                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
+//                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
                 .clickable {
-                    if (isClickable){
+                    if (isClickable) {
                         isClickable = false
 
                         coroutineScope.launch {
@@ -408,14 +410,16 @@ class ProfileFragment : Fragment() {
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
                             if (viewModel.currentUser.value?.rol == "Estudiante") {
-
                                 view
                                     ?.findNavController()
-                                    ?.navigate(
-                                        StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
-                                            user?.id ?: 1000
-                                        )
-                                    )
+                                    ?.navigate(R.id.action_profileFragment_to_asignacionFragment)
+//                                view
+//                                    ?.findNavController()
+//                                    ?.navigate(
+//                                        StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+//                                            user?.id ?: 1000
+//                                        )
+//                                    )
                             } else {
                                 viewModel.getMateriaById(item.id, requireContext())
                                 viewModel.currentMateria.postValue(item)
@@ -436,7 +440,7 @@ class ProfileFragment : Fragment() {
                 modifier = Modifier
                     .padding(8.dp)
                     .align(Alignment.CenterStart),
-                color = Color.Gray,
+                color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp
             )
@@ -462,7 +466,8 @@ class ProfileFragment : Fragment() {
         Log.e("profile, user", user.value.toString())
         Log.e("profile, updated User", updatedUser.value.toString())
 
-
+        var isClickable by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
 
 
 
@@ -473,7 +478,17 @@ class ProfileFragment : Fragment() {
                     title = { Text(text = "Perfil") },
                     backgroundColor = colorResource(id = R.color.accent),
                     navigationIcon = {
-                        IconButton(onClick = { view?.findNavController()?.popBackStack()
+                        IconButton(onClick = {
+                            if(isClickable){
+                                isClickable = false
+                                view?.findNavController()?.popBackStack()
+
+                                // Launch a coroutine to re-enable clickable after a delay
+                                coroutineScope.launch {
+                                    delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                    isClickable = true
+                                }
+                            }
 
                         }) {
                             Icon(
@@ -488,11 +503,21 @@ class ProfileFragment : Fragment() {
                         ) {
 
                             IconButton(onClick = {
-                                if (args.profile != 3000){
-                                    view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000))
-                                }else{
-                                    view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,10000))
+                                if(isClickable){
+                                    isClickable = false
+
+                                    if (args.profile != 3000){
+                                        view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000))
+                                    }else{
+                                        view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,10000))
+                                    }
+                                    // Launch a coroutine to re-enable clickable after a delay
+                                    coroutineScope.launch {
+                                        delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                        isClickable = true
+                                    }
                                 }
+
 
                                  })
                             {
@@ -502,7 +527,16 @@ class ProfileFragment : Fragment() {
                                 )
                             }
                             IconButton(onClick = {
-                                isModalVisible = true
+                                if(isClickable){
+                                    isClickable = false
+                                    isModalVisible = true
+
+                                    // Launch a coroutine to re-enable clickable after a delay
+                                    coroutineScope.launch {
+                                        delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                        isClickable = true
+                                    }
+                                }
 //                                if (userDB.value != null) {
 //                                    viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lag, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
 //                                }
@@ -619,6 +653,7 @@ class ProfileFragment : Fragment() {
                                 Spacer(modifier = Modifier.width(5.dp))
 
                                 OutlinedButton(
+
                                     onClick = { /*TODO*/ }) {
                                     Text(text = "${currentUser?.email ?: userDB?.value?.email}")
                                 }
@@ -673,6 +708,8 @@ class ProfileFragment : Fragment() {
 
                     }
                     Spacer(modifier = Modifier.height(40.dp))
+
+
 
                     if (args.profile != 3000){
                         HorizontalList(gridItems = viewModel.updatedUser.observeAsState().value?.listOfMaterias)
@@ -742,7 +779,7 @@ class ProfileFragment : Fragment() {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 TextButton(onClick = {
                                     if (userDB.value != null) {
-                                        viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.edad, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lat, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
+                                        viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.edad, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lat, userDB.value!!.created, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
                                     }
                                     viewModel.loggedIn.postValue(false)
                                     view?.findNavController()?.navigate(R.id.action_profileFragment_to_login)

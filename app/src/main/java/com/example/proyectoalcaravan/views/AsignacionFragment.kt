@@ -57,6 +57,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -361,7 +362,8 @@ class AsignacionFragment : Fragment() {
                                                                 listActivities = updatedListOfActivities,
                                                                 lgn = user?.lgn,
                                                                 lat = user?.lat,
-                                                                listOfMaterias = user?.listOfMaterias
+                                                                listOfMaterias = user?.listOfMaterias,
+                                                                created = user?.created
                                                             )
 
                                                             viewModel.updateUserAsignacion(user?.id ?: 110, updateUser, requireContext())
@@ -631,9 +633,13 @@ class AsignacionFragment : Fragment() {
 //                                        } ?: listOf(evaluacion)
                                         viewModel.currentActividad.value?.messageStudent = mensaje
 
-                                        if (viewModel.currentActividad.value?.messageStudent.isNotNull() && !mensaje.isNullOrEmpty()){
+                                        if ( !mensaje.isNullOrEmpty()){
+
+//                                        if (viewModel.currentActividad.value?.messageStudent.isNotNull() && !mensaje.isNullOrEmpty()){
                                             // Define a reference to Firebase Storage
-                                            if(item.messageStudent.isNullOrEmpty()){
+                                            if(viewModel.currentActividad.value?.messageStudent.isNullOrEmpty()){
+
+//                                            if(item.messageStudent.isNullOrEmpty()){
                                                 viewModel.showToast("Ha ocurrido un error", requireContext())
                                                 isButtonEnabled = true
 
@@ -685,7 +691,8 @@ class AsignacionFragment : Fragment() {
 //                                                            listActivities = updatedListActivities,
                                                             lgn = user?.lgn,
                                                             lat = user?.lat,
-                                                            listOfMaterias = user?.listOfMaterias
+                                                            listOfMaterias = user?.listOfMaterias,
+                                                            created = user?.created
 
                                                         )
 
@@ -714,7 +721,7 @@ class AsignacionFragment : Fragment() {
                                                                     viewModel.modalAsignacion1.postValue(false)
                                                                     isButtonEnabled = true
                                                                     viewModel.listWithActivities()
-                                                                    viewModel.showToast("it works", requireContext())
+                                                                    viewModel.showToast("Se ha enviado la evaluación correctamente", requireContext())
 
                                                                 }else{
                                                                     isButtonEnabled = true
@@ -835,8 +842,9 @@ class AsignacionFragment : Fragment() {
         val activities by viewModel.listOfActivitiesFiltered.observeAsState()
 
 
-            Box(modifier = Modifier.pullRefresh(pullRefreshState)){
-                LazyColumn {
+//            Box(modifier = Modifier.pullRefresh(pullRefreshState)){
+        Box(){
+            LazyColumn {
                     items(activities ?: viewModel.listOfActivitiesFiltered.value ?: emptyList()) { actividad ->
 
 //                    items(viewModel.listOfActivitiesFilteredCompose ?: viewModel.listOfActivitiesFiltered.value ?: emptyList()) { actividad ->
@@ -848,7 +856,7 @@ class AsignacionFragment : Fragment() {
                         }
                     }
                 }
-                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+//                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
 
             }
 
@@ -1055,7 +1063,8 @@ class AsignacionFragment : Fragment() {
                                                         ),
                                                         lgn = user?.lgn,
                                                         lat = user?.lat,
-                                                        listOfMaterias = user?.listOfMaterias
+                                                        listOfMaterias = user?.listOfMaterias,
+                                                        created = user?.created
 
                                                     )
 
@@ -1238,6 +1247,10 @@ class AsignacionFragment : Fragment() {
         val pagerState = rememberPagerState(pageCount = {tabs.size})
         val coroutineScope = rememberCoroutineScope()
 
+        // Observe the current page index and update the selectedTabIndex accordingly
+        LaunchedEffect(pagerState.currentPage) {
+            selectedTabIndex = pagerState.currentPage
+        }
 
         Column(
             modifier = Modifier
@@ -1248,7 +1261,7 @@ class AsignacionFragment : Fragment() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.LightGray)
+                    .background(Color.White)
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -1279,9 +1292,15 @@ class AsignacionFragment : Fragment() {
             ) { page ->
                 // Content for each tab
                 when (page) {
-                    0 -> listsOfActivities()
+                    0 -> Column(
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        listsOfActivities()
+                    }
                     1 ->  if(viewModel.currentUser.observeAsState().value?.rol == "Estudiante"){
-                        LineChart(viewModel = viewModel)
+                        LineChart2(viewModel = viewModel)
+
+//                        LineChart(viewModel = viewModel)
                     }else{
                         LineChart2(viewModel = viewModel)
 
@@ -1300,14 +1319,15 @@ class AsignacionFragment : Fragment() {
             modifier = Modifier
                 .padding(4.dp)
                 .clip(MaterialTheme.shapes.small)
-                .background(if (isSelected) Color.Gray else Color.Transparent)
+                .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent)
                 .clickable { onTabClick() }
         ) {
             Text(
                 text = text,
                 modifier = Modifier
                     .padding(8.dp)
-                    .background(if (isSelected) Color.Gray else Color.Transparent)
+                    .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent),
+                color = if (isSelected) Color.White else Color.Gray
             )
         }
     }

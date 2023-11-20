@@ -26,6 +26,7 @@ data class UserDB(
     @ColumnInfo(name = "phone") val phone: Long?,
     @ColumnInfo(name = "lgn") val lgn: Double?,
     @ColumnInfo(name = "lat") val lat: Double?,
+    @ColumnInfo(name = "created") val created: String?,
     @ColumnInfo(name = "listActivities") val listActivities: List<Actividad?>?,
     @ColumnInfo(name = "listOfMaterias") val listOfMaterias: List<Materia>?,
 

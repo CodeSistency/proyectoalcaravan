@@ -46,7 +46,9 @@
         android:id="@+id/login"
         android:name="com.example.proyectoalcaravan.views.login.LoginFragment"
         android:label="fragment_login"
-        tools:layout="@layout/fragment_login" >
+        tools:layout="@layout/fragment_login"
+        app:popUpTo="@id/nav_graph"
+        app:popUpToInclusive="true">
         <action
             android:id="@+id/action_login_to_registerStepOne2"
             app:destination="@id/registerStepOne2"
@@ -182,6 +184,13 @@
             app:exitAnim="@anim/scale_down"
             app:popEnterAnim="@anim/scale_up"
             app:popExitAnim="@anim/scale_down" />
+        <action
+            android:id="@+id/action_profileFragment_to_asignacionFragment2"
+            app:destination="@id/asignacionFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_enter_anim"
+            app:popExitAnim="@anim/nav_default_enter_anim" />
 
 
     </fragment>

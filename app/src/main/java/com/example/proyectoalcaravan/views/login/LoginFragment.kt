@@ -8,6 +8,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -27,6 +28,10 @@ import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class LoginFragment : Fragment() {
@@ -89,12 +94,23 @@ class LoginFragment : Fragment() {
         viewModel.getAllMaterias(requireContext())
         viewModel.getAllActivities(requireContext())
 
-        if(viewModel.userList?.value?.isNullOrEmpty() == true){
-            Log.e("no hay", "no hay")
-            binding.loginBtn.isEnabled = false
-        }
+//        if(viewModel.userList?.value?.isNullOrEmpty() == true){
+//            Log.e("no hay", "no hay")
+//            binding.loginBtn.isEnabled = false
+//        }
 
         binding.loginBtn.setOnClickListener{
+            binding.loginBtn.isEnabled = false
+
+            // Delay in milliseconds (adjust as needed)
+//            val delayMillis: Long = 2000
+//
+//            // Use a Handler to enable the button after the delay
+//            GlobalScope.launch(Dispatchers.Main) {
+//                delay(delayMillis)
+//                // Enable the button after the delay
+//                binding.loginBtn.isEnabled = true
+//            }
             viewModel.getAllUsers(requireContext())
 
             val email = binding.etEmail.text.toString()
@@ -103,19 +119,28 @@ class LoginFragment : Fragment() {
             viewModel.getLoggedIn(email, password, requireContext())
 
             viewModel.loggedIn.observe(viewLifecycleOwner){ it ->
+                binding.loginBtn.isEnabled = true
+
                 if (it){
-                    
+                    binding.loginBtn.isEnabled = true
                     viewModel.currentUser.observe(viewLifecycleOwner){
                         if (it.rol == "Estudiante"){
+                            binding.loginBtn.isEnabled = true
+
                             if(view.findNavController().isNotNull()){
                                 view.findNavController().navigate(R.id.studentFragment)
                                 viewModel.getUserDB(1)
+                                binding.loginBtn.isEnabled = true
 
                             }
                     } else {
-                        if (view.findNavController().isNotNull())
+                            binding.loginBtn.isEnabled = true
+
+                            if (view.findNavController().isNotNull())
                         view.findNavController().navigate(R.id.profesorFragment)
                             viewModel.getUserDB(1)
+                            binding.loginBtn.isEnabled = true
+
 
 
                         }
@@ -123,28 +148,7 @@ class LoginFragment : Fragment() {
 //                    view.findNavController().navigate(R.id.action_login_to_studentFragment)
                 }
             }
-//            if (isOnline(requireContext())){
-//                val isUserValid = isUserValid(email, password)
-//
-//                if (isUserValid != null) {
-//
-//
-//                    viewModel.createUserDB(UserDB(1, isUserValid.id, isUserValid.firstName, isUserValid.lastName, isUserValid.birthday, isUserValid.cedula, isUserValid.gender, isUserValid.imageProfile, isUserValid.email, isUserValid.password, isUserValid.rol, isUserValid.phone, isUserValid.lgn, isUserValid.lat, isUserValid.listActivities, isUserValid.listOfMaterias))
-//
-//
-//                    if (isUserValid.rol == "Estudiante"){
-//                        view.findNavController().navigate(R.id.action_login_to_studentFragment)
-//                    } else {
-//                        view.findNavController().navigate(R.id.action_login_to_profesorFragment)
-//
-//                    }
-//                } else {
-//                    Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
-//                }
-//            }else{
-//                Toast.makeText(requireContext(), "No hay conexión a internet", Toast.LENGTH_SHORT).show()
-//
-//            }
+
 
 
 

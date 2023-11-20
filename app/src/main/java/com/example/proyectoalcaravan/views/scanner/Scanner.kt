@@ -159,7 +159,8 @@ fun Scanner(view: View, viewModel: MainViewModel, context: Context) {
                     previewView
                 },
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(1000.dp)
             )
 
             Box(
@@ -167,25 +168,10 @@ fun Scanner(view: View, viewModel: MainViewModel, context: Context) {
                     .size(250.dp)
                     .background(Color.Transparent)
                     .border(2.dp, Color.White)
-                    .drawBehind {
-                        drawLine(
-                            color = Color.White,
-                            start = Offset(0f, size.height / 2),
-                            end = Offset(size.width, size.height / 2),
-                            strokeWidth = 2.dp.toPx()
-                        )
-                    }
+
             )
         }
-        Text(
-            text = "QR Code Value: $qrCodeValue",
-            modifier = Modifier
-                .padding(16.dp)
-                .background(Color.Black)
-                .fillMaxWidth(),
 
-            style = TextStyle(color = Color.White)
-        )
 
 
         // Display the QR code value in a Text composable

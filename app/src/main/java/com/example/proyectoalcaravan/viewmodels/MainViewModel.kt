@@ -33,6 +33,8 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MainViewModel(private val repository: MainRepository): ViewModel() {
 
@@ -209,20 +211,31 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     fun sortByBirthday(ascending: Boolean = true) {
-        filteredUserList.value = filteredUserList.value?.sortedBy { user ->
-            user.birthday ?: ""
-        }
-        if (!ascending) {
-            filteredUserList.value = filteredUserList.value?.reversed()
+        filteredUserList.value = filteredUserList.value?.let {
+            if (ascending) {
+                it.sortedBy { user ->
+                    user.birthday ?: ""
+                }
+            } else {
+                it.sortedByDescending { user ->
+                    user.birthday ?: ""
+                }
+            }
         }
     }
 
-    fun sortByCreationDate(ascending: Boolean = true) {
-        filteredUserList.value = filteredUserList.value?.sortedBy { user ->
-            user.created?.toEpochDay() ?: 0
-        }
-        if (!ascending) {
-            filteredUserList.value = filteredUserList.value?.reversed()
+    fun sortByCreationDate(ascending: Boolean = false) {
+        filteredUserList.value = filteredUserList.value?.let { userList ->
+            val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+            if (ascending) {
+                userList.sortedBy { user ->
+                    LocalDate.parse(user.created, formatter).toEpochDay()
+                }
+            } else {
+                userList.sortedByDescending { user ->
+                    LocalDate.parse(user.created, formatter).toEpochDay()
+                }
+            }
         }
     }
 
@@ -543,7 +556,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
                             refreshingCurrentUser.postValue(false)
                             loggedIn.postValue(true)
-                            createUserDB(UserDB(1, user?.id, user?.firstName, user?.lastName, user?.birthday, edad = user?.edad, cedula = user?.cedula, user?.gender, user?.imageProfile,user?.email, user?.password, user?.rol, user?.phone, user?.lgn, user?.lat, user?.listActivities, user?.listOfMaterias))
+                            createUserDB(UserDB(1, user?.id, user?.firstName, user?.lastName, user?.birthday, edad = user?.edad, cedula = user?.cedula, user?.gender, user?.imageProfile,user?.email, user?.password, user?.rol, user?.phone, user?.lgn, user?.lat, user?.created, user?.listActivities, user?.listOfMaterias))
 
                             Log.e("Logged in", "User: $user")
                             showToast("Has iniciado sesión correctamente", context)
@@ -1052,6 +1065,10 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                         // Handle successful response
                         //Checkear esto
 //                    currentUser.postValue(response.body())
+                        if (currentUser.value?.id == response.body()?.id || currentUserDB.value?.userId == response.body()?.id){
+                            currentUser.postValue(response.body())
+                            currentUserDB.postValue(response.body() as UserDB)
+                        }
                         updatedUser.postValue(response.body())
                         refreshingUpdatedUser.postValue(false)
                         updatedUserCompose = response.body()
@@ -1082,13 +1099,17 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     fun getUserRefresh(userId: Int, context: Context) {
+
         if(isOnline(context)){
+            refreshingCurrentUser.postValue(true)
             conexion.postValue(true)
             repository.getUserById(userId).enqueue(object : Callback<User> {
                 override fun onResponse(call: Call<User>, response: Response<User>) {
                     if (response.isSuccessful) {
                         // Handle successful response
                         //Checkear esto
+                        refreshingCurrentUser.postValue(false)
+
                         currentUser.postValue(response.body())
                         currentUserCompose = response.body()
 //                    updatedUser.postValue(response.body())
@@ -1097,12 +1118,16 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                     } else {
                         errorMessage.postValue("Error: ${response.code()}")
                         currentUserCompose = null
+                        refreshingCurrentUser.postValue(false)
+
 
                     }
                 }
 
                 override fun onFailure(call: Call<User>, t: Throwable) {
                     errorMessage.postValue(t.message)
+                    refreshingCurrentUser.postValue(false)
+
                 }
             })
         }else{

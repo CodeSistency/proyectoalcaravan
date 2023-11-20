@@ -179,7 +179,7 @@ fun ListItem(item: Materia) {
 //                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(backgroundColor)
-                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
+//                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
 //                .background(
 //                    brush = Brush.linearGradient(
@@ -212,7 +212,7 @@ fun ListItem(item: Materia) {
                 modifier = Modifier
                     .padding(8.dp)
                     .align(Alignment.CenterStart),
-                color = Color.Gray,
+                color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -43,10 +46,12 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +61,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -66,12 +72,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.remote.Actividad
 import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
+import com.example.proyectoalcaravan.views.charts.GenderPerformanceChartByMateria
+import com.example.proyectoalcaravan.views.charts.LineChart2
 import com.example.proyectoalcaravan.views.componentes.Header
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -241,6 +253,10 @@ class MateriaFragment : Fragment() {
     @Composable
     fun ListItemSuscribedUser(user: User) {
         var isModalVisible by remember { mutableStateOf(false) }
+        var isClickable by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
+        var isButtonEnabled by remember { mutableStateOf(true) }
+
 
 
         Card(
@@ -251,21 +267,32 @@ class MateriaFragment : Fragment() {
                 .background(Color.LightGray)
                 .border(1.dp, Color.White, shape = MaterialTheme.shapes.medium)
                 .clickable {
-                    viewModel.currentMateria.value?.id?.let {
-                        viewModel.getActivitiesById(
-                            it,
-                            requireContext()
-                        )
-                    }
+                    if (isClickable) {
+                        isClickable = false
+
+                        // Launch a coroutine to re-enable clickable after a delay
+                        coroutineScope.launch {
+                            delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                            isClickable = true
+                        }
+
+                        viewModel.currentMateria.value?.id?.let {
+                            viewModel.getActivitiesById(
+                                it,
+                                requireContext()
+                            )
+                        }
 
 //                    view?.findNavController()?.navigate(R.id.action_materiaFragment_to_asignacionFragment)
-                    view
-                        ?.findNavController()
-                        ?.navigate(
-                            MateriaFragmentDirections.actionMateriaFragmentToAsignacionFragment(
-                                user?.id ?: 100000
+                        view
+                            ?.findNavController()
+                            ?.navigate(
+                                MateriaFragmentDirections.actionMateriaFragmentToAsignacionFragment(
+                                    user?.id ?: 100000
+                                )
                             )
-                        )
+                    }
+
                 }
             ,
             elevation = 4.dp,
@@ -365,52 +392,70 @@ class MateriaFragment : Fragment() {
                                     Text(text = "Cancelar")
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
-                                TextButton(onClick = {
-                                    val currentMateria = viewModel.currentMateria.value
-                                    if (currentMateria != null) {
-                                        val materiaId = currentMateria.id
-                                        val teacherId = currentMateria.idTeacher
-                                        val materiaName = currentMateria.name
+                                TextButton(
+                                    enabled = isButtonEnabled,
+                                    onClick = {
+                                    if(isButtonEnabled){
+                                        isButtonEnabled = false
 
-                                        // Filter out the selected user
-                                        val filteredUsers = currentMateria.listStudent?.filterNot { it.id == user.id }
-                                        Log.e("remove user", filteredUsers.toString())
+                                        val currentMateria = viewModel.currentMateria.value
+                                        if (currentMateria != null) {
+                                            val materiaId = currentMateria.id
+                                            val teacherId = currentMateria.idTeacher
+                                            val materiaName = currentMateria.name
 
-                                        // Update the Materia object with the filtered users
-                                        val materiaUser = Materia(
-                                            id = materiaId,
-                                            name = materiaName,
-                                            idTeacher = teacherId,
-                                            listStudent = filteredUsers
-                                        )
+                                            // Filter out the selected user
+                                            val filteredUsers = currentMateria.listStudent?.filterNot { it.id == user.id }
+                                            Log.e("remove user", filteredUsers.toString())
 
-                                        val materiaIdToRemove = user.listOfMaterias?.find { it.id == materiaId }?.id ?: 0
-                                        val updatedListOfMaterias = user.listOfMaterias?.filterNot { it.id == materiaIdToRemove }
+                                            // Update the Materia object with the filtered users
+                                            val materiaUser = Materia(
+                                                id = materiaId,
+                                                name = materiaName,
+                                                idTeacher = teacherId,
+                                                listStudent = filteredUsers
+                                            )
 
-                                        val modifiedUser = User(
-                                            id = user.id, // Replace with the actual property name for the user ID
-                                            firstName = user.firstName,
-                                            lastName = user.lastName,
-                                            email = user.email,
-                                            password = user.password,
-                                            gender = user.gender,
-                                            edad = user.edad,
-                                            rol = user.rol,
-                                            birthday = user.birthday,
-                                            imageProfile = user.imageProfile,
-                                            phone = user.phone,
-                                            cedula = user.cedula,
-                                            listActivities = user.listActivities,
-                                            lgn = user.lgn,
-                                            lat = user.lat,
-                                            listOfMaterias = updatedListOfMaterias
-                                        )
-                                        viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext())
+                                            val materiaIdToRemove = user.listOfMaterias?.find { it.id == materiaId }?.id ?: 0
+                                            val updatedListOfMaterias = user.listOfMaterias?.filterNot { it.id == materiaIdToRemove }
 
-                                        viewModel.updateMateria(materiaId, materiaUser, requireContext())
-                                        viewModel.getMateriaById(materiaId, requireContext())
+                                            val modifiedUser = User(
+                                                id = user.id, // Replace with the actual property name for the user ID
+                                                firstName = user.firstName,
+                                                lastName = user.lastName,
+                                                email = user.email,
+                                                password = user.password,
+                                                gender = user.gender,
+                                                edad = user.edad,
+                                                rol = user.rol,
+                                                birthday = user.birthday,
+                                                imageProfile = user.imageProfile,
+                                                phone = user.phone,
+                                                cedula = user.cedula,
+                                                listActivities = user.listActivities,
+                                                lgn = user.lgn,
+                                                lat = user.lat,
+                                                listOfMaterias = updatedListOfMaterias,
+                                                created = user.created
+                                            )
+                                            viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext()).observe(viewLifecycleOwner){
+                                                if (it){
+                                                    isButtonEnabled = true
+                                                }else{
+                                                    isButtonEnabled = true
+
+                                                }
+                                            }
+
+                                            isButtonEnabled = true
+
+
+                                            viewModel.updateMateria(materiaId, materiaUser, requireContext())
+                                            viewModel.getMateriaById(materiaId, requireContext())
+                                        }
+                                        isModalVisible = false
                                     }
-                                    isModalVisible = false
+
                                 }) {
                                     Text(text = "Eliminar")
                                 }
@@ -527,6 +572,9 @@ class MateriaFragment : Fragment() {
         var isModalVisible by remember {
             mutableStateOf(false)
         }
+
+        var isButtonEnabled by remember { mutableStateOf(true) }
+
         Card(
             modifier = Modifier
                 .fillMaxSize()
@@ -598,8 +646,15 @@ class MateriaFragment : Fragment() {
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 TextButton(onClick = {
-                                    item.id?.let { viewModel.deleteActivity(it, requireContext()) }
-                                    isModalVisible = false
+                                    if (isButtonEnabled){
+                                        isButtonEnabled = false
+
+                                        item.id?.let { viewModel.deleteActivity(it, requireContext()) }
+                                        isButtonEnabled = true
+                                        isModalVisible = false
+
+                                    }
+
                                 }) {
                                     Text(text = "Eliminar")
                                 }
@@ -637,6 +692,101 @@ class MateriaFragment : Fragment() {
 
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun TabsAsignacionWithPagerScreen() {
+        var selectedTabIndex by remember { mutableStateOf(0) }
+
+        val tabs = listOf("Listado", "Asignaciones", "Rendimiento Sexo", "Rendimiento edad")
+
+
+        // Pager state
+        val pagerState = rememberPagerState(pageCount = {tabs.size})
+        val coroutineScope = rememberCoroutineScope()
+
+        // Observe the current page index and update the selectedTabIndex accordingly
+        LaunchedEffect(pagerState.currentPage) {
+            selectedTabIndex = pagerState.currentPage
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(4.dp),
+            verticalArrangement = Arrangement.Top
+        ) {
+            // Tabs
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                tabs.forEachIndexed { index, text ->
+                    TabItem(
+                        text = text,
+                        isSelected = index == selectedTabIndex,
+                        onTabClick = {
+                            selectedTabIndex = index
+                            // Set the selected page in the pager state
+                            coroutineScope.launch {
+                                // Call scroll to on pagerState
+                                pagerState.animateScrollToPage(index)                            }
+
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Animated Content
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) { page ->
+
+
+                // Content for each tab
+                when (page) {
+                    0 -> Column(
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        ListContentUsersSuscribed(userList = viewModel.currentMateria)
+                    }
+                    1 -> ListContentAsignacion(listOfActivities = viewModel.activitiesListById)
+                    3 -> GenderPerformanceChartByMateria(viewModel = viewModel)
+                    4 -> AgeRangePerformanceChart(viewModel = viewModel, context = requireContext())
+
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+
+    @Composable
+    fun TabItem(text: String, isSelected: Boolean, onTabClick: () -> Unit) {
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .clip(MaterialTheme.shapes.small)
+                .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent)
+                .clickable { onTabClick() }
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .background(if (isSelected) colorResource(id = R.color.blue_dark) else Color.Transparent),
+                color = if (isSelected) Color.White else Color.Gray
+            )
+        }
+    }
+
 
 
     @Composable
@@ -644,10 +794,13 @@ class MateriaFragment : Fragment() {
 
         var button1 by remember { mutableStateOf(true) }
         var button2 by remember { mutableStateOf(false) }
+        var button3 by remember { mutableStateOf(false) }
         var isModalVisible by remember { mutableStateOf(false) }
         var isModalAsignacionesVisible by remember { mutableStateOf(false) }
         var tituloAsignacion by remember { mutableStateOf(String()) }
         var descripcionAsignacion by remember { mutableStateOf(String()) }
+        var isButtonEnabled by remember { mutableStateOf(true) }
+
 
 //        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
         val selectedUsers = viewModel.currentMateria.observeAsState().value?.listStudent?.toMutableList()
@@ -706,8 +859,12 @@ class MateriaFragment : Fragment() {
                     onClick = {
                         button1 = true
                         button2 = false
+                        button3 = false
+
                     },
-                    modifier = Modifier.weight(1F),
+                    modifier = Modifier
+                        .weight(1F)
+                        .background(colorResource(id = R.color.accent)),
 
                     ) {
                     Text(text = "Alumnos", style = MaterialTheme.typography.subtitle1)
@@ -717,18 +874,37 @@ class MateriaFragment : Fragment() {
                     onClick = {
                         button2 = true
                         button1 = false
+                        button3 = false
+
                     },
-                    modifier = Modifier.weight(1F)
+                    modifier = Modifier
+                        .weight(1F)
+                        .background(colorResource(id = R.color.accent))
                 ) {
                     Text(text = "Asignaciones", style = MaterialTheme.typography.subtitle1)
+                }
+                Button(
+                    onClick = {
+                        button3 = true
+                        button1 = false
+                        button2 = false
+
+                    },
+                    modifier = Modifier
+                        .weight(1F)
+                        .background(colorResource(id = R.color.accent))
+                ) {
+                    Text(text = "Rendimiento", style = MaterialTheme.typography.subtitle1)
                 }
 
             }
 
             if (button1) {
                 ListContentUsersSuscribed(userList = viewModel.currentMateria)
-            } else {
+            } else if (button2) {
                 ListContentAsignacion(listOfActivities = viewModel.activitiesListById)
+            }else{
+                GenderPerformanceChartByMateria(viewModel = viewModel)
             }
 
             if (isModalVisible) {
@@ -784,71 +960,87 @@ class MateriaFragment : Fragment() {
 
                                 }
                                 Button(
+                                    enabled = isButtonEnabled,
                                     onClick = {
-                                        val currentMateria = viewModel.currentMateria.value
-                                        if (currentMateria != null) {
-                                            val materiaId = currentMateria.id
-                                            val teacherId = currentMateria.idTeacher
-                                            val materiaName = currentMateria.name
+                                        if(isButtonEnabled){
+                                            isButtonEnabled = false
+                                            val currentMateria = viewModel.currentMateria.value
+                                            if (currentMateria != null) {
+                                                val materiaId = currentMateria.id
+                                                val teacherId = currentMateria.idTeacher
+                                                val materiaName = currentMateria.name
 
-                                            if (selectedUsers != null) {
-                                                for (user in selectedUsers) {
-                                                    // Create a modified user object with additional data
-                                                    val materiaUser = Materia(
-                                                        id = currentMateria.id,
-                                                        name = currentMateria.name,
-                                                        idTeacher = currentMateria.idTeacher
-                                                    )
+                                                if (selectedUsers != null) {
+                                                    for (user in selectedUsers) {
+                                                        // Create a modified user object with additional data
+                                                        val materiaUser = Materia(
+                                                            id = currentMateria.id,
+                                                            name = currentMateria.name,
+                                                            idTeacher = currentMateria.idTeacher
+                                                        )
 
-                                                    val updatedListOfMaterias = user.listOfMaterias.orEmpty().toMutableList()
+                                                        val updatedListOfMaterias = user.listOfMaterias.orEmpty().toMutableList()
 
-                                                    // Check if the materia with the same id already exists
-                                                    val existingMateria = updatedListOfMaterias.find { it.id == materiaUser.id }
+                                                        // Check if the materia with the same id already exists
+                                                        val existingMateria = updatedListOfMaterias.find { it.id == materiaUser.id }
 
-                                                    if (existingMateria == null) {
-                                                        // If the materia does not exist, add it to the list
-                                                        updatedListOfMaterias.add(materiaUser)
-                                                    } else {
-                                                        // If the materia already exists, you can handle it as needed (skip, update, etc.)
-                                                        // For now, let's just print a message
-                                                        println("Materia with id ${materiaUser.id} already exists for user ${user.id}")
+                                                        if (existingMateria == null) {
+                                                            // If the materia does not exist, add it to the list
+                                                            updatedListOfMaterias.add(materiaUser)
+                                                        } else {
+                                                            // If the materia already exists, you can handle it as needed (skip, update, etc.)
+                                                            // For now, let's just print a message
+                                                            println("Materia with id ${materiaUser.id} already exists for user ${user.id}")
+                                                        }
+                                                        val modifiedUser = User(
+                                                            id = user.id, // Replace with the actual property name for the user ID
+                                                            firstName = user.firstName,
+                                                            lastName = user.lastName,
+                                                            email = user.email,
+                                                            password = user.password,
+                                                            gender = user.gender,
+                                                            edad = user.edad,
+                                                            rol = user.rol,
+                                                            birthday = user.birthday,
+                                                            imageProfile = user.imageProfile,
+                                                            phone = user.phone,
+                                                            cedula = user.cedula,
+                                                            listActivities = user.listActivities,
+                                                            lgn = user.lgn,
+                                                            lat = user.lat,
+                                                            listOfMaterias = updatedListOfMaterias,
+                                                            created = user.created
+
+                                                        )
+
+                                                        // Call viewModel.updateUser for each user in the list
+                                                        viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext()).observe(viewLifecycleOwner){
+                                                            if(it){
+                                                                isButtonEnabled = true
+
+                                                            }else{
+                                                                isButtonEnabled = true
+
+                                                            }
+                                                        }
+
+                                                        // Update the materia with the modified user list
                                                     }
-                                                    val modifiedUser = User(
-                                                        id = user.id, // Replace with the actual property name for the user ID
-                                                        firstName = user.firstName,
-                                                        lastName = user.lastName,
-                                                        email = user.email,
-                                                        password = user.password,
-                                                        gender = user.gender,
-                                                        edad = user.edad,
-                                                        rol = user.rol,
-                                                        birthday = user.birthday,
-                                                        imageProfile = user.imageProfile,
-                                                        phone = user.phone,
-                                                        cedula = user.cedula,
-                                                        listActivities = user.listActivities,
-                                                        lgn = user.lgn,
-                                                        lat = user.lat,
-                                                        listOfMaterias = updatedListOfMaterias
-
-                                                    )
-
-                                                    // Call viewModel.updateUser for each user in the list
-                                                    viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext())
-
-                                                    // Update the materia with the modified user list
                                                 }
-                                            }
 
-                                            viewModel.updateMateria(materiaId, Materia(materiaId, teacherId, selectedUsers, materiaName), requireContext())
-                                            isModalVisible = false
+                                                viewModel.updateMateria(materiaId, Materia(materiaId, teacherId, selectedUsers, materiaName), requireContext())
+                                                isButtonEnabled = true
+
+                                                isModalVisible = false
+                                            }
                                         }
+
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp)
                                 ) {
-                                    Text(text = "Actualizar")
+                                    Text(text = "Agregar")
                                 }
                             }
                         }

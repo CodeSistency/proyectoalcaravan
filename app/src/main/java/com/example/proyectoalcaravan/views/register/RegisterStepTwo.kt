@@ -247,6 +247,16 @@ class RegisterStepTwo : Fragment() {
                         }
                     }
 
+                    val birthYear = viewModel.birthday.value?.substring(0, 4)?.toIntOrNull()
+
+
+                    if (birthYear == null || birthYear >= 2005) {
+                        showToast("Debe ser mayor de 18 años para registrarse")
+                        validado = false
+                        binding.Registrar.isEnabled = true
+                        return@setOnClickListener
+                    }
+
                     if (validado) {
                         // Check if firstName and lastName contain numbers
 
@@ -316,7 +326,7 @@ class RegisterStepTwo : Fragment() {
                             lgn = if (viewModel.longitude.value != null) viewModel.longitude.value else lgn?.toDouble(),
                             rol = if (viewModel.rol.value != null) viewModel.rol.value else role,
                             gender = if (viewModel.genero.value != null) viewModel.genero.value else gender,
-                            created = LocalDate.now(),
+                            created = dataUser?.created,
                         )
 
                         if(imageUri == null && image.isNotNull()){
@@ -347,7 +357,9 @@ class RegisterStepTwo : Fragment() {
 //                                                viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
                                                 viewModel.getAllUsers(requireContext())
                                                 viewModel.profileImage.postValue(null)
-                                                viewModel.createUserDB(UserDB(1, user?.id, user?.firstName, user?.lastName, user?.birthday, edad = user?.edad, cedula = user?.cedula, user?.gender, user?.imageProfile,user?.email, user?.password, user?.rol, user?.phone, user?.lgn, user?.lat, user?.listActivities, user?.listOfMaterias))
+                                                viewModel.rol.postValue(null)
+                                                viewModel.genero.postValue(null)
+                                                viewModel.createUserDB(UserDB(1, user?.id, user?.firstName, user?.lastName, user?.birthday, edad = user?.edad, cedula = user?.cedula, user?.gender, user?.imageProfile,user?.email, user?.password, user?.rol, user?.phone, user?.lgn, user?.lat, user?.created, user?.listActivities, user?.listOfMaterias))
 //                                                viewModel.currentUser.postValue(user)
                                                 view
                                                     ?.findNavController()
@@ -409,8 +421,8 @@ class RegisterStepTwo : Fragment() {
                 val lat = dataUser?.lat.toString()
                 val role = dataUser?.rol.toString()
                 var gender = dataUser?.gender.toString()
-                val birthday = dataUser?.gender.toString()
-                val password = dataUser?.gender.toString()
+                val birthday = dataUser?.birthday.toString()
+                val password = dataUser?.password.toString()
                 val userId = dataUser?.id
 
                 val imageUri = viewModel.profileImage.value
@@ -581,7 +593,15 @@ class RegisterStepTwo : Fragment() {
                     }
 
 
+                    val birthYear = viewModel.birthday.value?.substring(0, 4)?.toIntOrNull()
 
+
+                    if (birthYear == null || birthYear >= 2005) {
+                        showToast("Debe ser mayor de 18 años para registrarse")
+                        validado = false
+                        binding.Registrar.isEnabled = true
+                        return@setOnClickListener
+                    }
 
 
                     if (validado) {
@@ -636,7 +656,7 @@ class RegisterStepTwo : Fragment() {
                             lgn = if (viewModel.longitude.value != null) viewModel.longitude.value else lgn?.toDouble(),
                             rol = if (viewModel.rol.value != null) viewModel.rol.value else role,
                             gender = if (viewModel.genero.value != null) viewModel.genero.value else gender,
-                            created = LocalDate.now(),
+                            created = dataUser?.created,
                         )
 
                         if(imageUri == null && image.isNotNull()){
@@ -668,6 +688,8 @@ class RegisterStepTwo : Fragment() {
                                                 viewModel.profileImage.postValue(null)
                                                 viewModel.latitude.postValue(null)
                                                 viewModel.longitude.postValue(null)
+                                                viewModel.rol.postValue(null)
+                                                viewModel.genero.postValue(null)
 //                                                viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
                                                 viewModel.getAllUsers(requireContext())
                                                 viewModel.profileImage.postValue(null)
@@ -817,6 +839,16 @@ class RegisterStepTwo : Fragment() {
                         return@setOnClickListener
                     }
 
+                    val birthYear = viewModel.birthday.value?.substring(0, 4)?.toIntOrNull()
+
+
+                    if (birthYear == null || birthYear >= 2005) {
+                        showToast("Debe ser mayor de 18 años para registrarse")
+                        validado = false
+                        binding.Registrar.isEnabled = true
+                        return@setOnClickListener
+                    }
+
                     if (validado) {
                         // Check if firstName and lastName contain numbers
 
@@ -835,6 +867,7 @@ class RegisterStepTwo : Fragment() {
 
 
                     }
+                    Log.e("created", "esta entrando")
 
                     if (validado) {
                         // Check if firstName and lastName contain numbers
@@ -855,36 +888,18 @@ class RegisterStepTwo : Fragment() {
 
                     }
 
-//                    if (validado) {
-//                        if (userList != null) {
-//                            for (user in userList) {
-//                                if (user.cedula == cedula) {
-//                                    showToast("Esta cedula ya existe")
-//                                    validado = false
-//                                    break
-//                                }
-//                            }
-//                        }else{
-//                            viewModel.showToast("Ha ocurrido un error, vuelva a intentar", requireContext())
-//                            viewModel.getAllUsers(requireContext())
-//                            validado = false
-//                        }
-//                    }
-
-//                if (validado) {
-//                    // Enable the button after successful validation and user creation
-//                    binding.Registrar.isEnabled = true
-//                } else {
-//                    // If validation fails, enable the button to allow corrections
-//                    binding.Registrar.isEnabled = true
-//                }
+                    Log.e("created", "esta entrando")
 
                     if(isOnline(requireContext())){
+                        Log.e("created", "esta entrando")
                         if (validado) {
                             if (cedula != null) {
                                 viewModel.isCedulaValid(cedula, requireContext()).observe(viewLifecycleOwner) {
+                                    Log.e("created", "esta entrando")
 
                                     if(it){
+                                        Log.e("created", "esta entrando")
+
                                         val user = User(
                                             email = email?.lowercase(),
                                             password = password,
@@ -900,10 +915,14 @@ class RegisterStepTwo : Fragment() {
                                             lgn = viewModel.longitude.value ?: 1.00100101,
                                             rol = viewModel.rol.value,
                                             gender = viewModel.genero.value,
-                                            created = LocalDate.now(),
+                                            created = LocalDate.now().toString(),
                                         )
+                                        Log.e("created", user.toString())
+
+                                        Log.e("created", user.created.toString())
 
 
+//                                        binding.Registrar.isEnabled = true
 
                                         // Define a reference to Firebase Storage
                                         val storageRef = storage.reference.child("${user.email}.jpg")
@@ -913,8 +932,12 @@ class RegisterStepTwo : Fragment() {
 
                                         uploadTask?.addOnSuccessListener { taskSnapshot ->
                                             // The image has been successfully uploaded
+                                            binding.Registrar.isEnabled = true
+
                                             storageRef.downloadUrl.addOnSuccessListener { uri ->
                                                 val downloadUri = uri.toString()
+                                                binding.Registrar.isEnabled = true
+
                                                 user.imageProfile = downloadUri
                                                 viewModel.createUser(user, requireContext()).observe(viewLifecycleOwner){
                                                     if(it){
@@ -923,6 +946,8 @@ class RegisterStepTwo : Fragment() {
                                                         binding.Registrar.isEnabled = true
                                                         viewModel.latitude.postValue(null)
                                                         viewModel.longitude.postValue(null)
+                                                        viewModel.rol.postValue(null)
+                                                        viewModel.genero.postValue(null)
 
                                                         view
                                                             ?.findNavController()
@@ -937,15 +962,21 @@ class RegisterStepTwo : Fragment() {
 
                                             }.addOnFailureListener { exception ->
                                                 // Handle the error while trying to get the download URL
+                                                binding.Registrar.isEnabled = true
+
                                                 showToast("Fallo para conseguir la URL: ${exception.message}")
                                             }
                                         }?.addOnFailureListener { exception ->
                                             // Handle the error during image upload
                                             if (exception is StorageException) {
+                                                binding.Registrar.isEnabled = true
+
                                                 // Handle storage-specific errors
                                                 Log.e("firebase error", "Storage Error: ${exception.message}")
                                                 showToast("Storage Error: ${exception.message}")
                                             } else {
+                                                binding.Registrar.isEnabled = true
+
                                                 // Handle other non-storage-related exceptions
                                                 showToast("Subida de la imagen ha fallado. Intente de nuevo")
                                             }
@@ -1214,13 +1245,12 @@ class RegisterStepTwo : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
 
         val email = viewModel.email.value
         val password = viewModel.password.value
 
 
-        viewModel.birthday.postValue(null)
+        viewModel.birthday.postValue("Fecha")
 
 
         binding.etNombre.setText("")
@@ -1240,6 +1270,10 @@ class RegisterStepTwo : Fragment() {
         viewModel.longitude.postValue(null)
         viewModel.latitude.postValue(null)
         viewModel.profileImage.postValue(null)
+
+        _binding = null
+
+
     }
 
 

@@ -19,7 +19,7 @@ data class User(
     val phone: Long? = null,
     val rol: String? = "Estudiante",
     var listOfMaterias: List<Materia>? = listOf(),
-    val created: LocalDate? = LocalDate.now(),
+    val created: String?,
 
 
     )

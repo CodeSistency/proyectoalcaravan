@@ -9,7 +9,8 @@ import com.example.proyectoalcaravan.R
 object ColorList {
     val colors = listOf(
 
-        Color.Blue,
+//        Color.Blue,
+        Color(red = 57, green = 232, blue = 192)
 //        R.color.accent,
 //        Color.Yellow,
 //        Color.Magenta,

@@ -111,6 +111,7 @@ import com.example.proyectoalcaravan.views.componentes.ColorList
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.example.proyectoalcaravan.views.scanner.Scanner
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 //import kotlinx.coroutines.launch
@@ -474,7 +475,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -496,12 +497,12 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = item.firstName.toString(),
+                        text = "${item.firstName} ${item.lastName}",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = item.lastName.toString(),
+                        text = item.email.toString(),
                         fontSize = 16.sp,
                         color = Color.Gray,
                     )
@@ -815,7 +816,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         var isPermissionGranted by remember { mutableStateOf(false) }
         var refresh = viewModel.refreshing.observeAsState()
 
-        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserStudents("Estudiante", requireContext()) })
+        val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserStudents("Estudiante", requireContext())
+        viewModel.resetFilters(requireContext())})
 
         if (refresh.value == true){
             ShimmerCardList()
@@ -828,20 +830,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 ) {
                     Text(text = "No hay resultados")
                 }
-//                Box(Modifier.pullRefresh(pullRefreshState)){
-//                    LazyColumn {
-//                        if( userStudents != null){
-//                            items(userStudents.value ?: emptyList()) { user ->
-//                                Log.e("user specify", user.toString())
-//
-//                                ListItem(item = user, isPermissionGranted)
-//                            }
-//                        }
-//
-//
-//                    }
-//                    PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
-//                }
+
             }else{
                 Box(Modifier.pullRefresh(pullRefreshState)){
                     LazyColumn {
@@ -1415,7 +1404,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 ) {
 
                     IconButton(
-                        onClick = { viewModel.sortByCreationDate(true) },
+                        onClick = { viewModel.sortByCreationDate() },
                         modifier = Modifier
                             .size(38.dp)
                             .background(Color.LightGray, CircleShape)
@@ -1491,8 +1480,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 .height(110.dp)
 //                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(backgroundColor)
-                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
+                .background(colorResource(id = R.color.accent))
+                .border(0.5.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
+                .shadow(4.dp, RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
 //                .background(
 //                    brush = Brush.linearGradient(
@@ -1508,7 +1498,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         ?.findNavController()
                         ?.navigate(R.id.action_profesorFragment_to_materiaFragment)
                 },
-            contentAlignment = Alignment.Center
+//            contentAlignment = Alignment.Center
         ) {
             // Display text at the middle left
             Text(
@@ -1526,6 +1516,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    .size(50.dp)
+                    .padding(end = 5.dp)
 //                    .absolutePadding(top = (-30).dp, right = (-30).dp)
             )
         }
@@ -1599,7 +1591,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp)
+                .padding(4.dp),
+            Arrangement.Top
         ) {
             // Tabs
             Row(
@@ -1632,7 +1625,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f)
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
             ) { page ->
                 // Content for each tab
                 when (page) {
@@ -1647,7 +1641,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     2 -> Column(modifier = Modifier.padding(bottom = 30.dp, start = 10.dp, end = 10.dp)){
                         GenderPerformanceChart(viewModel = viewModel)
                     }
-                    3 ->Column(modifier = Modifier.padding(bottom = 30.dp, start = 10.dp, end = 10.dp)){
+                    3 ->Column(modifier = Modifier.padding( start = 10.dp, end = 10.dp)){
                         AgeRangePerformanceChart(viewModel = viewModel, context = requireContext())
                     }
 
@@ -1687,6 +1681,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             skipHalfExpanded = skipHalfExpanded
         )
         val scope = rememberCoroutineScope()
+        var isClickable by remember { mutableStateOf(true) }
+
 
         var isModalVisible by remember { mutableStateOf(false) }
         val filteredUserList = viewModel.filteredUserList
@@ -1725,7 +1721,15 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { isModalVisible = true }) {
+                            IconButton(onClick = {
+                                if(isClickable){
+                                    scope.launch {
+                                        delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                        isClickable = true
+                                    }
+                                    isModalVisible = true
+                                }
+                            }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
                                 val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
                                 Icon(
@@ -1734,8 +1738,15 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                     modifier = Modifier.size(40.dp)
                                 )
                             }
-                            IconButton(onClick = {  view?.findNavController()
-                                ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 3000)) }) {
+                            IconButton(onClick = {
+                                if(isClickable){
+                                    scope.launch {
+                                        delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                        isClickable = true
+                                    }
+                                    view?.findNavController()
+                                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 3000))                                 }
+                                }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
                                 Icon(
                                     imageVector = Icons.Default.AccountCircle,

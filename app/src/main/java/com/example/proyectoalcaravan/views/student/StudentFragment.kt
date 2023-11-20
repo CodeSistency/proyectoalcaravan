@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.ColumnScopeInstance.weight
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -385,6 +386,8 @@ class StudentFragment : Fragment() {
     fun HorizontalItemCard(item: Materia) {
         var user = viewModel.currentUser.value
         val backgroundColor = ColorList.colors[item.id % ColorList.colors.size]
+        var isClickable by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
 
 
         Box(
@@ -395,27 +398,37 @@ class StudentFragment : Fragment() {
                 .clip(RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
                 .background(backgroundColor)
-                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
+//                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
                 .clickable {
-                    viewModel.getActivitiesById(item.id, requireContext())
+                    if (isClickable) {
+                        isClickable = false
+
+                        // Launch a coroutine to re-enable clickable after a delay
+                        coroutineScope.launch {
+                            delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                            isClickable = true
+                        }
+                        viewModel.getActivitiesById(item.id, requireContext())
 //                    viewModel.getMateriaById(item.id)
 //                    viewModel.currentMateria.postValue(item)
-                    if (viewModel.currentUser.value?.rol == "Estudiante" || viewModel.currentUserDB.value?.rol == "Estudiante") {
+                        if (viewModel.currentUser.value?.rol == "Estudiante" || viewModel.currentUserDB.value?.rol == "Estudiante") {
 
-                        view
-                            ?.findNavController()
-                            ?.navigate(
-                                StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
-                                    user?.id ?: 1000
+                            view
+                                ?.findNavController()
+                                ?.navigate(
+                                    StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
+                                        user?.id ?: 1000
+                                    )
                                 )
-                            )
-                    } else {
-                        viewModel.getMateriaById(item.id, requireContext())
-                        viewModel.currentMateria.postValue(item)
-                        view
-                            ?.findNavController()
-                            ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                        } else {
+                            viewModel.getMateriaById(item.id, requireContext())
+                            viewModel.currentMateria.postValue(item)
+                            view
+                                ?.findNavController()
+                                ?.navigate(R.id.action_clasesFragment_to_materiaFragment)
+                        }
                     }
+
 
                 },
 //            contentAlignment = Alignment.Center
@@ -426,7 +439,7 @@ class StudentFragment : Fragment() {
                 modifier = Modifier
                     .padding(8.dp)
                     .align(Alignment.CenterStart),
-                color = Color.Gray,
+                color = Color.Black,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp
             )
@@ -447,6 +460,7 @@ class StudentFragment : Fragment() {
     fun HorizontalList(gridItems: List<Materia>?) {
 //        val items by gridItems.observeAsState(initial = emptyList())
         var refresh = viewModel.refreshingCurrentUser.observeAsState()
+        val user = viewModel.currentUser.observeAsState()
 
 
         val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserRefresh(viewModel.currentUserDB.value?.userId ?: 10000, requireContext()) })
@@ -461,7 +475,7 @@ class StudentFragment : Fragment() {
                         .padding(8.dp)
 
                 ) {
-                    items(gridItems ?: emptyList()) { item ->
+                    items(gridItems ?: user.value?.listOfMaterias ?: emptyList()) { item ->
                         HorizontalItemCard(item = item)
                     }
                 }
@@ -482,6 +496,7 @@ class StudentFragment : Fragment() {
         var userRol = viewModel.currentUser.value
         Log.e("user test", userRol.toString())
         var refresh = viewModel.refreshingCurrentUser.observeAsState()
+        var currentUser = viewModel.currentUser.observeAsState()
 
 
         val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { user.value?.userId?.let {
@@ -494,7 +509,7 @@ class StudentFragment : Fragment() {
         }else{
             Box(modifier = Modifier.pullRefresh(pullRefreshState)){
                 LazyColumn {
-                    items(actividades?.listActivities ?: emptyList()) { actividad ->
+                    items(actividades?.listActivities ?: currentUser.value?.listActivities ?: emptyList()) { actividad ->
                         if (actividad != null) {
                             ListItemAsignacionGeneral(item = actividad)
                         }
@@ -627,7 +642,8 @@ class StudentFragment : Fragment() {
 
         var userDB = viewModel.currentUserDB
         var user = viewModel.currentUser.observeAsState()
-
+        var isClickable by remember { mutableStateOf(true) }
+        val coroutineScope = rememberCoroutineScope()
 
 
         Scaffold(
@@ -651,7 +667,15 @@ class StudentFragment : Fragment() {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { isModalVisible = true }) {
+                            IconButton(onClick = {
+
+                                if(isClickable){
+                                    coroutineScope.launch {
+                                        delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                        isClickable = true
+                                    }
+                                    isModalVisible = true
+                                } }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
                                 val iconPainter: Painter = painterResource(R.drawable.qr_detailed_svgrepo_com)
                                 Icon(
@@ -660,8 +684,16 @@ class StudentFragment : Fragment() {
                                     modifier = Modifier.size(40.dp)
                                 )
                             }
-                            IconButton(onClick = {  view?.findNavController()
-                                ?.navigate(StudentFragmentDirections.actionStudentFragmentToProfileFragment(user?.value?.id ?: 3000)) }) {
+                            IconButton(onClick = {
+                                if(isClickable){
+                                    coroutineScope.launch {
+                                        delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                        isClickable = true
+                                    }
+                                    view?.findNavController()
+                                        ?.navigate(StudentFragmentDirections.actionStudentFragmentToProfileFragment(user?.value?.id ?: 3000))
+                                }
+                               }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
                                 Icon(
                                     imageVector = Icons.Default.AccountCircle,
@@ -684,18 +716,23 @@ class StudentFragment : Fragment() {
             ) {
                 Header3(titulo = "Aprende", subtitulo ="Virtualmente")
 
-                if(userDB.value?.listOfMaterias?.isNullOrEmpty() == true){
+                if(userDB.value?.listOfMaterias?.isNullOrEmpty() == true || user.value?.listOfMaterias?.isNullOrEmpty() == true ){
                    Box(
                        modifier = Modifier
-                           .background(Color.LightGray)
+                           .background(
+                               Color.LightGray,
+                               shape = RoundedCornerShape(16.dp)
+                           )
                            .height(120.dp)
-                           .padding(8.dp)
                            .fillMaxWidth()
+                           .padding(15.dp),
+
 
 
                    ) {
                        Column(
-                           modifier = Modifier.fillMaxSize(),
+                           modifier = Modifier.fillMaxSize()
+                               ,
                            verticalArrangement = Arrangement.Center,
                            horizontalAlignment = Alignment.CenterHorizontally
                        ) {
@@ -713,12 +750,19 @@ class StudentFragment : Fragment() {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(5.dp),
                     ) {
                         Text(text = "No hay entregas")
                     }
                     }else{
-                        ListContentAsignacionGeneral(user = userDB)
+                        Column {
+                            Text(text = "Actividades entregadas")
+                            Spacer(modifier = Modifier.height(5.dp))
+                            ListContentAsignacionGeneral(user = userDB)
+
+                        }
 
                     }
 

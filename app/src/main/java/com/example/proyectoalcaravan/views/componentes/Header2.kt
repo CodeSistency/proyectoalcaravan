@@ -14,8 +14,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.proyectoalcaravan.R
 
 @Composable
 fun Header2(titulo: String, materia: String){
@@ -25,7 +27,7 @@ fun Header2(titulo: String, materia: String){
             .height(200.dp)
             .background(
 //                    Color.Blue.copy(alpha = 0.8F),
-                Color.Black,
+             colorResource(id = R.color.accent),
                 shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
 
                 )

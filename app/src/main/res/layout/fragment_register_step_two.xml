@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context=".views.register.RegisterStepTwo">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   >
 
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -109,38 +113,38 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-<!--    <com.google.android.material.textfield.TextInputLayout-->
-<!--        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:hint="Fecha de Nacimiento"-->
-<!--        android:id="@+id/fechaNacimientoTextInputLayout"-->
-<!--        android:layout_marginHorizontal="40dp"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/cedulaTextInputLayout">-->
+    <!--    <com.google.android.material.textfield.TextInputLayout-->
+    <!--        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:hint="Fecha de Nacimiento"-->
+    <!--        android:id="@+id/fechaNacimientoTextInputLayout"-->
+    <!--        android:layout_marginHorizontal="40dp"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/cedulaTextInputLayout">-->
 
-<!--        <com.google.android.material.textfield.TextInputEditText-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:inputType="date"-->
-<!--            android:maxLines="1"/>-->
+    <!--        <com.google.android.material.textfield.TextInputEditText-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:inputType="date"-->
+    <!--            android:maxLines="1"/>-->
 
-<!--    </com.google.android.material.textfield.TextInputLayout>-->
+    <!--    </com.google.android.material.textfield.TextInputLayout>-->
 
     <Button
         android:id="@+id/fechaNacimientoTextInputLayout"
         android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/shape_square"
-    android:text="Fecha de nacimiento"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_square"
+        android:text="Fecha de nacimiento"
         android:paddingVertical="15dp"
-    android:textColor="#000000"
-    android:gravity="left|center"
+        android:textColor="#000000"
+        android:gravity="left|center"
         android:layout_marginHorizontal="40dp"
         android:layout_marginTop="5dp"
         app:layout_constraintTop_toBottomOf="@+id/edadTextInputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-    />
+        />
 
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -164,76 +168,74 @@
 
 
 
-<!--    <LinearLayout-->
-<!--        android:id="@+id/radioButtonsContainer"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="horizontal"-->
-<!--        android:layout_marginHorizontal="40dp"-->
-<!--        android:layout_marginTop="10dp"-->
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/radioButtonsContainer"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="horizontal"-->
+    <!--        android:layout_marginHorizontal="40dp"-->
+    <!--        android:layout_marginTop="10dp"-->
 
-<!--        app:layout_constraintTop_toBottomOf="@+id/selectImgAndLocContainer">-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/selectImgAndLocContainer">-->
 
-<!--        &lt;!&ndash; Par 1: Selección de Sexo &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:orientation="vertical">-->
+    <!--        &lt;!&ndash; Par 1: Selección de Sexo &ndash;&gt;-->
+    <!--        <LinearLayout-->
+    <!--            android:layout_width="0dp"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_weight="1"-->
+    <!--            android:orientation="vertical">-->
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Seleccionar Sexo" />-->
+    <!--            <TextView-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:text="Seleccionar Sexo" />-->
 
-<!--            <RadioGroup-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="vertical">-->
+    <!--            <RadioGroup-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:orientation="vertical">-->
 
-<!--                <RadioButton-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Hombre" />-->
+    <!--                <RadioButton-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:text="Hombre" />-->
 
-<!--                <RadioButton-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Mujer" />-->
-<!--            </RadioGroup>-->
-<!--        </LinearLayout>-->
+    <!--                <RadioButton-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:text="Mujer" />-->
+    <!--            </RadioGroup>-->
+    <!--        </LinearLayout>-->
 
-<!--        &lt;!&ndash; Par 2: Selección de Rol &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:orientation="vertical">-->
+    <!--        &lt;!&ndash; Par 2: Selección de Rol &ndash;&gt;-->
+    <!--        <LinearLayout-->
+    <!--            android:layout_width="0dp"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_weight="1"-->
+    <!--            android:orientation="vertical">-->
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Seleccionar Rol" />-->
+    <!--            <TextView-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:text="Seleccionar Rol" />-->
 
-<!--            <RadioGroup-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="vertical">-->
+    <!--            <RadioGroup-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:orientation="vertical">-->
 
-<!--                <RadioButton-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Estudiante" />-->
+    <!--                <RadioButton-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:text="Estudiante" />-->
 
-<!--                <RadioButton-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Profesor" />-->
-<!--            </RadioGroup>-->
-<!--        </LinearLayout>-->
-<!--    </LinearLayout>-->
-
-
+    <!--                <RadioButton-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:text="Profesor" />-->
+    <!--            </RadioGroup>-->
+    <!--        </LinearLayout>-->
+    <!--    </LinearLayout>-->
 
 
 
@@ -242,14 +244,16 @@
 
 
 
-<!--    <Button-->
-<!--        android:id="@+id/btnUbicacion"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Seleccionar ubicación"-->
-<!--        android:layout_marginHorizontal="40dp"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/selectors"-->
-<!--        />-->
+
+
+    <!--    <Button-->
+    <!--        android:id="@+id/btnUbicacion"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="Seleccionar ubicación"-->
+    <!--        android:layout_marginHorizontal="40dp"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/selectors"-->
+    <!--        />-->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/Registrar"
         android:layout_width="match_parent"
@@ -261,14 +265,14 @@
         android:backgroundTint="@color/blue_dark"
         app:layout_constraintTop_toBottomOf="@+id/selectImgAndLocContainer"
         />
-<!--    <Button-->
-<!--        android:id="@+id/Atras"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="ATRAS"-->
-<!--        android:layout_marginHorizontal="40dp"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/Registrar"-->
-<!--        />-->
+    <!--    <Button-->
+    <!--        android:id="@+id/Atras"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="ATRAS"-->
+    <!--        android:layout_marginHorizontal="40dp"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/Registrar"-->
+    <!--        />-->
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -382,5 +386,5 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
