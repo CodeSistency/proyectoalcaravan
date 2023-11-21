@@ -1252,10 +1252,18 @@ class AsignacionFragment : Fragment() {
             selectedTabIndex = pagerState.currentPage
         }
 
+//        val nota = viewModel.listOfActivitiesFilteredCompose?.let {
+//            viewModel.calculateOverallCalification(
+//                it
+//            )
+//        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp)
+                .padding(4.dp),
+            Arrangement.Top
+
         ) {
             // Tabs
             Row(
@@ -1298,11 +1306,21 @@ class AsignacionFragment : Fragment() {
                         listsOfActivities()
                     }
                     1 ->  if(viewModel.currentUser.observeAsState().value?.rol == "Estudiante"){
-                        LineChart2(viewModel = viewModel)
+                        Column {
+//                            Text(text = "Nota General: ${nota.toString()}")
+//                            Spacer(modifier = Modifier.height(5.dp))
+                            LineChart2(viewModel = viewModel)
+
+                        }
 
 //                        LineChart(viewModel = viewModel)
                     }else{
-                        LineChart2(viewModel = viewModel)
+                        Column {
+//                            Text(text = "Nota General: ${nota.toString()}")
+//                            Spacer(modifier = Modifier.height(5.dp))
+                            LineChart2(viewModel = viewModel)
+
+                        }
 
                     }
 

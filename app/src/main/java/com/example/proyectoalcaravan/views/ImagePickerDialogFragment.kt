@@ -78,7 +78,7 @@ class ImagePickerDialogFragment : DialogFragment() {
 
                     viewModel.profileImage.postValue(selectedImageUri)
                     Log.e("imageUri", selectedImageUri.toString())
-
+                dismiss()
             }
         } else if (resultCode == RESULT_ERROR) {
             val error = data?.extras

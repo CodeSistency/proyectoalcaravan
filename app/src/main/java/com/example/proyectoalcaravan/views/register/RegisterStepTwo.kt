@@ -732,6 +732,7 @@ class RegisterStepTwo : Fragment() {
             val email = viewModel.email.value
             val password = viewModel.password.value
             if(email == null || password == null){
+                Log.e("this is the error", "error")
                 view.findNavController().navigate(R.id.registerStepOne2)
             }
             binding.Registrar.setOnClickListener {

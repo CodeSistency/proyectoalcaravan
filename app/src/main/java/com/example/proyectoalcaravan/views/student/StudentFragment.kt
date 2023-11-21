@@ -717,29 +717,30 @@ class StudentFragment : Fragment() {
                 Header3(titulo = "Aprende", subtitulo ="Virtualmente")
 
                 if(userDB.value?.listOfMaterias?.isNullOrEmpty() == true || user.value?.listOfMaterias?.isNullOrEmpty() == true ){
-                   Box(
-                       modifier = Modifier
-                           .background(
-                               Color.LightGray,
-                               shape = RoundedCornerShape(16.dp)
-                           )
-                           .height(120.dp)
-                           .fillMaxWidth()
-                           .padding(15.dp),
-
-
-
-                   ) {
-                       Column(
-                           modifier = Modifier.fillMaxSize()
-                               ,
-                           verticalArrangement = Arrangement.Center,
-                           horizontalAlignment = Alignment.CenterHorizontally
-                       ) {
-                           Text("No hay materias disponibles")
-                       }
-
-                   }
+//                   Box(
+//                       modifier = Modifier
+//                           .background(
+//                               Color.LightGray,
+//                               shape = RoundedCornerShape(16.dp)
+//                           )
+//                           .height(120.dp)
+//                           .fillMaxWidth()
+//                           .padding(15.dp),
+//
+//
+//
+//                   ) {
+//                       Column(
+//                           modifier = Modifier.fillMaxSize()
+//                               ,
+//                           verticalArrangement = Arrangement.Center,
+//                           horizontalAlignment = Alignment.CenterHorizontally
+//                       ) {
+//                           Text("No hay materias disponibles")
+//                       }
+//
+//                   }
+                    null
                 }else{
                     HorizontalList(gridItems = viewModel.currentUserDB.observeAsState().value?.listOfMaterias)
                 }
@@ -754,11 +755,13 @@ class StudentFragment : Fragment() {
                             .fillMaxSize()
                             .padding(5.dp),
                     ) {
-                        Text(text = "No hay entregas")
+                        Text(text = "No hay entregas", fontSize = 30.sp)
                     }
                     }else{
-                        Column {
-                            Text(text = "Actividades entregadas")
+                        Column(
+                            modifier = Modifier.padding(10.dp)
+                        ) {
+                            Text(text = "Actividades entregadas", fontWeight = FontWeight.Bold, fontSize = 40.sp)
                             Spacer(modifier = Modifier.height(5.dp))
                             ListContentAsignacionGeneral(user = userDB)
 

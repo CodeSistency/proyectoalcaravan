@@ -140,6 +140,19 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 //        filteredUserList.value = userStudentsList.value
 //    }
 
+
+    fun calculateOverallCalification(listOfActivities: List<Actividad>): Double {
+        if (listOfActivities.isEmpty()) {
+            // Return some default value or handle empty list case
+            return 0.0
+        }
+
+        val totalCalificationRevision = listOfActivities.sumBy { it.calificationRevision }
+        val totalPossibleCalification = listOfActivities.size * 100
+
+        return (totalCalificationRevision.toDouble() / totalPossibleCalification) * 100
+    }
+
     fun listWithActivities() {
         listOfActivitiesFilteredCompose = activitiesListById.value?.map { existingActivity ->
             updatedUser.value?.listActivities?.find { it?.id == existingActivity.id } ?: existingActivity

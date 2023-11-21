@@ -103,44 +103,7 @@ class ProfileFragment : Fragment() {
     private val viewModel by activityViewModels<MainViewModel>()
     val args: ProfileFragmentArgs by navArgs()
 
-    val pointsData: List<Point> =
-        listOf(Point(0f, 40f), Point(1f, 90f), Point(2f, 0f), Point(3f, 60f), Point(4f, 10f))
 
-    val xAxisData = AxisData.Builder()
-        .axisStepSize(100.dp)
-        .backgroundColor(Color.Gray)
-        .steps(pointsData.size - 1)
-        .labelData { i -> i.toString() }
-        .labelAndAxisLinePadding(15.dp)
-        .build()
-
-    val yAxisData = AxisData.Builder()
-        .steps(7)
-        .backgroundColor(Color.Gray)
-        .labelAndAxisLinePadding(20.dp)
-        .labelData { i ->
-            val yScale = 100 / 7F
-            (i * yScale).formatToSinglePrecision()
-        }.build()
-
-    val lineChartData = LineChartData(
-        linePlotData = LinePlotData(
-            lines = listOf(
-                Line(
-                    dataPoints = pointsData,
-                    LineStyle(),
-                    IntersectionPoint(),
-                    SelectionHighlightPoint(),
-                    ShadowUnderLine(),
-                    SelectionHighlightPopUp()
-                )
-            ),
-        ),
-        xAxisData = xAxisData,
-        yAxisData = yAxisData,
-        gridLines = GridLines(),
-        backgroundColor = Color.White
-    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -159,30 +122,31 @@ class ProfileFragment : Fragment() {
 
                 var userDB = viewModel.currentUserDB.observeAsState()
                 var updatedUser = viewModel.updatedUser.observeAsState()
-                if(args.profile != 3000){
-                    Log.e("profile", args.profile.toString())
-                        Log.e("profile test", args.profile.toString())
-                        viewModel.getUserById(args.profile, requireContext())
-                    if(refreshing.value == true){
-                        ProfileShimmer()
-
-//                        Profile(viewModel.currentUser.observeAsState().value)
-                    }else{
+//                if(args.profile != 3000){
+//                    Log.e("profile", args.profile.toString())
+//                        Log.e("profile test", args.profile.toString())
+//                        viewModel.getUserById(args.profile, requireContext())
+//                    if(refreshing.value == true){
 //                        ProfileShimmer()
-                        Profile(viewModel.currentUser.observeAsState().value)
-
-                    }
-
-                }
-                if(refreshingCurrent.value == true){
-//                    Profile(viewModel.currentUser.observeAsState().value)
-                    ProfileShimmer()
-
-                }else{
+//
+////                        Profile(viewModel.currentUser.observeAsState().value)
+//                    }else{
+////                        ProfileShimmer()
+//                        Profile(viewModel.currentUser.observeAsState().value)
+//
+//                    }
+//
+//                }
+//                if(refreshingCurrent.value == true){
+////                    Profile(viewModel.currentUser.observeAsState().value)
 //                    ProfileShimmer()
-                    Profile(viewModel.currentUser.observeAsState().value)
-
-                }
+//
+//                }else{
+////                    ProfileShimmer()
+//                    Profile(viewModel.currentUser.observeAsState().value)
+//
+//                }
+                Profile(viewModel.currentUser.observeAsState().value)
 
             }
         }
@@ -281,13 +245,13 @@ class ProfileFragment : Fragment() {
 
                 }else{
                     Text(
-                        text = userDB?.firstName ?: currentUser?.firstName.toString(),
+                        text = userDB?.firstName ?: currentUser?.firstName ?: "Nombre",
                         style = MaterialTheme.typography.h6,
                         color = Color.White,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
-                        text = userDB?.lastName ?: currentUser?.lastName.toString(),
+                        text = userDB?.lastName ?: currentUser?.lastName ?: "Apellido",
                         style = MaterialTheme.typography.body1,
                         color = Color.White
                     )
@@ -583,7 +547,7 @@ class ProfileFragment : Fragment() {
 
                                     OutlinedButton(
                                         onClick = { /*TODO*/ }) {
-                                        Text(text = "${updatedUser.value?.email}")
+                                        Text(text = "${updatedUser.value?.email ?: "Email"}")
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(3.dp))
@@ -602,7 +566,7 @@ class ProfileFragment : Fragment() {
 
                                     OutlinedButton(
                                         onClick = { /*TODO*/ }) {
-                                        Text(text = "${updatedUser.value?.cedula}")
+                                        Text(text = "${updatedUser.value?.cedula ?: "Cedula"}")
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(3.dp))
@@ -621,7 +585,7 @@ class ProfileFragment : Fragment() {
 
                                     OutlinedButton(
                                         onClick = { /*TODO*/ }) {
-                                        Text(text = "0${updatedUser.value?.phone}")
+                                        Text(text = "0${updatedUser.value?.phone ?: "Telefono"}")
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(3.dp))
@@ -655,7 +619,7 @@ class ProfileFragment : Fragment() {
                                 OutlinedButton(
 
                                     onClick = { /*TODO*/ }) {
-                                    Text(text = "${currentUser?.email ?: userDB?.value?.email}")
+                                    Text(text = "${currentUser?.email ?: userDB?.value?.email ?: "Email"}")
                                 }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
@@ -674,7 +638,7 @@ class ProfileFragment : Fragment() {
 
                                 OutlinedButton(
                                     onClick = { /*TODO*/ }) {
-                                    Text(text = "${currentUser?.cedula ?: userDB?.value?.cedula}")
+                                    Text(text = "${currentUser?.cedula ?: userDB?.value?.cedula ?: "Cedula"}")
                                 }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
@@ -693,7 +657,7 @@ class ProfileFragment : Fragment() {
 
                                 OutlinedButton(
                                 onClick = { /*TODO*/ }) {
-                                    Text(text = "0${currentUser?.phone ?: userDB?.value?.phone}")
+                                    Text(text = "0${currentUser?.phone ?: userDB?.value?.phone ?: "Telefono"}")
                                 }
                             }
                             Spacer(modifier = Modifier.height(3.dp))
@@ -736,7 +700,7 @@ class ProfileFragment : Fragment() {
                             Text(text = "Ubicación no encontrada")
                         }
 
-                    }else{
+                    }else if(currentUser.isNotNull()){
                         SmallMap(currentUser, userDB.value)
                     }
                     
