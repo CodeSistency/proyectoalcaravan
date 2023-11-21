@@ -236,7 +236,7 @@ class MateriaFragment : Fragment() {
         if (refresh.value == true){
             ShimmerCardList()
         }else{
-            Box(Modifier.pullRefresh(pullRefreshState)){
+            Box(Modifier.pullRefresh(pullRefreshState),){
                 LazyColumn {
                     items(users?.listStudent ?: emptyList()) { user ->
                         ListItemSuscribedUser(user)
@@ -697,7 +697,7 @@ class MateriaFragment : Fragment() {
     fun TabsAsignacionWithPagerScreen() {
         var selectedTabIndex by remember { mutableStateOf(0) }
 
-        val tabs = listOf("Listado", "Asignaciones", "Rendimiento Sexo", "Rendimiento edad")
+        val tabs = listOf("Listado", "Tareas", "Sexo", "edad")
 
 
         // Pager state
@@ -746,7 +746,9 @@ class MateriaFragment : Fragment() {
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f)
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
+
             ) { page ->
 
 
@@ -807,7 +809,9 @@ class MateriaFragment : Fragment() {
         var materiaId = viewModel.currentMateria.value?.id
 
         Log.e("selected users in general", selectedUsers.toString())
-        Column {
+        Column(
+            verticalArrangement = Arrangement.Top
+        ) {
             viewModel.currentMateria.value?.let { Header(titulo = it.name) }
 
             Row(
@@ -850,62 +854,65 @@ class MateriaFragment : Fragment() {
 
             }
 
+            TabsAsignacionWithPagerScreen()
 
-            Row(
-                modifier = Modifier.padding(4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Button(
-                    onClick = {
-                        button1 = true
-                        button2 = false
-                        button3 = false
 
-                    },
-                    modifier = Modifier
-                        .weight(1F)
-                        .background(colorResource(id = R.color.accent)),
+//            Row(
+//                modifier = Modifier.padding(4.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                Button(
+//                    onClick = {
+//                        button1 = true
+//                        button2 = false
+//                        button3 = false
+//
+//                    },
+//                    modifier = Modifier
+//                        .weight(1F)
+//                        .background(colorResource(id = R.color.accent)),
+//
+//                    ) {
+//                    Text(text = "Alumnos", style = MaterialTheme.typography.subtitle1)
+//                }
+//                Spacer(modifier = Modifier.width(10.dp))
+//                Button(
+//                    onClick = {
+//                        button2 = true
+//                        button1 = false
+//                        button3 = false
+//
+//                    },
+//                    modifier = Modifier
+//                        .weight(1F)
+//                        .background(colorResource(id = R.color.accent))
+//                ) {
+//                    Text(text = "Asignaciones", style = MaterialTheme.typography.subtitle1)
+//                }
+//                Button(
+//                    onClick = {
+//                        button3 = true
+//                        button1 = false
+//                        button2 = false
+//
+//                    },
+//                    modifier = Modifier
+//                        .weight(1F)
+//                        .background(colorResource(id = R.color.accent))
+//                ) {
+//                    Text(text = "Rendimiento", style = MaterialTheme.typography.subtitle1)
+//                }
+//
+//            }
 
-                    ) {
-                    Text(text = "Alumnos", style = MaterialTheme.typography.subtitle1)
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                Button(
-                    onClick = {
-                        button2 = true
-                        button1 = false
-                        button3 = false
+//            if (button1) {
+//                ListContentUsersSuscribed(userList = viewModel.currentMateria)
+//            } else if (button2) {
+//                ListContentAsignacion(listOfActivities = viewModel.activitiesListById)
+//            }else{
+//                GenderPerformanceChartByMateria(viewModel = viewModel)
+//            }
 
-                    },
-                    modifier = Modifier
-                        .weight(1F)
-                        .background(colorResource(id = R.color.accent))
-                ) {
-                    Text(text = "Asignaciones", style = MaterialTheme.typography.subtitle1)
-                }
-                Button(
-                    onClick = {
-                        button3 = true
-                        button1 = false
-                        button2 = false
-
-                    },
-                    modifier = Modifier
-                        .weight(1F)
-                        .background(colorResource(id = R.color.accent))
-                ) {
-                    Text(text = "Rendimiento", style = MaterialTheme.typography.subtitle1)
-                }
-
-            }
-
-            if (button1) {
-                ListContentUsersSuscribed(userList = viewModel.currentMateria)
-            } else if (button2) {
-                ListContentAsignacion(listOfActivities = viewModel.activitiesListById)
-            }else{
-                GenderPerformanceChartByMateria(viewModel = viewModel)
-            }
 
             if (isModalVisible) {
                 Dialog(

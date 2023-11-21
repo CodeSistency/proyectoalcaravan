@@ -13,6 +13,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
@@ -27,7 +28,14 @@ fun Header2(titulo: String, materia: String){
             .height(200.dp)
             .background(
 //                    Color.Blue.copy(alpha = 0.8F),
-             colorResource(id = R.color.accent),
+                brush = Brush.verticalGradient(
+                    listOf(
+//                            colorResource(id = R.color.secondary),
+//                            colorResource(id = R.color.primary)
+                        colorResource(id = R.color.accent2),
+                        colorResource(id = R.color.blue_dark)
+                    )
+                ),
                 shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
 
                 )

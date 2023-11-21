@@ -334,6 +334,7 @@ fun BarChart(
 
 private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRanges: List<String>): List<Float> {
     val performanceByAgeRange = MutableList(ageRanges.size) { 0f }
+    val usersInAgeRange = MutableList(ageRanges.size) { 0 }
 
     userListStudents.forEach { user ->
         val age = user.edad ?: return@forEach
@@ -349,14 +350,135 @@ private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRang
             val index = getAgeRangeIndex(age, ageRanges)
 
             if (index != -1) {
-                // Add the average performance to the corresponding age range, capped at 100
+                // Add the average performance to the corresponding age range, normalized by the total users in that age range
                 performanceByAgeRange[index] += averagePerformance
+                usersInAgeRange[index]++
+            }
+        } else {
+            // Handle the case where the user has no activities
+            // You can choose to do something specific, like setting a default value
+            // For example, setting the default value to 0 for the corresponding age range
+            val index = getAgeRangeIndex(age, ageRanges)
+            if (index != -1) {
+                performanceByAgeRange[index] += 0f
+                usersInAgeRange[index]++
             }
         }
     }
 
-    return performanceByAgeRange
+    // Create a new list to store the normalized performance values
+    val normalizedPerformanceByAgeRange = performanceByAgeRange.mapIndexed { i, performance ->
+        if (usersInAgeRange[i] > 0) {
+            performance / usersInAgeRange[i]
+        } else {
+            0f // Avoid division by zero
+        }
+    }
+
+    return normalizedPerformanceByAgeRange
 }
+
+//private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRanges: List<String>): List<Float> {
+//    val performanceByAgeRange = MutableList(ageRanges.size) { 0f }
+//    val usersInAgeRange = MutableList(ageRanges.size) { 0 }
+//
+//    userListStudents.forEach { user ->
+//        val age = user.edad ?: return@forEach
+//        val totalActivities = user.listActivities?.size ?: 0
+//
+//        if (totalActivities > 0) {
+//            // Calculate the average calificationRevision for each user, based on a maximum of 100
+//            val averagePerformance = (user.listActivities
+//                ?.mapNotNull { it?.calificationRevision?.toDouble() }
+//                ?.average()
+//                ?.toFloat() ?: 0f) * 100 / totalActivities
+//
+//            val index = getAgeRangeIndex(age, ageRanges)
+//
+//            if (index != -1) {
+//                // Add the average performance to the corresponding age range, normalized by the total users in that age range
+//                performanceByAgeRange[index] += averagePerformance
+//                usersInAgeRange[index]++
+//            }
+//        }
+//    }
+//
+//    // Create a new list to store the normalized performance values
+//    val normalizedPerformanceByAgeRange = performanceByAgeRange.mapIndexed { i, performance ->
+//        if (usersInAgeRange[i] > 0) {
+//            performance / usersInAgeRange[i]
+//        } else {
+//            0f // Avoid division by zero
+//        }
+//    }
+//
+//    return normalizedPerformanceByAgeRange
+//}
+
+//private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRanges: List<String>): List<Float> {
+//    val performanceByAgeRange = MutableList(ageRanges.size) { 0f }
+//    val usersInAgeRange = MutableList(ageRanges.size) { 0 }
+//
+//
+//    userListStudents.forEach { user ->
+//        val age = user.edad ?: return@forEach
+//        val totalActivities = user.listActivities?.size ?: 0
+//
+//        if (totalActivities > 0) {
+//            // Calculate the average calificationRevision for each user, based on a maximum of 100
+//            val averagePerformance = (user.listActivities
+//                ?.mapNotNull { it?.calificationRevision?.toDouble() }
+//                ?.average()
+//                ?.toFloat() ?: 0f) * 100 / totalActivities
+//
+//            val index = getAgeRangeIndex(age, ageRanges)
+//
+//            if (index != -1) {
+//                // Add the average performance to the corresponding age range, normalized by the total users in that age range
+//                performanceByAgeRange[index] += averagePerformance
+//                usersInAgeRange[index]++
+//            }
+//        }
+//    }
+//
+//    // Create a new list to store the normalized performance values
+//    val normalizedPerformanceByAgeRange = performanceByAgeRange.mapIndexed { i, performance ->
+//        if (usersInAgeRange[i] > 0) {
+//            performance / usersInAgeRange[i]
+//        } else {
+//            0f // Avoid division by zero
+//        }
+//    }
+//
+//    return normalizedPerformanceByAgeRange
+//}
+
+//private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRanges: List<String>): List<Float> {
+//    val performanceByAgeRange = MutableList(ageRanges.size) { 0f }
+//
+//    userListStudents.forEach { user ->
+//        val age = user.edad ?: return@forEach
+//        val totalActivities = user.listActivities?.size ?: 0
+//
+//        if (totalActivities > 0) {
+//            // Calculate the average calificationRevision for each user, based on a maximum of 100
+//            val averagePerformance = (user.listActivities
+//                ?.mapNotNull { it?.calificationRevision?.toDouble() }
+//                ?.average()
+//                ?.toFloat() ?: 0f) * 100 / totalActivities
+//
+//            val index = getAgeRangeIndex(age, ageRanges)
+//
+//            if (index != -1) {
+//                // Add the average performance to the corresponding age range, capped at 100
+//                performanceByAgeRange[index] += averagePerformance
+//
+//            }
+//        }
+//    }
+//
+//    return performanceByAgeRange
+//}
 
 private fun getAgeRangeIndex(age: Int, ageRanges: List<String>): Int {
     for (i in ageRanges.indices) {

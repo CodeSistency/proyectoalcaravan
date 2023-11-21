@@ -461,8 +461,19 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-                .clip(shape = MaterialTheme.shapes.medium)
+                .clip(
+                    shape =RoundedCornerShape(
+                        topStart = 0.dp, // No top border
+                        topEnd = 0.dp,
+                        bottomStart = 16.dp, // Rounded corners at the bottom
+                        bottomEnd = 16.dp
+                    )
+
+                )
+                .background(Color.White)
+                .padding(4.dp)
+//                .clip(shape = MaterialTheme.shapes.medium)
+
                 .clickable {
                     view
                         ?.findNavController()
@@ -471,11 +482,12 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                 item?.id ?: 3000
                             )
                         )
-                },
-
-            elevation = 8.dp,
+                }
+                .shadow(elevation = 4.dp),
         ) {
-            Column {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -488,8 +500,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         contentDescription = "foto",
                         modifier = Modifier
                             .size(60.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Fit
+                            .fillMaxWidth()
+                            .clip(CircleShape)
+                            ,
+                        contentScale = ContentScale.Crop
 
                     )
 
@@ -517,7 +531,28 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
                 AnimatedVisibility(visible = isVisible) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            ,
+
+//                            .clip(
+//                                RoundedCornerShape(
+//                                    topStart = 0.dp, // No top border
+//                                    topEnd = 0.dp,
+//                                    bottomStart = 16.dp, // Rounded corners at the bottom
+//                                    bottomEnd = 16.dp
+//                                )
+//                            )
+//                            .background(
+//                                Color(red = 247, blue = 247, green = 247),
+//                                shape = RoundedCornerShape(
+//                                    topStart = 0.dp, // No top border
+//                                    topEnd = 0.dp,
+//                                    bottomStart = 16.dp, // Rounded corners at the bottom
+//                                    bottomEnd = 16.dp
+//                                )
+//                            ),
 //                            .border(1.dp, shape = RoundedCornerShape(bottomEnd = 10.dp, bottomStart = 10.dp)),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceAround
@@ -1219,31 +1254,37 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(text = "Filtrar por email:")
-                OutlinedTextField(
-                    modifier = Modifier
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
 //                        .weight(1F)
 //                    .padding(12.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                    , // Rounded corners
-                    value = emailSearch,
-                    onValueChange = {emailSearch = it
-                        viewModel.setEmailFilter(it)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(
+                                Color.White,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                        , // Rounded corners
+                        value = emailSearch,
+                        onValueChange = {emailSearch = it
+                            viewModel.setEmailFilter(it)
 
-                    },
-                    placeholder = {
-                        Text(text = "Buscar", style = MaterialTheme.typography.body1)
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(16.dp)
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                IconButton(onClick = { emailSearch = ""}) {
-                    Icon(imageVector = Icons.Default.Clear, contentDescription = null)
+                        },
+                        placeholder = {
+                            Text(text = "Buscar", style = MaterialTheme.typography.body1)
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    IconButton(onClick = { emailSearch = ""
+                        viewModel.resetFilters(requireContext())}) {
+                        Icon(imageVector = Icons.Default.Clear, contentDescription = null)
+                    }
                 }
+
             }
 //            Button(onClick = { /*TODO*/ }) {
 //                Text(text = "Aplicar")
@@ -1492,7 +1533,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 //                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
 //                .background(colorResource(id = R.color.accent))
-                .border(0.5.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
+                .border(1.5.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
 //                .background(
 //                    brush = Brush.linearGradient(
@@ -1535,7 +1576,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                     .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
                 ){
                     Text(
-                        text = "Ir a ${item.name}",
+                        text = "Ir a a materia",
                         modifier = Modifier
                             .padding(8.dp)
                             .align(Alignment.CenterStart),
@@ -1668,7 +1709,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 // Content for each tab
                 when (page) {
                     0 -> Column(
-                        modifier = Modifier.padding(bottom = 20.dp, start = 5.dp, end = 5.dp),
+                        modifier = Modifier.padding( start = 5.dp, end = 5.dp),
                                 verticalArrangement = Arrangement.Top) {
                         ListContent(userList = filteredUserList )
                     }

@@ -36,12 +36,12 @@ class SplashScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
-        userDao = AppDatabase.getDatabase(applicationContext).userDao()
-
-        val repository = MainRepository(retrofitService, userDao)
-        viewModel = ViewModelProvider(this, MyViewModelFactory(repository)).get(MainViewModel::class.java)
-
-        viewModel.getUserDB(1)
+//        userDao = AppDatabase.getDatabase(applicationContext).userDao()
+//
+//        val repository = MainRepository(retrofitService, userDao)
+//        viewModel = ViewModelProvider(this, MyViewModelFactory(repository)).get(MainViewModel::class.java)
+//
+//        viewModel.getUserDB(1)
 
 //        viewModel.currentUserDB.observe(this, Observer { user ->
 //            // Check if the user exists and has a non-null and non-empty 'rol' property

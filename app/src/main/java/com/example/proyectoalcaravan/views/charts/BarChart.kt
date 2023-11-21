@@ -208,17 +208,32 @@ fun GenderPerformanceChart(viewModel: MainViewModel) {
     }
 }
 
-
 private fun calculateAveragePerformance(userListStudents: List<User>, gender: String): Float {
     val filteredUsers = userListStudents.filter { it.gender == gender }
-    val totalPerformance = filteredUsers.fold(0F) { total, user ->
-        val activities = user.listActivities ?: emptyList()
-        val performance = activities.sumOf { it?.calificationRevision?.toDouble() ?: 0.0 }
-        total + performance.toFloat()
-    }
-    return if (filteredUsers.isNotEmpty()) {
-        totalPerformance / (filteredUsers.size * filteredUsers.flatMap { it.listActivities ?: emptyList() }.size)
+    val totalUsersWithActivities = filteredUsers.count { it.listActivities?.isNotEmpty() == true }
+
+    if (totalUsersWithActivities > 0) {
+        val totalPerformance = filteredUsers.sumByDouble { user ->
+            val activities = user.listActivities ?: emptyList()
+            activities.sumByDouble { it?.calificationRevision?.toDouble() ?: 0.0 }
+        }.toFloat()
+
+        return totalPerformance / (totalUsersWithActivities * filteredUsers.flatMap { it.listActivities ?: emptyList() }.size)
     } else {
-        0F
+        return 0F
     }
 }
+
+//private fun calculateAveragePerformance(userListStudents: List<User>, gender: String): Float {
+//    val filteredUsers = userListStudents.filter { it.gender == gender }
+//    val totalPerformance = filteredUsers.fold(0F) { total, user ->
+//        val activities = user.listActivities ?: emptyList()
+//        val performance = activities.sumOf { it?.calificationRevision?.toDouble() ?: 0.0 }
+//        total + performance.toFloat()
+//    }
+//    return if (filteredUsers.isNotEmpty()) {
+//        totalPerformance / (filteredUsers.size * filteredUsers.flatMap { it.listActivities ?: emptyList() }.size)
+//    } else {
+//        0F
+//    }
+//}

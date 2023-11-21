@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -381,24 +382,22 @@ class StudentFragment : Fragment() {
             }
         }
     }
-
     @Composable
     fun HorizontalItemCard(item: Materia) {
         var user = viewModel.currentUser.value
         val backgroundColor = ColorList.colors[item.id % ColorList.colors.size]
+
         var isClickable by remember { mutableStateOf(true) }
         val coroutineScope = rememberCoroutineScope()
-
-
         Box(
             modifier = Modifier
                 .padding(4.dp)
-                .height(120.dp)
-                .width(180.dp)
+                .height(90.dp)
+                .width(130.dp)
+//                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
-//                .background(generateRandomColor())
-                .background(backgroundColor)
-//                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
+//                .background(colorResource(id = R.color.accent))
+                .border(1.5.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
                 .clickable {
                     if (isClickable) {
                         isClickable = false
@@ -431,28 +430,62 @@ class StudentFragment : Fragment() {
 
 
                 },
+
+
 //            contentAlignment = Alignment.Center
         ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colorResource(id = R.color.accent))
+                    .weight(1f)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                ){
+                    Text(
+                        text = item.name,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .align(Alignment.Center),
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
+                    )
+                }
+                Box(modifier = Modifier
+                    .background(Color.White)
+                    .height(30.dp)
+                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                ){
+                    Text(
+                        text = "Ir a a materia",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .align(Alignment.CenterStart),
+                        color = Color.Gray,
+
+                        fontSize = 13.sp
+                    )
+                }
+            }
             // Display text at the middle left
-            Text(
-                text = item.name,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.CenterStart),
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
-            )
+
             Icon(
                 painter = painterResource(id = R.drawable.ic_book),
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-//                    .padding(end = 30.dp, top = (-30).dp)
+                    .size(10.dp)
+                    .padding(end = 5.dp)
+//                    .absolutePadding(top = (-30).dp, right = (-30).dp)
             )
         }
+
+
     }
+
 
     @OptIn(ExperimentalMaterialApi::class)
     @SuppressLint("SuspiciousIndentation")
@@ -801,14 +834,15 @@ class StudentFragment : Fragment() {
                                                 value = viewModel.currentUser.value?.cedula.toString() // The textual representation of this code
                                             )
                                         }
-//                                        Button(onClick = { isModalVisible = false }) {
-//                                            Text(text = "Cancelar")
-//
-//                                        }
+
+
 
                                 }
 
+
+
                             }
+
                         }
                     )
                 }

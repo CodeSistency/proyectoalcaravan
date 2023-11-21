@@ -27,6 +27,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -109,6 +111,7 @@ class ProfileFragment : Fragment() {
 
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -122,6 +125,8 @@ class ProfileFragment : Fragment() {
 
                 var userDB = viewModel.currentUserDB.observeAsState()
                 var updatedUser = viewModel.updatedUser.observeAsState()
+
+                viewModel.prueba()
 //                if(args.profile != 3000){
 //                    Log.e("profile", args.profile.toString())
 //                        Log.e("profile test", args.profile.toString())
@@ -146,7 +151,15 @@ class ProfileFragment : Fragment() {
 //                    Profile(viewModel.currentUser.observeAsState().value)
 //
 //                }
-                Profile(viewModel.currentUser.observeAsState().value)
+//                Profile(viewModel.currentUser.observeAsState().value)
+
+                    if(args.profile != 3000){
+                        Log.e("profile", args.profile.toString())
+                        Log.e("profile test", args.profile.toString())
+                        viewModel.getUserById(args.profile, requireContext())
+
+                    }
+                    Profile(viewModel.currentUser.observeAsState().value)
 
             }
         }
@@ -195,7 +208,8 @@ class ProfileFragment : Fragment() {
                                 model = updatedUser.value?.imageProfile,
                                 contentDescription = "foto",
                                 modifier = Modifier
-                                    .fillMaxSize(),
+                                    .fillMaxSize()
+                                    .size(60.dp),
                                 contentScale = ContentScale.Fit
                             )
                         }else{
@@ -207,7 +221,8 @@ class ProfileFragment : Fragment() {
                             model = userDatabase.value?.imageProfile ?: currentUser?.imageProfile,
                             contentDescription = "foto",
                             modifier = Modifier
-                                .fillMaxSize(),
+                                .fillMaxSize()
+                                .size(60.dp),
                             contentScale = ContentScale.Fit
                         )
                     }
@@ -226,7 +241,7 @@ class ProfileFragment : Fragment() {
                             text = updatedUser.value?.firstName?: "nombre",
                             style = MaterialTheme.typography.h6,
                             color = Color.White,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(bottom = 4.dp)
                         )
                         Text(
                             text = updatedUser.value?.lastName?: "apellido",
@@ -278,49 +293,53 @@ class ProfileFragment : Fragment() {
                 .fillMaxSize()
         ) {
 
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                factory = { MapView(context) }
+            ) { mapView ->
+                mapView.onCreate(null)
+                mapView.onResume()
+
+                mapView.getMapAsync { googleMap ->
+                    // Customize the map as needed
+                    googleMap.uiSettings.isZoomControlsEnabled = true
+
+                    // Add a marker to the map (you can customize this part)
+                    val markerOptions = MarkerOptions()
+                        .position(LatLng(37.7749, -122.4194)) // Replace with your desired location
+                        .title("Marker Title")
+                    googleMap.addMarker(markerOptions)
+
+                    // Move the camera to the desired location
+
+
+                    if (args.profile != 3000){
+
+
+                            var cameraPosition = CameraPosition.Builder()
+                                .target(LatLng(updatedUser.value?.lat ?: 10.0000, updatedUser.value?.lat ?: 10.0000)) // Replace with your desired location
+                                .zoom(15f) // Zoom level
+                                .build()
+                            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+
+
+                    }else{
+                        var cameraPosition = CameraPosition.Builder()
+                            .target(LatLng(userDB?.lat ?:currentUser?.lat ?: 0.078867, userDB?.lgn ?: currentUser?.lgn ?: 0.078867)) // Replace with your desired location
+                            .zoom(15f) // Zoom level
+                            .build()
+                        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+                    }
+
+
+
+                }
+            }
 
         // Create a MapView composable
-        AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp),
-            factory = { MapView(context) }
-        ) { mapView ->
-            mapView.onCreate(null)
-            mapView.onResume()
 
-            mapView.getMapAsync { googleMap ->
-                // Customize the map as needed
-                googleMap.uiSettings.isZoomControlsEnabled = true
-
-                // Add a marker to the map (you can customize this part)
-                val markerOptions = MarkerOptions()
-                    .position(LatLng(37.7749, -122.4194)) // Replace with your desired location
-                    .title("Marker Title")
-                googleMap.addMarker(markerOptions)
-
-                // Move the camera to the desired location
-
-
-                if (args.profile != 3000){
-                    var cameraPosition = CameraPosition.Builder()
-                        .target(LatLng(updatedUser.value?.lat ?: 10.0000, updatedUser.value?.lat ?: 10.0000)) // Replace with your desired location
-                        .zoom(15f) // Zoom level
-                        .build()
-                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-
-                }else{
-                    var cameraPosition = CameraPosition.Builder()
-                        .target(LatLng(userDB?.lat ?:currentUser?.lat ?: 0.078867, userDB?.lgn ?: currentUser?.lgn ?: 0.078867)) // Replace with your desired location
-                        .zoom(15f) // Zoom level
-                        .build()
-                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-                }
-
-
-
-            }
-        }
         }
     }
 
@@ -343,6 +362,7 @@ class ProfileFragment : Fragment() {
 
     }
 
+
     @Composable
     fun HorizontalItemCard(item: Materia) {
         var user = viewModel.currentUser.value
@@ -350,73 +370,69 @@ class ProfileFragment : Fragment() {
 
         var isClickable by remember { mutableStateOf(true) }
         val coroutineScope = rememberCoroutineScope()
-
         Box(
             modifier = Modifier
                 .padding(4.dp)
-                .height(120.dp)
-                .width(180.dp)
+                .height(90.dp)
+                .width(130.dp)
+//                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
-//                .background(generateRandomColor())
-//                .background(Color.White)
-                .background(colorResource(id = R.color.accent))
-
-//                .border(2.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
-                .clickable {
-                    if (isClickable) {
-                        isClickable = false
-
-                        coroutineScope.launch {
-                            delay(2000) // Adjust the delay duration as needed (in milliseconds)
-                            isClickable = true
-
-                            viewModel.getActivitiesById(item.id, requireContext())
-//                    viewModel.getMateriaById(item.id)
-//                    viewModel.currentMateria.postValue(item)
-                            if (viewModel.currentUser.value?.rol == "Estudiante") {
-                                view
-                                    ?.findNavController()
-                                    ?.navigate(R.id.action_profileFragment_to_asignacionFragment)
-//                                view
-//                                    ?.findNavController()
-//                                    ?.navigate(
-//                                        StudentFragmentDirections.actionStudentFragmentToAsignacionFragment(
-//                                            user?.id ?: 1000
-//                                        )
-//                                    )
-                            } else {
-                                viewModel.getMateriaById(item.id, requireContext())
-                                viewModel.currentMateria.postValue(item)
-                                view
-                                    ?.findNavController()
-                                    ?.navigate(R.id.action_profileFragment_to_asignacionFragment)
-                            }
-                        }
-                    }
+//                .background(colorResource(id = R.color.accent))
+                .border(1.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
 
 
-                },
 //            contentAlignment = Alignment.Center
         ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colorResource(id = R.color.accent))
+                    .weight(1f)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                ){
+                    Text(
+                        text = item.name,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .align(Alignment.Center),
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
+                    )
+                }
+                Box(modifier = Modifier
+                    .background(Color.White)
+                    .height(30.dp)
+                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                ){
+                    Text(
+                        text = "Ir a a materia",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .align(Alignment.CenterStart),
+                        color = Color.Gray,
+
+                        fontSize = 13.sp
+                    )
+                }
+            }
             // Display text at the middle left
-            Text(
-                text = item.name,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.CenterStart),
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
-            )
+
             Icon(
                 painter = painterResource(id = R.drawable.ic_book),
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-//                    .padding(end = 30.dp, top = (-30).dp)
+                    .size(10.dp)
+                    .padding(end = 5.dp)
+//                    .absolutePadding(top = (-30).dp, right = (-30).dp)
             )
         }
+
+
     }
 
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -546,6 +562,10 @@ class ProfileFragment : Fragment() {
                                     Spacer(modifier = Modifier.width(5.dp))
 
                                     OutlinedButton(
+                                        colors = ButtonDefaults.buttonColors(
+                                            contentColor = colorResource(id = R.color.blue_dark),
+                                            backgroundColor = Color.White
+                                        ),
                                         onClick = { /*TODO*/ }) {
                                         Text(text = "${updatedUser.value?.email ?: "Email"}")
                                     }
@@ -565,6 +585,11 @@ class ProfileFragment : Fragment() {
                                     Spacer(modifier = Modifier.width(5.dp))
 
                                     OutlinedButton(
+                                        colors = ButtonDefaults.buttonColors(
+                                            contentColor = colorResource(id = R.color.blue_dark),
+                                            backgroundColor = Color.White
+
+                                        ),
                                         onClick = { /*TODO*/ }) {
                                         Text(text = "${updatedUser.value?.cedula ?: "Cedula"}")
                                     }
@@ -584,6 +609,11 @@ class ProfileFragment : Fragment() {
                                     Spacer(modifier = Modifier.width(5.dp))
 
                                     OutlinedButton(
+                                        colors = ButtonDefaults.buttonColors(
+                                            contentColor = colorResource(id = R.color.blue_dark),
+                                            backgroundColor = Color.White
+
+                                        ),
                                         onClick = { /*TODO*/ }) {
                                         Text(text = "0${updatedUser.value?.phone ?: "Telefono"}")
                                     }
@@ -617,7 +647,11 @@ class ProfileFragment : Fragment() {
                                 Spacer(modifier = Modifier.width(5.dp))
 
                                 OutlinedButton(
+                                    colors = ButtonDefaults.buttonColors(
+                                        contentColor = colorResource(id = R.color.blue_dark),
+                                        backgroundColor = Color.White
 
+                                    ),
                                     onClick = { /*TODO*/ }) {
                                     Text(text = "${currentUser?.email ?: userDB?.value?.email ?: "Email"}")
                                 }
@@ -637,6 +671,11 @@ class ProfileFragment : Fragment() {
                                 Spacer(modifier = Modifier.width(5.dp))
 
                                 OutlinedButton(
+                                    colors = ButtonDefaults.buttonColors(
+                                        contentColor = colorResource(id = R.color.blue_dark),
+                                        backgroundColor = Color.White
+
+                                    ),
                                     onClick = { /*TODO*/ }) {
                                     Text(text = "${currentUser?.cedula ?: userDB?.value?.cedula ?: "Cedula"}")
                                 }
@@ -656,6 +695,11 @@ class ProfileFragment : Fragment() {
                                 Spacer(modifier = Modifier.width(5.dp))
 
                                 OutlinedButton(
+                                    colors = ButtonDefaults.buttonColors(
+                                        contentColor = colorResource(id = R.color.blue_dark),
+                                        backgroundColor = Color.White
+
+                                    ),
                                 onClick = { /*TODO*/ }) {
                                     Text(text = "0${currentUser?.phone ?: userDB?.value?.phone ?: "Telefono"}")
                                 }
@@ -671,7 +715,7 @@ class ProfileFragment : Fragment() {
 
 
                     }
-                    Spacer(modifier = Modifier.height(40.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
 
 
@@ -693,19 +737,17 @@ class ProfileFragment : Fragment() {
                             )
                        Icon(painterResource(id = R.drawable.ic_location), contentDescription = null)
                     }
-                    if (args.profile != 3000){
-                        if (updatedUser != null){
-                            SmallMap(currentUser, userDB.value)
-                        }else{
-                            Text(text = "Ubicación no encontrada")
-                        }
-
-                    }else if(currentUser.isNotNull()){
-                        SmallMap(currentUser, userDB.value)
-                    }
-                    
-                  
-                 
+                    SmallMap(currentUser, userDB.value)
+//                    if (args.profile != 3000){
+//                        if (updatedUser != null){
+//                            SmallMap(currentUser, userDB.value)
+//                        }else{
+//                            Text(text = "Ubicación no encontrada")
+//                        }
+//
+//                    }else if(currentUser != null){
+//                        SmallMap(currentUser, userDB.value)
+//                    }
                 }
 
             }
@@ -758,4 +800,6 @@ class ProfileFragment : Fragment() {
             )
         }
     }
+
+
 }

@@ -18,16 +18,23 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import co.yml.charts.common.extensions.isNotNull
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.databinding.FragmentLoginBinding
+import com.example.proyectoalcaravan.model.local.AppDatabase
 import com.example.proyectoalcaravan.model.local.UserDB
+import com.example.proyectoalcaravan.model.local.UserDao
+import com.example.proyectoalcaravan.model.remote.RetrofitService
 import com.example.proyectoalcaravan.model.remote.User
+import com.example.proyectoalcaravan.repository.MainRepository
 import com.example.proyectoalcaravan.utils.isOnline
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
+import com.example.proyectoalcaravan.viewmodels.MyViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -38,11 +45,32 @@ class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<MainViewModel>()
+//    private val viewModel by activityViewModels<MainViewModel>()
     private lateinit var navController: NavController
+//    private lateinit var viewModel: MainViewModel
+    private val retrofitService = RetrofitService.getInstance()
+    private lateinit var userDao: UserDao
+    private val viewModel by activityViewModels<MainViewModel>()
+
+
+//    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+////        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+////        viewModel = ViewModelProvider(requireActivity(), MyViewModelFactory(repository)).get(MainViewModel::class.java)
+////        viewModel = ViewModelProvider(navHostFragment, MyViewModelFactory(repository)).get(MainViewModel::class.java)
+//
+//        viewModel.getUserDB(1)
+//        viewModel.getAllUsers(requireContext())
+//        viewModel.getAllActivities(requireContext())
+//        viewModel.getAllMaterias(requireContext())
+//        viewModel.getUserStudents("Estudiante", requireContext())
+
+
+
     }
 
     override fun onCreateView(
@@ -56,6 +84,60 @@ class LoginFragment : Fragment() {
     @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+//
+//        if (viewModel.currentUserDB.value != null && viewModel.currentUserDB?.value!!.rol.isNotNull()) {
+//            if (viewModel.currentUserDB.value!!.rol == "Estudiante") {
+//                // Navigate to the StudentFragment
+//                Log.e("something", "algo")
+//                navController = view.findNavController()
+////                navController.navigate(R.id.studentFragment)
+//                navController.navigate(R.id.studentFragment)
+//
+////                    Log.e("nav", navController.graph.toString())
+////
+//            } else if (viewModel.currentUserDB.value!!.rol == "Profesor") {
+//                // Navigate to the ProfessorFragment
+//                navController = findNavController()
+////                navController.navigate(R.id.profesorFragment)
+//                navController.navigate(R.id.profesorFragment)
+//
+//
+//                Log.e("nav", navController.graph.toString())
+//                Log.e("something", "algo")
+//
+//
+//
+//            }
+//        }
+//        Log.e("database", viewModel.currentUserDB.value.toString())
+//
+//        viewModel.currentUserDB.observe(viewLifecycleOwner) { user ->
+//            Log.e("database2", user.toString())
+//
+//            Log.e("something", "algo $user")
+//
+//            // Check if the user exists and has a non-null and non-empty 'rol' property
+//            if (user != null && user.rol.isNotNull()) {
+//                if (user.rol == "Estudiante") {
+//                    // Navigate to the StudentFragment
+//                    Log.e("something", "algo")
+//                    navController = view.findNavController()
+//                    navController.navigate(R.id.studentFragment)
+//
+////                    startActivity(Intent(this, MainActivity::class.java))
+//                } else if (user.rol == "Profesor") {
+//                    Log.e("something", "algo")
+//
+//                    // Navigate to the ProfessorFragment
+//                    navController = findNavController()
+//                    navController.navigate(R.id.profesorFragment)
+//
+//                    Log.e("nav", navController.graph.toString())
+//
+//
+//                }
+//            }
+//        }
 
          val requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission(),

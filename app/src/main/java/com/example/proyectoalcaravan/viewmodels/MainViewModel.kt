@@ -29,12 +29,11 @@ import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.repository.MainRepository
 import com.example.proyectoalcaravan.utils.isOnline
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class MainViewModel(private val repository: MainRepository): ViewModel() {
 
@@ -56,6 +55,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var registerStepOne = MutableLiveData<Boolean>(false)
     var modalAsignacion1 = MutableLiveData<Boolean>(false)
     var modalAsignacion2 = MutableLiveData<Boolean>(false)
+    var currentNota = MutableLiveData<Double>()
+
 
 
 
@@ -140,6 +141,17 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 //        filteredUserList.value = userStudentsList.value
 //    }
 
+    fun prueba(){
+        viewModelScope.launch {
+
+            while (true){
+                delay(1000)
+                Log.e("prueba", "hola")
+            }
+
+        }
+    }
+
 
     fun calculateOverallCalification(listOfActivities: List<Actividad>): Double {
         if (listOfActivities.isEmpty()) {
@@ -149,7 +161,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
         val totalCalificationRevision = listOfActivities.sumBy { it.calificationRevision }
         val totalPossibleCalification = listOfActivities.size * 100
-
+        currentNota.postValue((totalCalificationRevision.toDouble() / totalPossibleCalification) * 100)
+        Log.e("nota", currentNota.value.toString())
         return (totalCalificationRevision.toDouble() / totalPossibleCalification) * 100
     }
 
@@ -192,13 +205,13 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     fun setEmailFilter(email: String) {
-        filteredUserList.value = userList.value?.filter { user ->
+        filteredUserList.value = filteredUserList.value?.filter { user ->
             user.email?.contains(email, ignoreCase = true) == true
         }
     }
 
     fun setGenderFilter(gender: String) {
-        filteredUserList.value = userList.value?.filter { user ->
+        filteredUserList.value = filteredUserList.value?.filter { user ->
             user.gender?.equals(gender, ignoreCase = true) == true
         }
     }
@@ -239,18 +252,47 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
     fun sortByCreationDate(ascending: Boolean = false) {
         filteredUserList.value = filteredUserList.value?.let { userList ->
-            val formatter = DateTimeFormatter.ISO_LOCAL_DATE
             if (ascending) {
                 userList.sortedBy { user ->
-                    LocalDate.parse(user.created, formatter).toEpochDay()
+                    user.created ?: ""
                 }
             } else {
                 userList.sortedByDescending { user ->
-                    LocalDate.parse(user.created, formatter).toEpochDay()
+                    user.created ?: ""
                 }
             }
         }
+        Log.e("sortByCreation", filteredUserList.value.toString())
     }
+
+//    fun sortByCreationDate(ascending: Boolean = false) {
+//        filteredUserList.value = filteredUserList.value?.let { userList ->
+//            if (ascending) {
+//                userList.sortedBy { user ->
+//                    user.created ?: ""
+//                }
+//            } else {
+//                userList.sortedByDescending { user ->
+//                    user.created ?: ""
+//                }
+//            }
+//        }
+//    }
+
+//    fun sortByCreationDate(ascending: Boolean = false) {
+//        filteredUserList.value = filteredUserList.value?.let { userList ->
+//            val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+//            if (ascending) {
+//                userList.sortedBy { user ->
+//                    LocalDate.parse(user.created, formatter).toEpochDay()
+//                }
+//            } else {
+//                userList.sortedByDescending { user ->
+//                    LocalDate.parse(user.created, formatter).toEpochDay()
+//                }
+//            }
+//        }
+//    }
 
     //Reset Filters
     fun resetFilters(context: Context) {
@@ -1469,5 +1511,10 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                 Log.e("UserDatabase error", "Error creating user: ${e.message}")
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Perform cleanup tasks here, if needed
     }
 }

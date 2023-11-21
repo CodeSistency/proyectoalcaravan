@@ -28,7 +28,7 @@ class ImagePickerDialogFragment : DialogFragment() {
     var imagePicker: ImageView? = null
     var base64ImageData: String? = null
     private val viewModel by activityViewModels<MainViewModel>()
-//    private var binding: FragmentImagePickerDialogBinding? = null
+    //    private var binding: FragmentImagePickerDialogBinding? = null
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = requireActivity().layoutInflater
@@ -76,9 +76,9 @@ class ImagePickerDialogFragment : DialogFragment() {
 
 
 
-                    viewModel.profileImage.postValue(selectedImageUri)
-                    Log.e("imageUri", selectedImageUri.toString())
-                dismiss()
+                viewModel.profileImage.postValue(selectedImageUri)
+                Log.e("imageUri", selectedImageUri.toString())
+
             }
         } else if (resultCode == RESULT_ERROR) {
             val error = data?.extras

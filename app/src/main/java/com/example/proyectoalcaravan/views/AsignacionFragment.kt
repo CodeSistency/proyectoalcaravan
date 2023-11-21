@@ -38,7 +38,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
@@ -48,7 +47,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +77,6 @@ import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.charts.LineChart
 import com.example.proyectoalcaravan.views.charts.LineChart2
 import com.example.proyectoalcaravan.views.componentes.Header2
-import com.example.proyectoalcaravan.views.componentes.TimedMessage
 import com.example.proyectoalcaravan.views.componentes.connection.NoInternetMessage
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import com.google.firebase.Firebase
@@ -533,15 +530,17 @@ class AsignacionFragment : Fragment() {
 
 
 
-//        if (isModalNotaVisible){
-        if (isModalOpen == true){
+        if (isModalNotaVisible){
+//        if (isModalOpen == true){
 
 
             Dialog(
-//                onDismissRequest = { modalVisible = false },
-                onDismissRequest = { viewModel.modalAsignacion1.postValue(false) },
+                onDismissRequest = { isModalNotaVisible = false },
+//                onDismissRequest = { viewModel.modalAsignacion1.postValue(false) },
 
-                content = {
+                content = {        Log.e("algo", "algo")
+
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -614,14 +613,17 @@ class AsignacionFragment : Fragment() {
 
 
                                     )
-                                Button(
-                                    enabled = isButtonEnabled,
-                                    onClick = {
-                                    if(isButtonEnabled){
-                                        isButtonEnabled = false
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Button(
+                                        enabled = isButtonEnabled,
+                                        onClick = {
+                                            if(isButtonEnabled){
+                                                isButtonEnabled = false
 //
 //
-                                        Log.e("item", item.toString())
+                                                Log.e("item", item.toString())
 
 
 //                                        val updatedListActivities = user?.listActivities?.let { list ->
@@ -631,142 +633,148 @@ class AsignacionFragment : Fragment() {
 //                                                list
 //                                            }
 //                                        } ?: listOf(evaluacion)
-                                        viewModel.currentActividad.value?.messageStudent = mensaje
+                                                viewModel.currentActividad.value?.messageStudent = mensaje
 
-                                        if ( !mensaje.isNullOrEmpty()){
+                                                if ( !mensaje.isNullOrEmpty()){
 
 //                                        if (viewModel.currentActividad.value?.messageStudent.isNotNull() && !mensaje.isNullOrEmpty()){
-                                            // Define a reference to Firebase Storage
-                                            if(viewModel.currentActividad.value?.messageStudent.isNullOrEmpty()){
+                                                    // Define a reference to Firebase Storage
+                                                    if(viewModel.currentActividad.value?.messageStudent.isNullOrEmpty()){
 
 //                                            if(item.messageStudent.isNullOrEmpty()){
-                                                viewModel.showToast("Ha ocurrido un error", requireContext())
-                                                isButtonEnabled = true
+                                                        viewModel.showToast("Ha ocurrido un error", requireContext())
+                                                        isButtonEnabled = true
 
-                                            }else{
-                                                val storageRef = storage.reference.child("${user?.email}.jpg")
+                                                    }else{
+                                                        val storageRef = storage.reference.child("${user?.email}.jpg")
 
-                                                // Upload the image to Firebase Storage
-                                                val uploadTask = storageRef.putFile(profileImageUri!!)
+                                                        // Upload the image to Firebase Storage
+                                                        val uploadTask = storageRef.putFile(profileImageUri!!)
 
-                                                uploadTask.addOnSuccessListener { taskSnapshot ->
-                                                    // The image has been successfully uploaded
-                                                    storageRef.downloadUrl.addOnSuccessListener { uri ->
-                                                        val downloadUri = uri.toString()
+                                                        uploadTask.addOnSuccessListener { taskSnapshot ->
+                                                            // The image has been successfully uploaded
+                                                            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                                                                val downloadUri = uri.toString()
 //                                                        item?.imageRevision = downloadUri
 //                                                        item?.calification = 100
 
 
-                                                        viewModel.currentActividad.value?.imageRevision = downloadUri
+                                                                viewModel.currentActividad.value?.imageRevision = downloadUri
 
 
 
-                                                        val updatedListActivities = user?.listActivities?.toMutableList() ?: mutableListOf()
+                                                                val updatedListActivities = user?.listActivities?.toMutableList() ?: mutableListOf()
 
-                                                        if (!updatedListActivities.any { it?.id == viewModel.currentActividad.value?.id }) {
-                                                            updatedListActivities.add(viewModel.currentActividad.value)
-                                                        }
+                                                                if (!updatedListActivities.any { it?.id == viewModel.currentActividad.value?.id }) {
+                                                                    updatedListActivities.add(viewModel.currentActividad.value)
+                                                                }
 
 //                                                        item.messageStudent = mensaje
 
-                                                        val updatedUserAsignacion = User(
-                                                            id = user?.id, // Replace with the actual property name for the user ID
-                                                            firstName = user?.firstName,
-                                                            lastName = user?.lastName,
-                                                            email = user?.email,
-                                                            password = user?.password,
-                                                            edad = user?.edad,
-                                                            gender = user?.gender,
-                                                            rol = user?.rol,
-                                                            birthday = user?.birthday,
-                                                            imageProfile = user?.imageProfile,
-                                                            phone = user?.phone,
-                                                            cedula = user?.cedula,
+                                                                val updatedUserAsignacion = User(
+                                                                    id = user?.id, // Replace with the actual property name for the user ID
+                                                                    firstName = user?.firstName,
+                                                                    lastName = user?.lastName,
+                                                                    email = user?.email,
+                                                                    password = user?.password,
+                                                                    edad = user?.edad,
+                                                                    gender = user?.gender,
+                                                                    rol = user?.rol,
+                                                                    birthday = user?.birthday,
+                                                                    imageProfile = user?.imageProfile,
+                                                                    phone = user?.phone,
+                                                                    cedula = user?.cedula,
 //                                                            listActivities = user?.listActivities?.plus(
 //                                                                viewModel.currentActividad.value
 //                                                            ),
-                                                            listActivities = updatedListActivities,
+                                                                    listActivities = updatedListActivities,
 //                                                            listActivities = user?.listActivities?.plus(evaluacion)?.distinctBy { it?.id } ?: listOf(evaluacion),
 
 //                                                            listActivities = updatedListActivities,
-                                                            lgn = user?.lgn,
-                                                            lat = user?.lat,
-                                                            listOfMaterias = user?.listOfMaterias,
-                                                            created = user?.created
+                                                                    lgn = user.lgn,
+                                                                    lat = user.lat,
+                                                                    listOfMaterias = user.listOfMaterias,
+                                                                    created = user.created
 
-                                                        )
+                                                                )
 
 //                                                        Log.e("list of updated", updatedListActivities.toString())
 
 
-                                                        Log.e("user asignacion before", updatedUser.value.toString())
+                                                                Log.e("user asignacion before", updatedUser.value.toString())
 
-                                                        viewModel.updateUserAsignacion(user?.id ?: 110,
-                                                            updatedUserAsignacion, requireContext())
-                                                            .observe(viewLifecycleOwner){
-                                                                if(it){
-                                                                    updatedUser.value?.let {
-                                                                        mensaje = ""
+                                                                viewModel.updateUserAsignacion(user?.id ?: 110,
+                                                                    updatedUserAsignacion, requireContext())
+                                                                    .observe(viewLifecycleOwner){
+                                                                        if(it){
+                                                                            updatedUser.value?.let {
+                                                                                mensaje = ""
 //                                                        viewModel.updateUser(user?.id ?: 110,
 //                                                            it, requireContext())
 
-                                                                        Log.e("user asignacion after", it.toString())
-                                                                    }
-                                                                    viewModel.updatedUser.postValue(updatedUserAsignacion)
-                                                                    user?.id?.let { viewModel.getUserById(it, requireContext()) }
-                                                                    viewModel.profileImage.postValue(null)
+                                                                                Log.e("user asignacion after", it.toString())
+                                                                            }
+                                                                            viewModel.updatedUser.postValue(updatedUserAsignacion)
+                                                                            user?.id?.let { viewModel.getUserById(it, requireContext()) }
+                                                                            viewModel.profileImage.postValue(null)
 //                                                    profileImageUri = null
-                                                                    viewModel.getAllUsers(requireContext())
-                                                                    modalVisible = false
-                                                                    viewModel.modalAsignacion1.postValue(false)
-                                                                    isButtonEnabled = true
-                                                                    viewModel.listWithActivities()
-                                                                    viewModel.showToast("Se ha enviado la evaluación correctamente", requireContext())
+                                                                            viewModel.getAllUsers(requireContext())
+                                                                            modalVisible = false
+                                                                            viewModel.modalAsignacion1.postValue(false)
+                                                                            isButtonEnabled = true
+                                                                            viewModel.listWithActivities()
+                                                                            viewModel.showToast("Se ha enviado la evaluación correctamente", requireContext())
 
-                                                                }else{
-                                                                    isButtonEnabled = true
-                                                                    viewModel.showToast("No se ha enviado la evaluacion", requireContext())
+                                                                        }else{
+                                                                            isButtonEnabled = true
+                                                                            viewModel.showToast("No se ha enviado la evaluacion", requireContext())
 
-                                                                }
+                                                                        }
+                                                                    }
+
+
+
+                                                            }.addOnFailureListener { exception ->
+                                                                // Handle the error while trying to get the download URL
+                                                                Log.e("firebase error", "Storage Error: ${exception.message}")
                                                             }
+                                                        }.addOnFailureListener { exception ->
+                                                            // Handle the error during image upload
+                                                            if (exception is StorageException) {
+                                                                // Handle storage-specific errors
+                                                                isButtonEnabled = true
 
+                                                                Log.e("firebase error", "Storage Error: ${exception.message}")
+                                                            } else {
+                                                                // Handle other non-storage-related exceptions
+                                                                isButtonEnabled = true
 
-
-                                                    }.addOnFailureListener { exception ->
-                                                        // Handle the error while trying to get the download URL
-                                                        Log.e("firebase error", "Storage Error: ${exception.message}")
+                                                                Log.e("firebase error", "Storage Error: ${exception.message}")
+                                                            }
+                                                        }
                                                     }
-                                                }.addOnFailureListener { exception ->
-                                                    // Handle the error during image upload
-                                                    if (exception is StorageException) {
-                                                        // Handle storage-specific errors
-                                                        isButtonEnabled = true
 
-                                                        Log.e("firebase error", "Storage Error: ${exception.message}")
-                                                    } else {
-                                                        // Handle other non-storage-related exceptions
-                                                        isButtonEnabled = true
+                                                }else{
+                                                    isButtonEnabled = true
 
-                                                        Log.e("firebase error", "Storage Error: ${exception.message}")
-                                                    }
+                                                    viewModel.showToast("Llene todos los campos!!", requireContext())
                                                 }
                                             }
 
-                                        }else{
-                                            isButtonEnabled = true
 
-                                            viewModel.showToast("Llene todos los campos!!", requireContext())
+
+
                                         }
+
+                                    ) {
+                                        Text(text = "Enviar evaluación")
                                     }
-
-
-
-
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Button(onClick = { isModalNotaVisible = false }) {
+                                        Text(text = "Cerrar")
+                                    }
                                 }
 
-                                ) {
-                                    Text(text = "Enviar evaluación")
-                                }
                             }
 
 
@@ -822,10 +830,11 @@ class AsignacionFragment : Fragment() {
         viewModel.listWithActivities()
 
 
-        LaunchedEffect(key1 = viewModel.currentMateria.observeAsState().value ){
-            viewModel.listWithActivities()
-
-        }
+//
+//        LaunchedEffect(key1 = viewModel.currentMateria.observeAsState().value ){
+//            viewModel.listWithActivities()
+//
+//        }
         val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, {
             listWithActivities()
             user?.id?.let {
@@ -1242,6 +1251,34 @@ class AsignacionFragment : Fragment() {
 
         val tabs = listOf("Asignaciones", "Metricas")
 
+        viewModel.currentMateria.value?.id?.let {
+            viewModel.updateListWithActivitiesById(it, requireContext())
+            viewModel.getActivitiesById(it, requireContext()) }
+
+
+        var filteredList = viewModel.listOfActivitiesFiltered.observeAsState()
+        var filteredListCompose = viewModel.listOfActivitiesFilteredCompose
+
+
+        var refresh = viewModel.refreshingActividadById.observeAsState()
+
+
+
+        Log.e("filteredList", filteredList.value.toString())
+        Log.e("filteredList", filteredListCompose.toString())
+
+
+
+
+        viewModel.currentMateria.value?.id?.let { viewModel.listWithActivities() }
+        viewModel.listWithActivities()
+
+
+        LaunchedEffect(key1 = viewModel.currentMateria.observeAsState().value ){
+            viewModel.listWithActivities()
+
+        }
+
 
         // Pager state
         val pagerState = rememberPagerState(pageCount = {tabs.size})
@@ -1251,13 +1288,58 @@ class AsignacionFragment : Fragment() {
         LaunchedEffect(pagerState.currentPage) {
             selectedTabIndex = pagerState.currentPage
         }
-
         val nota = viewModel.listOfActivitiesFilteredCompose?.let {
             viewModel.calculateOverallCalification(
                 it
             )
         }
         Log.e("nota", nota.toString())
+
+//        var nota by remember { mutableStateOf(0.0) }
+//
+//        val actividades by viewModel.listOfActivitiesFiltered.observeAsState()
+//
+//        LaunchedEffect(key1 = true){
+//            viewModel.listWithActivities()
+//
+//            actividades?.let {
+//                viewModel.calculateOverallCalification(
+//                    it
+//                )
+//         }
+//        }
+//
+//        var nota4 = viewModel.listOfActivitiesFilteredCompose.let {
+//            if (it != null) {
+//                viewModel.calculateOverallCalification(
+//                    it
+//                )
+//            }
+//        }
+//
+//        LaunchedEffect(key1 = true){
+//
+//            nota = viewModel.listOfActivitiesFilteredCompose?.let {
+//                viewModel.calculateOverallCalification(
+//                    it
+//                )
+//            }!!
+//        }
+//
+//        var nota2 = viewModel.listOfActivitiesFilteredCompose?.let {
+//            viewModel.calculateOverallCalification(
+//                it
+//            )
+//        }
+
+        Log.e("nota", nota.toString())
+//        val formattedNumber2 = String.format("%.2f", viewModel.currentNota.observeAsState().value)
+
+        val formattedNumber = String.format("%.2f", nota)
+//        val formattedNumber3 = String.format("%.2f", nota2)
+
+//        Log.e("Nota 4", nota4.toString())
+
 
         Column(
             modifier = Modifier
@@ -1297,7 +1379,9 @@ class AsignacionFragment : Fragment() {
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f)
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
+
             ) { page ->
                 // Content for each tab
                 when (page) {
@@ -1305,7 +1389,7 @@ class AsignacionFragment : Fragment() {
                         verticalArrangement = Arrangement.Top
                     ) {
                         if(nota != null){
-                            Text(text = "Nota General: ${nota.toString()}", fontSize = 20.sp)
+                            Text(text = "Nota General: ${formattedNumber}%", fontSize = 20.sp)
                             Spacer(modifier = Modifier.height(5.dp))
                         }
                         listsOfActivities()
