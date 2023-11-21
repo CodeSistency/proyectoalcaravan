@@ -1252,11 +1252,12 @@ class AsignacionFragment : Fragment() {
             selectedTabIndex = pagerState.currentPage
         }
 
-//        val nota = viewModel.listOfActivitiesFilteredCompose?.let {
-//            viewModel.calculateOverallCalification(
-//                it
-//            )
-//        }
+        val nota = viewModel.listOfActivitiesFilteredCompose?.let {
+            viewModel.calculateOverallCalification(
+                it
+            )
+        }
+        Log.e("nota", nota.toString())
 
         Column(
             modifier = Modifier
@@ -1303,13 +1304,17 @@ class AsignacionFragment : Fragment() {
                     0 -> Column(
                         verticalArrangement = Arrangement.Top
                     ) {
+                        if(nota != null){
+                            Text(text = "Nota General: ${nota.toString()}", fontSize = 20.sp)
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
                         listsOfActivities()
                     }
                     1 ->  if(viewModel.currentUser.observeAsState().value?.rol == "Estudiante"){
                         Column {
 //                            Text(text = "Nota General: ${nota.toString()}")
 //                            Spacer(modifier = Modifier.height(5.dp))
-                            LineChart2(viewModel = viewModel)
+                            LineChart(viewModel = viewModel)
 
                         }
 

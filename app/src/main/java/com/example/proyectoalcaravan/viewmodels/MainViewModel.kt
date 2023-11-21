@@ -1080,7 +1080,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 //                    currentUser.postValue(response.body())
                         if (currentUser.value?.id == response.body()?.id || currentUserDB.value?.userId == response.body()?.id){
                             currentUser.postValue(response.body())
-                            currentUserDB.postValue(response.body() as UserDB)
+//                            currentUserDB.postValue(response.body() as UserDB)
                         }
                         updatedUser.postValue(response.body())
                         refreshingUpdatedUser.postValue(false)

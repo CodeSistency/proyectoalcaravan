@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.camera.core.ExperimentalGetImage
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,6 +61,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -448,6 +450,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
     fun ListItem(item: User, isPermissionGranted: Boolean) {
+        var isVisible by remember { mutableStateOf(false) }
 
         var isModalVisible by remember { mutableStateOf(false) }
         var isModalContactVisible by remember { mutableStateOf(false) }
@@ -472,87 +475,95 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
             elevation = 8.dp,
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                GlideImage(
-                    model = item.imageProfile,
-                    contentDescription = "foto",
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Fit
-
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // User information
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "${item.firstName} ${item.lastName}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = item.email.toString(),
-                        fontSize = 16.sp,
-                        color = Color.Gray,
-                    )
-                }
-
+            Column {
                 Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = { item.phone?.let { viewModel.makeCall(it, ctx) } },
+
+                    GlideImage(
+                        model = item.imageProfile,
+                        contentDescription = "foto",
                         modifier = Modifier
-                            .size(38.dp)
-//                        .background(Color.Red, CircleShape)
+                            .size(60.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Fit
+
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // User information
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Call,
-                            contentDescription = null,
-                            tint = Color.Green
+                        Text(
+                            text = "${item.firstName} ${item.lastName}",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = item.email.toString(),
+                            fontSize = 16.sp,
+                            color = Color.Gray,
                         )
                     }
-
-                    IconButton(
-                        onClick = {isModalContactVisible = true },
-                        modifier = Modifier
-                            .size(38.dp)
-//                        .background(Color.Red, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AccountBox,
-                            contentDescription = null,
-                            tint = Color.Red
-                        )
-                    }
-
-                    IconButton(
-                        onClick = { isModalVisible = true },
-                        modifier = Modifier
-                            .size(38.dp)
-//                        .background(Color.Red, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            tint = Color.Gray
-                        )
+                    IconButton(onClick = { isVisible = !isVisible }) {
+                        Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = null)
                     }
                 }
+                AnimatedVisibility(visible = isVisible) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+//                            .border(1.dp, shape = RoundedCornerShape(bottomEnd = 10.dp, bottomStart = 10.dp)),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        IconButton(
+                            onClick = { item.phone?.let { viewModel.makeCall(it, ctx) } },
+                            modifier = Modifier
+                                .size(38.dp)
+//                        .background(Color.Red, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Call,
+                                contentDescription = null,
+                                tint = Color.Green
+                            )
+                        }
 
+                        IconButton(
+                            onClick = {isModalContactVisible = true },
+                            modifier = Modifier
+                                .size(38.dp)
+//                        .background(Color.Red, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AccountBox,
+                                contentDescription = null,
+                                tint = Color.Red
+                            )
+                        }
 
+                        IconButton(
+                            onClick = { isModalVisible = true },
+                            modifier = Modifier
+                                .size(38.dp)
+//                        .background(Color.Red, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                tint = Color.Gray
+                            )
+                        }
+                    }
+                }
             }
+
 
 //            if (isModalVisible) {
 //                Dialog(
@@ -1480,9 +1491,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 .height(110.dp)
 //                .size(150.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(colorResource(id = R.color.accent))
+//                .background(colorResource(id = R.color.accent))
                 .border(0.5.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
-                .shadow(4.dp, RoundedCornerShape(16.dp))
 //                .background(generateRandomColor())
 //                .background(
 //                    brush = Brush.linearGradient(
@@ -1500,23 +1510,50 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 },
 //            contentAlignment = Alignment.Center
         ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(modifier = Modifier
+                    .background(colorResource(id = R.color.accent))
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                ){
+                    Text(
+                        text = item.name,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .align(Alignment.Center),
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                }
+                Box(modifier = Modifier
+                    .background(Color.White)
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                ){
+                    Text(
+                        text = "Ir a ${item.name}",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .align(Alignment.CenterStart),
+                        color = Color.Gray,
+
+                        fontSize = 15.sp
+                    )
+                }
+            }
             // Display text at the middle left
-            Text(
-                text = item.name,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.CenterStart),
-                color = Color.Black,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
+
             Icon(
                 painter = painterResource(id = R.drawable.ic_book),
                 contentDescription = null,
                 tint = Color.White.copy(alpha = 0.7f), // Adjust alpha for transparency
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .size(50.dp)
+                    .size(10.dp)
                     .padding(end = 5.dp)
 //                    .absolutePadding(top = (-30).dp, right = (-30).dp)
             )

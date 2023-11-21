@@ -761,7 +761,7 @@ class StudentFragment : Fragment() {
                         Column(
                             modifier = Modifier.padding(10.dp)
                         ) {
-                            Text(text = "Actividades entregadas", fontWeight = FontWeight.Bold, fontSize = 40.sp)
+                            Text(text = "Actividades", fontWeight = FontWeight.Bold, fontSize = 40.sp)
                             Spacer(modifier = Modifier.height(5.dp))
                             ListContentAsignacionGeneral(user = userDB)
 
