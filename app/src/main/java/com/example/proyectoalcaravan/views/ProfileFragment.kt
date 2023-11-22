@@ -481,57 +481,35 @@ class ProfileFragment : Fragment() {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            if (args.profile != 3000){
+                                null
+                            }else{
+                                IconButton(onClick = {
+                                    if(isClickable){
+                                        isClickable = false
+                                        isModalVisible = true
 
-                            IconButton(onClick = {
-                                if(isClickable){
-                                    isClickable = false
-
-                                    if (args.profile != 3000){
-                                        view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: 1000))
-                                    }else{
-                                        view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,10000))
+                                        // Launch a coroutine to re-enable clickable after a delay
+                                        coroutineScope.launch {
+                                            delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                            isClickable = true
+                                        }
                                     }
-                                    // Launch a coroutine to re-enable clickable after a delay
-                                    coroutineScope.launch {
-                                        delay(2000) // Adjust the delay duration as needed (in milliseconds)
-                                        isClickable = true
-                                    }
-                                }
-
-
-                                 })
-                            {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_editar),
-                                    contentDescription = "Settings"
-                                )
-                            }
-                            IconButton(onClick = {
-                                if(isClickable){
-                                    isClickable = false
-                                    isModalVisible = true
-
-                                    // Launch a coroutine to re-enable clickable after a delay
-                                    coroutineScope.launch {
-                                        delay(2000) // Adjust the delay duration as needed (in milliseconds)
-                                        isClickable = true
-                                    }
-                                }
 //                                if (userDB.value != null) {
 //                                    viewModel.deleteUserDB(UserDB(userDB.value!!.id, userDB.value!!.userId, userDB.value!!.firstName, userDB.value!!.lastName, userDB.value!!.birthday, userDB.value!!.cedula, userDB.value!!.gender, userDB.value!!.imageProfile, userDB.value!!.email, userDB.value!!.password, userDB.value!!.rol, userDB.value!!.phone, userDB.value!!.lgn, userDB.value!!.lag, userDB.value!!.listActivities, userDB.value!!.listOfMaterias) )
 //                                }
 //                                viewModel.loggedIn.postValue(false)
 //                                view?.findNavController()?.navigate(R.id.action_profileFragment_to_login)
-                            }
-                            )
-                            {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_logout),
-                                    contentDescription = "Settings"
+                                }
                                 )
+                                {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_logout),
+                                        contentDescription = "Settings"
+                                    )
+                                }
                             }
                         }
-
                     }
                 )
             }

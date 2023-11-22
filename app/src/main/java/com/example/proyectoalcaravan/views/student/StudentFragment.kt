@@ -540,7 +540,7 @@ class StudentFragment : Fragment() {
         if (refresh.value == true){
             ShimmerCardList()
         }else{
-            Box(modifier = Modifier.pullRefresh(pullRefreshState)){
+            Box(modifier = Modifier.pullRefresh(pullRefreshState).padding(2.dp)){
                 LazyColumn {
                     items(actividades?.listActivities ?: currentUser.value?.listActivities ?: emptyList()) { actividad ->
                         if (actividad != null) {
@@ -592,7 +592,7 @@ class StudentFragment : Fragment() {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(4.dp),
+                    .padding(12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -779,7 +779,7 @@ class StudentFragment : Fragment() {
                 }
 //                HorizontalList(gridItems = viewModel.materiasList)
 
-                if(userDB.value?.listActivities?.isNullOrEmpty() == true || user.value?.listActivities?.isNullOrEmpty() == true){
+                if(userDB.value?.listActivities?.isNullOrEmpty() == true && user.value?.listActivities?.isNullOrEmpty() == true){
                         //Tengo que hacer progress bar
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,

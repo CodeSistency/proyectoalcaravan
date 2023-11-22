@@ -1,6 +1,7 @@
 package com.example.proyectoalcaravan.views.charts
 
 import android.graphics.Color
+import android.util.Log
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +31,7 @@ fun LineChart2(viewModel: MainViewModel) {
             activity?.calificationRevision?.let { Entry((index + 1).toFloat(), it.toFloat()) }
         }
 
+        Log.e("updated User line Chart", currentUser.toString())
         val dataSet = LineDataSet(entries, "Calificaciones")
         dataSet.color = Color.BLUE
         dataSet.circleColors = listOf(Color.BLUE)

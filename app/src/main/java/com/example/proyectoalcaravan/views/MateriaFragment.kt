@@ -31,6 +31,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -63,6 +64,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -81,7 +83,6 @@ import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
 import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChartByMateria
 import com.example.proyectoalcaravan.views.charts.GenderPerformanceChartByMateria
-import com.example.proyectoalcaravan.views.charts.LineChart2
 import com.example.proyectoalcaravan.views.componentes.Header
 import com.example.proyectoalcaravan.views.componentes.shimmer.ShimmerCardList
 import kotlinx.coroutines.delay
@@ -258,6 +259,9 @@ class MateriaFragment : Fragment() {
         var isClickable by remember { mutableStateOf(true) }
         val coroutineScope = rememberCoroutineScope()
         var isButtonEnabled by remember { mutableStateOf(true) }
+        var isProgressModalLoading by remember {
+            mutableStateOf(false)
+        }
 
 
 
@@ -284,6 +288,8 @@ class MateriaFragment : Fragment() {
                                 requireContext()
                             )
                         }
+
+                        user.id?.let { viewModel.getUserById(it, requireContext()) }
 
 //                    view?.findNavController()?.navigate(R.id.action_materiaFragment_to_asignacionFragment)
                         view
@@ -353,16 +359,27 @@ class MateriaFragment : Fragment() {
                     }
                 }
 
-
-                // Circular user image
-
-
-
-
-
             }
 
+        }
 
+        if (isProgressModalLoading) {
+            Dialog(
+                onDismissRequest = { isProgressModalLoading = false },
+                content = {
+
+                    Column(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(64.dp),
+                            color = colorResource(id = R.color.blue_dark),
+
+
+                            )
+                    }
+                }
+            )
         }
 
         if (isModalVisible) {
@@ -399,6 +416,8 @@ class MateriaFragment : Fragment() {
                                     onClick = {
                                     if(isButtonEnabled){
                                         isButtonEnabled = false
+                                        isProgressModalLoading = true
+
 
                                         val currentMateria = viewModel.currentMateria.value
                                         if (currentMateria != null) {
@@ -442,20 +461,26 @@ class MateriaFragment : Fragment() {
                                             )
                                             viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext()).observe(viewLifecycleOwner){
                                                 if (it){
+                                                    isProgressModalLoading = false
                                                     isButtonEnabled = true
                                                 }else{
+                                                    isProgressModalLoading = false
                                                     isButtonEnabled = true
 
                                                 }
                                             }
 
                                             isButtonEnabled = true
+                                            isProgressModalLoading = false
+
 
 
                                             viewModel.updateMateria(materiaId, materiaUser, requireContext())
                                             viewModel.getMateriaById(materiaId, requireContext())
                                         }
                                         isModalVisible = false
+                                        isProgressModalLoading = false
+
                                     }
 
                                 }) {
@@ -574,6 +599,9 @@ class MateriaFragment : Fragment() {
         var isModalVisible by remember {
             mutableStateOf(false)
         }
+        var isProgressModalLoading by remember {
+            mutableStateOf(false)
+        }
 
         var isButtonEnabled by remember { mutableStateOf(true) }
 
@@ -587,7 +615,7 @@ class MateriaFragment : Fragment() {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(4.dp),
+                    .padding(12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -616,6 +644,25 @@ class MateriaFragment : Fragment() {
                 }
             }
 
+        }
+
+        if (isProgressModalLoading) {
+            Dialog(
+                onDismissRequest = { isProgressModalLoading = false },
+                content = {
+
+                    Column(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(64.dp),
+                            color = colorResource(id = R.color.blue_dark),
+
+
+                            )
+                    }
+                }
+            )
         }
 
         if (isModalVisible) {
@@ -650,8 +697,21 @@ class MateriaFragment : Fragment() {
                                 TextButton(onClick = {
                                     if (isButtonEnabled){
                                         isButtonEnabled = false
+                                        isProgressModalLoading = true
 
-                                        item.id?.let { viewModel.deleteActivity(it, requireContext()) }
+
+                                        item.id?.let { viewModel.deleteActivity(it, requireContext()).observe(viewLifecycleOwner){
+                                            if (it){
+                                                isProgressModalLoading = false
+                                                isButtonEnabled = true
+
+                                            }else{
+                                                isProgressModalLoading = false
+                                                isButtonEnabled = true
+
+
+                                            }
+                                        } }
                                         isButtonEnabled = true
                                         isModalVisible = false
 
@@ -681,7 +741,10 @@ class MateriaFragment : Fragment() {
             ShimmerCardList()
         }else{
 
-            Box(Modifier.pullRefresh(pullRefreshState)){
+            Box(
+                Modifier
+                    .pullRefresh(pullRefreshState)
+                    .padding(5.dp)){
                 LazyColumn {
                     items(actividades) { actividad ->
                         ListItemAsignacion(item = actividad)
@@ -845,26 +908,45 @@ class MateriaFragment : Fragment() {
                         style = MaterialTheme.typography.body2,
                         fontSize = 30.sp,
                     )
-                    IconButton(onClick = { isModalAsignacionesVisible = true }) {
-//                    val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "QR Code",
-                            modifier = Modifier.size(40.dp)
-                        )
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = colorResource(id = R.color.blue_dark)
+                        ),
+                        onClick = { isModalAsignacionesVisible = true  }) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = "Agregar", modifier = Modifier.padding(horizontal = 2.dp))
+                            Icon(painterResource(id = R.drawable.ic_person_add), contentDescription = null)
+                        }
                     }
+//                    IconButton(onClick = { isModalAsignacionesVisible = true }) {
+////                    val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
+//                        Icon(
+//                            imageVector = Icons.Default.Add,
+//                            contentDescription = "QR Code",
+//                            modifier = Modifier.size(40.dp)
+//                        )
+//                    }
                 }
 
 
             }
             Row(
-                modifier = Modifier.padding(4.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
 //                    TabsAsignacionWithPagerScreen()
 //                    ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
 
                 Button(
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp)
+                        .weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)                    ),
@@ -881,6 +963,9 @@ class MateriaFragment : Fragment() {
                     )
                 }
                 Button(
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp)
+                        .weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)                    ),
@@ -895,6 +980,9 @@ class MateriaFragment : Fragment() {
                     Text(text = "Tareas", style = MaterialTheme.typography.subtitle1, fontSize = 14.sp)
                 }
                 Button(
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp)
+                        .weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)                    ),
@@ -909,6 +997,9 @@ class MateriaFragment : Fragment() {
                     Text(text = "Sexo", style = MaterialTheme.typography.subtitle1, fontSize = 14.sp)
                 }
                 Button(
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp)
+                        .weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)

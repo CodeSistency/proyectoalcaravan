@@ -30,6 +30,9 @@ import com.example.proyectoalcaravan.repository.MainRepository
 import com.example.proyectoalcaravan.utils.isOnline
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -57,6 +60,10 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var modalAsignacion2 = MutableLiveData<Boolean>(false)
     var currentNota = MutableLiveData<Double>()
 
+
+    //Estados nuevos
+//    private val _uiState = MutableStateFlow(User())
+//    val uiState: StateFlow<User>
 
 
 
@@ -103,6 +110,40 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var updatedUserCompose by mutableStateOf<User?>(null)
     var currentUserDBCompose by mutableStateOf<UserDB?>(null)
 
+
+
+    private val user_uiState = MutableStateFlow(
+        User(
+            birthday = "",
+            cedula = null,
+            edad = null,
+            email = "",
+            firstName = "",
+            gender = "masculino",
+            id = null,
+            imageProfile = "",
+            lastName = "",
+            lat = 0.0,
+            lgn = 0.0,
+            listActivities = listOf(),
+            password = "",
+            phone = null,
+            rol = "Estudiante",
+            listOfMaterias = listOf(),
+            created = ""
+        )
+    )
+    val UserState: StateFlow<User> = user_uiState.asStateFlow()
+
+    private val _listStudentUiState = MutableStateFlow<List<User>?>(emptyList())
+    val listStudentUiState: StateFlow<List<User>?> = _listStudentUiState.asStateFlow()
+
+    private val _actividadUiState = MutableStateFlow(Actividad())
+    val actividadUiState: StateFlow<Actividad> = _actividadUiState.asStateFlow()
+
+    private val _listActividadUiState = MutableStateFlow(Actividad())
+    val listActividadUiState: StateFlow<Actividad> = _listActividadUiState.asStateFlow()
+
     var userListCompose by mutableStateOf<List<User>?>(null)
     var userStudentsListCompose by mutableStateOf<List<User>?>(null)
     var materiasListCompose by mutableStateOf<List<Materia>?>(null)
@@ -111,6 +152,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     var activitiesListByIdCompose by mutableStateOf<List<Actividad>?>(null)
     var filteredUserListCompose by mutableStateOf<List<User>?>(null)
 
+    var currentNotaCompose by mutableStateOf<Double?>(null)
 
     val errorMessageCompose by mutableStateOf<String?>(null)
 
@@ -162,6 +204,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
         val totalCalificationRevision = listOfActivities.sumBy { it.calificationRevision }
         val totalPossibleCalification = listOfActivities.size * 100
         currentNota.postValue((totalCalificationRevision.toDouble() / totalPossibleCalification) * 100)
+        currentNotaCompose = (totalCalificationRevision.toDouble() / totalPossibleCalification) * 100
         Log.e("nota", currentNota.value.toString())
         return (totalCalificationRevision.toDouble() / totalPossibleCalification) * 100
     }
@@ -1079,7 +1122,9 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     //DELETE USER
-    fun deleteUser(userId: Int, context: Context) {
+    fun deleteUser(userId: Int, context: Context): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
+
         if (isOnline(context)){
             conexion.postValue(true)
             repository.deleteUser(userId).enqueue(object : Callback<Void> {
@@ -1087,6 +1132,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                     if (response.isSuccessful) {
                         getAllUsers(context)
                         getUserStudents("Estudiante", context)
+                        liveData.postValue(true)
+
                         // Handle successful response
                         Log.e("Delete User", "User deleted successfully")
                         showToast("Usuario eliminado exitosamente", context)
@@ -1094,19 +1141,26 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                     } else {
                         errorMessage.postValue("Error: ${response.code()}")
                         showToast("Usuario no ha sido eliminado, vuelva a intentar", context)
+                        liveData.postValue(false)
+
 
                     }
                 }
 
                 override fun onFailure(call: Call<Void>, t: Throwable) {
                     errorMessage.postValue(t.message)
+                    liveData.postValue(false)
+
                 }
             })
         }else{
             conexion.postValue(false)
             showToast("No hay conexion a internet", context)
+            liveData.postValue(false)
 
         }
+
+        return liveData
 
     }
 
@@ -1434,23 +1488,39 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
     }
 
     //DELETE USER
-    fun deleteActivity(actividadId: Int, context: Context) {
-        repository.deleteActivity(actividadId).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) {
-                    getAllActivities(context)
-                    getActivitiesById(actividadId, context)
-                    // Handle successful response
-                    Log.e("Delete Actividad", "Actividad deleted successfully")
-                } else {
-                    errorMessage.postValue("Error: ${response.code()}")
-                }
-            }
+    fun deleteActivity(actividadId: Int, context: Context): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
 
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                errorMessage.postValue(t.message)
-            }
-        })
+        if (isOnline(context)){
+            conexion.postValue(true)
+
+            repository.deleteActivity(actividadId).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        liveData.postValue(true)
+                        getAllActivities(context)
+                        getActivitiesById(actividadId, context)
+                        // Handle successful response
+                        Log.e("Delete Actividad", "Actividad deleted successfully")
+                    } else {
+                        errorMessage.postValue("Error: ${response.code()}")
+                        liveData.postValue(false)
+
+                    }
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    errorMessage.postValue(t.message)
+                    liveData.postValue(false)
+
+                }
+            })
+        }else{
+            conexion.postValue(false)
+
+        }
+
+        return liveData
     }
 
 

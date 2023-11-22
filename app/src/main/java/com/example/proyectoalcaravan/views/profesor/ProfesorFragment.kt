@@ -40,6 +40,7 @@ import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -75,6 +76,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -451,9 +453,11 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     @Composable
     fun ListItem(item: User, isPermissionGranted: Boolean) {
         var isVisible by remember { mutableStateOf(false) }
-
         var isModalVisible by remember { mutableStateOf(false) }
         var isModalContactVisible by remember { mutableStateOf(false) }
+        var isProgressModalLoading by remember {
+            mutableStateOf(false)
+        }
 
         val ctx = LocalContext.current
 
@@ -652,6 +656,25 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 //                )
 //            }
 
+            if (isProgressModalLoading) {
+                Dialog(
+                    onDismissRequest = { isProgressModalLoading = false },
+                    content = {
+
+                        Column(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(64.dp),
+                                color = colorResource(id = R.color.blue_dark),
+
+
+                                )
+                        }
+                    }
+                )
+            }
+
             if (isModalVisible) {
                 Dialog(
                     onDismissRequest = { isModalVisible = false },
@@ -682,7 +705,16 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
                                     TextButton(onClick = {
-                                        item.id?.let { viewModel.deleteUser(it, requireContext()) }
+                                        item.id?.let {
+                                            isProgressModalLoading = true
+                                            viewModel.deleteUser(it, requireContext()).observe(viewLifecycleOwner){
+                                                if (it){
+                                                    isProgressModalLoading= false
+                                                }else{
+                                                    isProgressModalLoading= false
+                                                }
+                                            }
+                                        }
                                         isModalVisible = false
                                     }) {
                                         Text(text = "Eliminar")
@@ -852,12 +884,16 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 //        Log.e("user profesor fragment", userList.value.toString())
 //        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
 //        Log.e("actividades", users.toString())
+
         val users by userList.observeAsState(initial = emptyList())
         val userStudents = viewModel.userStudentsList.observeAsState()
 
         LaunchedEffect(key1 = true){
             viewModel.setSearchQuery("")
         }
+
+        val userListState = rememberUpdatedState(userList.value)
+
 
         var isPermissionGranted by remember { mutableStateOf(false) }
         var refresh = viewModel.refreshing.observeAsState()
@@ -870,9 +906,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         }else{
             if (users.isNullOrEmpty()){
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .clickable {
-                                   viewModel.getUserStudents("Estudiante", requireContext())
+                            viewModel.getUserStudents("Estudiante", requireContext())
                         },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -897,6 +934,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
             }
         }
+
+
+
+
 
     }
 
@@ -1667,20 +1708,14 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         var selectedTabIndex by remember { mutableStateOf(0) }
 
         val tabs = listOf("Listado", "Materias", "Rendimiento", "Metricas")
-
-
         // Pager state
         val pagerState = rememberPagerState(pageCount = {tabs.size})
         val coroutineScope = rememberCoroutineScope()
         val filteredUserList = viewModel.filteredUserList
-
-
         // Observe the current page index and update the selectedTabIndex accordingly
         LaunchedEffect(pagerState.currentPage) {
             selectedTabIndex = pagerState.currentPage
         }
-
-
 
         Column(
             modifier = Modifier
@@ -1781,13 +1816,6 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         var isModalVisible by remember { mutableStateOf(false) }
         val filteredUserList = viewModel.filteredUserList
 
-//        LaunchedEffect(key1 = true ){
-//            viewModel.setSearchQuery("")
-//        }
-//
-//        LaunchedEffect(key1 = true ){
-//            viewModel.getUserStudents("Estudiante")
-//        }
         Log.d("UserViewModel", "userStudentsList: ${viewModel.userStudentsList.value}")
         Log.d("UserViewModel", "filteredUserList: ${viewModel.filteredUserList.value}")
 

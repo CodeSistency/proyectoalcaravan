@@ -46,15 +46,20 @@ class RegisterStepOne : Fragment() {
 
         binding.registerStepOneButton.setOnClickListener{
             if (isOnline(requireContext())){
+                binding.simpleProgressBarRegisterStepOne.visibility = View.VISIBLE
 //                viewModel.getAllUsers(requireContext())
 
 //                    if(viewModel.isFormValid()){
                 viewModel.registerStepOne(requireContext()).observe(viewLifecycleOwner){
                     if (it){
+                        binding.simpleProgressBarRegisterStepOne.visibility = View.GONE
+
                         view.findNavController().navigate(R.id.action_registerStepOne2_to_registerStepTwo2)
 
                      }else{
-                    Toast.makeText(requireContext(), "Email o clave invalida", Toast.LENGTH_SHORT).show()
+                        binding.simpleProgressBarRegisterStepOne.visibility = View.GONE
+
+                        Toast.makeText(requireContext(), "Email o clave invalida", Toast.LENGTH_SHORT).show()
 
                 }
                      }
@@ -67,6 +72,7 @@ class RegisterStepOne : Fragment() {
 
             }else{
                 viewModel.showToast("Es necesario el acceso a internet", requireContext())
+
 
             }
 

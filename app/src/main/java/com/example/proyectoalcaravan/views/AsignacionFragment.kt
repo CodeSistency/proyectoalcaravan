@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -181,12 +182,13 @@ class AsignacionFragment : Fragment() {
     fun ListItemAsignacion(item: Actividad) {
         // Replace with your list item implementation
         var isButtonEnabled by remember { mutableStateOf(true) }
-
+        var isProgressModalLoading by remember { mutableStateOf(false) }
         var isModalNotaVisible by remember { mutableStateOf(false) }
         var notaAsignacion by remember { mutableStateOf(String()) }
         var mensaje by remember { mutableStateOf(String()) }
         var currentUser = viewModel.currentUser.value
         var currentUserDB = viewModel.currentUserDB.value
+
 
 
         var user = viewModel.updatedUser.value
@@ -200,10 +202,7 @@ class AsignacionFragment : Fragment() {
                 .fillMaxSize()
                 .padding(4.dp),
             elevation = 4.dp,
-
             ) {
-
-
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -227,21 +226,47 @@ class AsignacionFragment : Fragment() {
                     )
                 }
                 if(item.isCompleted){
-                    Text(text = item.calificationRevision.toString())
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = item.calificationRevision.toString())
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Icon(painterResource(id = R.drawable.ic_check_circle), contentDescription = "algo")
+
+                    }
                 } else if (item.messageStudent != null && item.imageRevision != null){
-                    IconButton(onClick = { isModalNotaVisible = true}) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "algo")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Añadir nota")
+                        Spacer(modifier = Modifier.width(2.dp))
+                        IconButton(onClick = { isModalNotaVisible = true}) {
+                            Icon(painterResource(id = R.drawable.ic_add_task), contentDescription = "algo")
+                        }
                     }
                 }else{
                     Text(text = "Por entregar")
                 }
-
-
-
-
-
             }
+        }
 
+        if (isProgressModalLoading) {
+            Dialog(
+                onDismissRequest = { isProgressModalLoading = false },
+                content = {
+
+                    Column(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(64.dp),
+                            color = colorResource(id = R.color.blue_dark),
+
+
+                            )
+                    }
+                }
+            )
         }
 
         if (isModalNotaVisible) {
@@ -316,12 +341,15 @@ class AsignacionFragment : Fragment() {
                                             onClick = {
                                                 if(isButtonEnabled){
                                                     isButtonEnabled = false
+                                                    isProgressModalLoading = true
                                                     if (user.isNotNull() && !notaAsignacion.isNullOrEmpty()) {
                                                         val notaValue = notaAsignacion.toIntOrNull()
 
 
                                                         if (notaValue == null || notaValue > 100){
                                                             isButtonEnabled = true
+                                                            isProgressModalLoading = false
+
 
                                                             viewModel.showToast("Nota invalida", requireContext())
                                                         }else{
@@ -347,10 +375,13 @@ class AsignacionFragment : Fragment() {
                                                                     updatedListOfActivities?.set(index, evaluacion)
                                                                 }else{
                                                                     isButtonEnabled = true
+                                                                    isProgressModalLoading = false
+
 
                                                                 }
                                                             }else{
                                                                 isButtonEnabled = true
+                                                                isProgressModalLoading = false
 
                                                             }
 
@@ -379,7 +410,12 @@ class AsignacionFragment : Fragment() {
                                                                     if (it){
                                                                         user?.id?.let { viewModel.getUserById(it, requireContext()) }
                                                                         isModalNotaVisible = false
+                                                                        isProgressModalLoading = false
+
                                                                     }else{
+                                                                        isButtonEnabled = true
+                                                                        isProgressModalLoading = false
+
 
                                                                     }
                                                                 }
@@ -390,6 +426,7 @@ class AsignacionFragment : Fragment() {
 
                                                     }else{
                                                         isButtonEnabled = true
+                                                        isProgressModalLoading = false
                                                         viewModel.showToast("Coloque una nota", requireContext())
                                                     }
                                                 }
@@ -428,7 +465,7 @@ class AsignacionFragment : Fragment() {
     @Composable
     fun ListItemAsignacion(item: Actividad, user: User) {
         var isButtonEnabled by remember { mutableStateOf(true) }
-        var isAlertOpen by remember { mutableStateOf(null) }
+        var isProgressModalLoading by remember { mutableStateOf(false) }
         var rememberedItem = remember { item }
 
         var isModalNotaVisible by remember { mutableStateOf(false) }
@@ -439,22 +476,6 @@ class AsignacionFragment : Fragment() {
         var updatedUser = viewModel.updatedUser.observeAsState()
         var updatedUserCompose = viewModel.updatedUserCompose
 
-//        val itemState = rememberUpdatedState(item)
-//
-//        var evaluacion = Actividad(
-//            calification = 100,
-//            calificationRevision = itemState.value.calificationRevision,
-//            date = itemState.value.date,
-//            description = itemState.value.description,
-//            id = itemState.value.id,
-//            idClass = itemState.value.idClass,
-//            imageRevision = itemState.value.imageRevision,
-//            isCompleted = itemState.value.isCompleted,
-//            messageStudent = mensaje,
-//            title = itemState.value.title
-//        )
-
-
         var currentUser = viewModel.currentUser.value
         var currentUserDB = viewModel.currentUserDB.value
 
@@ -463,20 +484,16 @@ class AsignacionFragment : Fragment() {
         val isModalOpen by viewModel.modalAsignacion1.observeAsState()
 
 
-
-
-
-
         Card(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp),
+                .padding(2.dp),
             elevation = 4.dp,
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(4.dp),
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -511,7 +528,13 @@ class AsignacionFragment : Fragment() {
                     Text(text = "Entregado")
                 } else {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            isModalNotaVisible = true
+                            viewModel.modalAsignacion1.postValue(true)
+                            Log.e("item", item.toString())
+                            viewModel.currentActividad.postValue(item)
+                        }
                     ) {
                         Text(text = "Enviar")
                         Spacer(modifier = Modifier.width(5.dp))
@@ -528,7 +551,7 @@ class AsignacionFragment : Fragment() {
 
                             }
                         ) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = "algo")
+                            Icon(painterResource(id = R.drawable.ic_adjuntar), contentDescription = "algo")
                         }
                     }
                 }
@@ -539,7 +562,24 @@ class AsignacionFragment : Fragment() {
             }
         }
 
+        if (isProgressModalLoading) {
+            Dialog(
+                onDismissRequest = { isProgressModalLoading = false },
+                content = {
 
+                    Column(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.width(64.dp),
+                            color = colorResource(id = R.color.blue_dark),
+
+
+                            )
+                    }
+                }
+            )
+        }
 
         if (isModalNotaVisible){
 //        if (isModalOpen == true){
@@ -632,6 +672,7 @@ class AsignacionFragment : Fragment() {
                                         onClick = {
                                             if(isButtonEnabled){
                                                 isButtonEnabled = false
+                                                isProgressModalLoading = true
 //
 //
                                                 Log.e("item", item.toString())
@@ -655,6 +696,8 @@ class AsignacionFragment : Fragment() {
 //                                            if(item.messageStudent.isNullOrEmpty()){
                                                         viewModel.showToast("Ha ocurrido un error", requireContext())
                                                         isButtonEnabled = true
+                                                        isProgressModalLoading = false
+
 
                                                     }else{
                                                         val storageRef = storage.reference.child("${user?.email}.jpg")
@@ -733,11 +776,15 @@ class AsignacionFragment : Fragment() {
                                                                             modalVisible = false
                                                                             viewModel.modalAsignacion1.postValue(false)
                                                                             isButtonEnabled = true
+                                                                            isProgressModalLoading = false
+
                                                                             viewModel.listWithActivities()
                                                                             viewModel.showToast("Se ha enviado la evaluación correctamente", requireContext())
 
                                                                         }else{
                                                                             isButtonEnabled = true
+                                                                            isProgressModalLoading = false
+
                                                                             viewModel.showToast("No se ha enviado la evaluacion", requireContext())
 
                                                                         }
@@ -748,17 +795,23 @@ class AsignacionFragment : Fragment() {
                                                             }.addOnFailureListener { exception ->
                                                                 // Handle the error while trying to get the download URL
                                                                 Log.e("firebase error", "Storage Error: ${exception.message}")
+                                                                isProgressModalLoading = false
+
                                                             }
                                                         }.addOnFailureListener { exception ->
                                                             // Handle the error during image upload
                                                             if (exception is StorageException) {
                                                                 // Handle storage-specific errors
+                                                                isProgressModalLoading = false
+
                                                                 isButtonEnabled = true
 
                                                                 Log.e("firebase error", "Storage Error: ${exception.message}")
                                                             } else {
                                                                 // Handle other non-storage-related exceptions
                                                                 isButtonEnabled = true
+                                                                isProgressModalLoading = false
+
 
                                                                 Log.e("firebase error", "Storage Error: ${exception.message}")
                                                             }
@@ -767,6 +820,8 @@ class AsignacionFragment : Fragment() {
 
                                                 }else{
                                                     isButtonEnabled = true
+                                                    isProgressModalLoading = false
+
 
                                                     viewModel.showToast("Llene todos los campos!!", requireContext())
                                                 }
@@ -863,7 +918,9 @@ class AsignacionFragment : Fragment() {
 
 
 //            Box(modifier = Modifier.pullRefresh(pullRefreshState)){
-        Box(){
+        Box(
+            modifier = Modifier.padding(4.dp)
+        ){
             LazyColumn {
                     items(activities ?: viewModel.listOfActivitiesFiltered.value ?: emptyList()) { actividad ->
 
@@ -1409,7 +1466,18 @@ class AsignacionFragment : Fragment() {
                         Column {
 //                            Text(text = "Nota General: ${nota.toString()}")
 //                            Spacer(modifier = Modifier.height(5.dp))
-                            LineChart(viewModel = viewModel)
+                            LazyColumn{
+                                item{
+                                    LineChart2(viewModel = viewModel)
+
+                                }
+                                item{
+                                    LineChart(viewModel = viewModel)
+
+                                }
+                            }
+
+
 
                         }
 
@@ -1418,7 +1486,17 @@ class AsignacionFragment : Fragment() {
                         Column {
 //                            Text(text = "Nota General: ${nota.toString()}")
 //                            Spacer(modifier = Modifier.height(5.dp))
-                            LineChart2(viewModel = viewModel)
+                            LazyColumn{
+                                item{
+                                    LineChart2(viewModel = viewModel)
+
+                                }
+                                item{
+                                    LineChart(viewModel = viewModel)
+
+                                }
+                            }
+
 
                         }
 
@@ -1456,7 +1534,9 @@ class AsignacionFragment : Fragment() {
         var currentUserDB = viewModel.currentUserDB.observeAsState()
         var user = viewModel.updatedUser
 
-        viewModel.currentMateria.value?.id?.let { viewModel.listWithActivities() }
+        viewModel.currentMateria.value?.let {
+            viewModel.getActivitiesById(it.id, requireContext())
+            viewModel.listWithActivities() }
         viewModel.listWithActivities()
 
 
@@ -1513,10 +1593,56 @@ class AsignacionFragment : Fragment() {
 //        val formattedNumber2 = String.format("%.2f", viewModel.currentNota.observeAsState().value)
 
         val formattedNumber = String.format("%.2f", nota)
-//        val formattedNumber3 = String.format("%.2f", nota2)
 
-//        Log.e("Nota 4", nota4.toString())
+//        viewModel.currentMateria.value?.id?.let { viewModel.listWithActivities() }
+//        viewModel.listWithActivities()
+//
+//
+//        LaunchedEffect(key1 = viewModel.currentMateria.observeAsState().value ){
+//            viewModel.listWithActivities()
+//            viewModel.listOfActivitiesFilteredCompose?.let {
+//                viewModel.calculateOverallCalification(
+//                    it
+//                )
+//            }
+//
+//
+//        }
+////        LaunchedEffect(key1 = true ){
+////            viewModel.listWithActivities()
+////            viewModel.listOfActivitiesFilteredCompose?.let {
+////                viewModel.calculateOverallCalification(
+////                    it
+////                )
+////            }
+////
+////
+////        }
+//        val nota2 by viewModel.currentNota.observeAsState()
+//        val nota3 = viewModel.currentNotaCompose
+//
+//        val nota4 = viewModel.listOfActivitiesFiltered.value?.let {
+//            viewModel.calculateOverallCalification(
+//                it
+//            )
+//        }
+//
+//
+//        val nota = viewModel.listOfActivitiesFilteredCompose?.let {
+//            viewModel.calculateOverallCalification(
+//                it
+//            )
+//        }
+//        Log.e("nota", nota.toString())
+//
+//
+//        Log.e("nota", nota.toString())
+//
+////        val formattedNumber = String.format("%.2f", nota)
+//        val formattedNumber = String.format("%.2f", nota)
 
+
+        Log.e("List with actividades", viewModel.listOfActivitiesFilteredCompose.toString())
 
         if (user != null) {
             if (currentUser.value?.rol == "Profesor" || currentUserDB.value?.rol == "Profesor"){
@@ -1571,13 +1697,17 @@ class AsignacionFragment : Fragment() {
 
             if (isOnline(requireContext())){
                 Row(
-                    modifier = Modifier.padding(4.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
 verticalAlignment = Alignment.CenterVertically                ) {
 //                    TabsAsignacionWithPagerScreen()
 //                    ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
 
                 Button(
-                    modifier = Modifier.padding(horizontal = 10.dp).weight(1f),
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)
@@ -1592,7 +1722,9 @@ verticalAlignment = Alignment.CenterVertically                ) {
                     )
                 }
                 Button(
-                    modifier = Modifier.padding(horizontal = 10.dp).weight(1f),
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)
@@ -1626,7 +1758,14 @@ verticalAlignment = Alignment.CenterVertically                ) {
             if(button1){
                 listsOfActivities()
             }else{
-                LineChart(viewModel = viewModel)
+                if (currentUser?.rol == "Estudiante" || currentUserDB?.rol == "Estudiante"){
+                    LineChart(viewModel = viewModel)
+                }else{
+                    LineChart2(viewModel = viewModel)
+
+                }
+
+//                LineChart(viewModel = viewModel)
             }
 
 

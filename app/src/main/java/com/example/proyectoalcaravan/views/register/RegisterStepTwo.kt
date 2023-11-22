@@ -145,6 +145,8 @@ class RegisterStepTwo : Fragment() {
 
                 binding.Registrar.setOnClickListener {
                     binding.Registrar.isEnabled = false
+                    binding.simpleProgressBarRegisterStepTwo.visibility = View.VISIBLE
+
 
                     val userList = viewModel.userList.value
                     var validado = true
@@ -170,22 +172,10 @@ class RegisterStepTwo : Fragment() {
                         showToast("Llena todos los campos")
                         validado = false
                         binding.Registrar.isEnabled = true
+                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
 
                     }
 
-
-
-
-                    // Rest of your code for validation and user creation...
-
-//                    // After all validations and user creation logic
-//                    if (validado) {
-//                        // Enable the button after successful validation and user creation
-//                        binding.Registrar.isEnabled = true
-//                    } else {
-//                        // If validation fails, enable the button to allow corrections
-//                        binding.Registrar.isEnabled = true
-//                    }
 
                     if (validado) {
                         // Check if firstName and lastName contain numbers
@@ -193,6 +183,7 @@ class RegisterStepTwo : Fragment() {
                             showToast("El nombre y el apellido no pueden contener números")
                             validado = false
                             binding.Registrar.isEnabled = true
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
 
                         }
                     }
@@ -204,6 +195,7 @@ class RegisterStepTwo : Fragment() {
                                 showToast("La cedula no es valida, debe ser mayor que diez millones")
                                 validado = false
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
 
                             }
                         }
@@ -215,13 +207,12 @@ class RegisterStepTwo : Fragment() {
                                 showToast("La edad no es valida")
                                 validado = false
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                             }
                         }
                     }
-
-
-
 
                     if (validado) {
                         // Check if telefono is not null and is a number
@@ -236,6 +227,8 @@ class RegisterStepTwo : Fragment() {
                                 showToast("El número no es válido")
                                 validado = false
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                             }
                         } else {
@@ -243,7 +236,7 @@ class RegisterStepTwo : Fragment() {
                             showToast("Ingrese un número de teléfono válido")
                             validado = false
                             binding.Registrar.isEnabled = true
-
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
                         }
                     }
 
@@ -254,6 +247,7 @@ class RegisterStepTwo : Fragment() {
                         showToast("Debe ser mayor de 18 años para registrarse")
                         validado = false
                         binding.Registrar.isEnabled = true
+                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
                         return@setOnClickListener
                     }
 
@@ -266,11 +260,11 @@ class RegisterStepTwo : Fragment() {
                                 showToast("Seleccione un rol")
                                 validado = false
                                 binding.Registrar.isEnabled = true
-
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
                             }
                         } else{
                             binding.Registrar.isEnabled = true
-
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
                         }
 
 
@@ -334,8 +328,12 @@ class RegisterStepTwo : Fragment() {
                                 viewModel.updateUser(userId, user, requireContext()).observe(viewLifecycleOwner){
                                     if(it){
                                         binding.Registrar.isEnabled = true
+                                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                     }else{
                                         binding.Registrar.isEnabled = true
+                                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                     }
                                 }
                             }
@@ -354,6 +352,8 @@ class RegisterStepTwo : Fragment() {
                                         viewModel.updateUser(userId, user, requireContext()).observe(viewLifecycleOwner){
                                             if(it){
                                                 binding.Registrar.isEnabled = true
+                                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 //                                                viewModel.createUserDB(UserDB(1, user.firstName, user.lastName, user.birthday, user.cedula, user.gender, user.imageProfile, user.email, user.password, user.rol, user.phone, user.lgn, user.lat))
                                                 viewModel.getAllUsers(requireContext())
                                                 viewModel.profileImage.postValue(null)
@@ -366,6 +366,7 @@ class RegisterStepTwo : Fragment() {
                                                     ?.navigate(R.id.action_registerStepTwo2_to_profileFragment)
                                             }else{
                                                 binding.Registrar.isEnabled = true
+                                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
 
                                             }
                                         }
@@ -374,6 +375,8 @@ class RegisterStepTwo : Fragment() {
                                 }.addOnFailureListener { exception ->
                                     // Handle the error while trying to get the download URL
                                     showToast("Fallo para conseguir la URL: ${exception.message}")
+                                    binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                 }
                             }.addOnFailureListener { exception ->
                                 // Handle the error during image upload
@@ -381,12 +384,17 @@ class RegisterStepTwo : Fragment() {
                                     // Handle storage-specific errors
                                     Log.e("firebase error", "Storage Error: ${exception.message}")
                                     showToast("Storage Error: ${exception.message}")
+                                    binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                 } else {
                                     // Handle other non-storage-related exceptions
+                                    binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                     showToast("Subida de la imagen ha fallado. Intente de nuevo")
                                 }
                             }
                         }else{
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
 
                         }
                         // Define a reference to Firebase Storage
@@ -438,10 +446,6 @@ class RegisterStepTwo : Fragment() {
                 viewModel.latitude.postValue(dataUser?.lat)
                 viewModel.longitude.postValue(dataUser?.lgn)
 
-
-
-
-
                 binding.etNombre.setText(firstName)
                 binding.etApellido.setText(lastName)
                  binding.etCedula.isEnabled = false
@@ -468,6 +472,7 @@ class RegisterStepTwo : Fragment() {
 
                 binding.Registrar.setOnClickListener {
                     binding.Registrar.isEnabled = false
+                    binding.simpleProgressBarRegisterStepTwo.visibility = View.VISIBLE
 
                     val userList = viewModel.userList.value
                     var validado = true
@@ -514,6 +519,8 @@ class RegisterStepTwo : Fragment() {
 
                                 validado = false
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                             }
 
@@ -537,6 +544,8 @@ class RegisterStepTwo : Fragment() {
                             showToast("El nombre y el apellido no pueden contener números")
                             validado = false
                             binding.Registrar.isEnabled = true
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                         }
                     }
@@ -548,6 +557,8 @@ class RegisterStepTwo : Fragment() {
                                 showToast("La cedula no es valida, debe ser mayor que diez millones")
                                 validado = false
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                             }
                         }
@@ -559,6 +570,8 @@ class RegisterStepTwo : Fragment() {
                                 Log.e("edad", modifiedEdad.toString())
                                 showToast("La edad no es valida")
                                 validado = false
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                 binding.Registrar.isEnabled = true
 
                             }
@@ -581,14 +594,14 @@ class RegisterStepTwo : Fragment() {
                                 showToast("El número no es válido")
                                 validado = false
                                 binding.Registrar.isEnabled = true
-
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
                             }
                         } else {
                             // telefono is null or not a number
                             showToast("Ingrese un número de teléfono válido")
                             validado = false
                             binding.Registrar.isEnabled = true
-
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
                         }
                     }
 
@@ -613,11 +626,10 @@ class RegisterStepTwo : Fragment() {
                                 showToast("Seleccione un rol")
                                 validado = false
                                 binding.Registrar.isEnabled = true
-
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
                             }
                         } else{
                             binding.Registrar.isEnabled = true
-
                         }
 
 
@@ -667,6 +679,12 @@ class RegisterStepTwo : Fragment() {
                                         viewModel.latitude.postValue(null)
                                         viewModel.longitude.postValue(null)
                                         binding.Registrar.isEnabled = true
+                                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
+                                    }else{
+                                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+                                        binding.Registrar.isEnabled = true
+
                                     }
                                 }
                             }
@@ -685,6 +703,8 @@ class RegisterStepTwo : Fragment() {
                                         viewModel.updateUser(userId, user, requireContext()).observe(viewLifecycleOwner){
                                             if(it){
                                                 binding.Registrar.isEnabled = true
+                                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                                 viewModel.profileImage.postValue(null)
                                                 viewModel.latitude.postValue(null)
                                                 viewModel.longitude.postValue(null)
@@ -698,6 +718,8 @@ class RegisterStepTwo : Fragment() {
                                                     ?.navigate(R.id.action_registerStepTwo2_to_profileFragment)
                                             }else{
                                                 binding.Registrar.isEnabled = true
+                                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                                             }
                                         }
@@ -706,20 +728,28 @@ class RegisterStepTwo : Fragment() {
                                 }.addOnFailureListener { exception ->
                                     // Handle the error while trying to get the download URL
                                     showToast("Fallo para conseguir la URL: ${exception.message}")
+                                    binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                 }
                             }.addOnFailureListener { exception ->
                                 // Handle the error during image upload
                                 if (exception is StorageException) {
                                     // Handle storage-specific errors
                                     Log.e("firebase error", "Storage Error: ${exception.message}")
+                                    binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                     showToast("Storage Error: ${exception.message}")
                                 } else {
                                     // Handle other non-storage-related exceptions
+                                    binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                     showToast("Subida de la imagen ha fallado. Intente de nuevo")
                                 }
                             }
                         }else{
                             binding.Registrar.isEnabled = true
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                         }
                         // Define a reference to Firebase Storage
@@ -761,9 +791,12 @@ class RegisterStepTwo : Fragment() {
                 val imageUri = viewModel.profileImage.value
 
                 if (isOnline(requireContext())){
+                    binding.simpleProgressBarRegisterStepTwo.visibility = View.VISIBLE
+
                     if (email.isNullOrEmpty() || password.isNullOrEmpty() || nombre.isEmpty() || apellido.isEmpty() ||
                         cedula == null || birthday.isNullOrEmpty() || lat == null || lgn == null || !imageUri.isNotNull() ) {
                         showToast("Llena todos los campos")
+                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
 
                         Log.e("Elements", email.toString() + password?.toString() + nombre.toString() + apellido.toString() + cedula.toString() + imageUri.toString() + birthday.toString() + lat.toString() + lgn.toString())
                         validado = false
@@ -778,6 +811,8 @@ class RegisterStepTwo : Fragment() {
                             showToast("El nombre y el apellido no pueden contener números")
                             validado = false
                             binding.Registrar.isEnabled = true
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                         }
                     }
@@ -788,6 +823,8 @@ class RegisterStepTwo : Fragment() {
                                 showToast("La cedula no es valida")
                                 validado = false
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                             }
                         }
@@ -799,6 +836,8 @@ class RegisterStepTwo : Fragment() {
                                 showToast("La edad no es valida")
                                 validado = false
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                             }
                         }
@@ -819,6 +858,8 @@ class RegisterStepTwo : Fragment() {
                             showToast("El número no es válido")
                             validado = false
                             binding.Registrar.isEnabled = true
+                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                         }
                     } else {
@@ -826,6 +867,8 @@ class RegisterStepTwo : Fragment() {
                         showToast("Ingrese un número de teléfono válido")
                         validado = false
                         binding.Registrar.isEnabled = true
+                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                     }
                 }
@@ -837,6 +880,8 @@ class RegisterStepTwo : Fragment() {
                         showToast("Hay un error en la ubicacion")
                         validado = false
                         binding.Registrar.isEnabled = true
+                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                         return@setOnClickListener
                     }
 
@@ -847,6 +892,8 @@ class RegisterStepTwo : Fragment() {
                         showToast("Debe ser mayor de 18 años para registrarse")
                         validado = false
                         binding.Registrar.isEnabled = true
+                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                         return@setOnClickListener
                     }
 
@@ -859,10 +906,14 @@ class RegisterStepTwo : Fragment() {
                                     showToast("Seleccione un rol")
                                     validado = false
                                     binding.Registrar.isEnabled = true
+                                    binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                                 }
                             } else{
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                             }
 
@@ -879,6 +930,8 @@ class RegisterStepTwo : Fragment() {
                                 showToast("Seleccione sexo")
                                 validado = false
                                 binding.Registrar.isEnabled = true
+                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                             }
                         } else{
@@ -933,11 +986,15 @@ class RegisterStepTwo : Fragment() {
 
                                         uploadTask?.addOnSuccessListener { taskSnapshot ->
                                             // The image has been successfully uploaded
-                                            binding.Registrar.isEnabled = true
+//                                            binding.Registrar.isEnabled = true
+//                                            binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                                             storageRef.downloadUrl.addOnSuccessListener { uri ->
                                                 val downloadUri = uri.toString()
-                                                binding.Registrar.isEnabled = true
+//                                                binding.Registrar.isEnabled = true
+//                                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                                                 user.imageProfile = downloadUri
                                                 viewModel.createUser(user, requireContext()).observe(viewLifecycleOwner){
@@ -945,6 +1002,8 @@ class RegisterStepTwo : Fragment() {
                                                         viewModel.getAllUsers(requireContext())
                                                         viewModel.profileImage.postValue(null)
                                                         binding.Registrar.isEnabled = true
+                                                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
                                                         viewModel.latitude.postValue(null)
                                                         viewModel.longitude.postValue(null)
                                                         viewModel.rol.postValue(null)
@@ -955,6 +1014,8 @@ class RegisterStepTwo : Fragment() {
                                                             ?.navigate(R.id.action_registerStepTwo2_to_login)
                                                     }else{
                                                         binding.Registrar.isEnabled = true
+                                                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
 
                                                     }
@@ -964,6 +1025,8 @@ class RegisterStepTwo : Fragment() {
                                             }.addOnFailureListener { exception ->
                                                 // Handle the error while trying to get the download URL
                                                 binding.Registrar.isEnabled = true
+                                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                                                 showToast("Fallo para conseguir la URL: ${exception.message}")
                                             }
@@ -971,12 +1034,16 @@ class RegisterStepTwo : Fragment() {
                                             // Handle the error during image upload
                                             if (exception is StorageException) {
                                                 binding.Registrar.isEnabled = true
+                                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                                                 // Handle storage-specific errors
                                                 Log.e("firebase error", "Storage Error: ${exception.message}")
                                                 showToast("Storage Error: ${exception.message}")
                                             } else {
                                                 binding.Registrar.isEnabled = true
+                                                binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                                                 // Handle other non-storage-related exceptions
                                                 showToast("Subida de la imagen ha fallado. Intente de nuevo")
@@ -984,6 +1051,8 @@ class RegisterStepTwo : Fragment() {
                                         }
                                     }else{
                                         binding.Registrar.isEnabled = true
+                                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                                     }
 
@@ -992,6 +1061,8 @@ class RegisterStepTwo : Fragment() {
                         }
                     }else{
                         binding.Registrar.isEnabled = true
+                        binding.simpleProgressBarRegisterStepTwo.visibility = View.GONE
+
 
                     }
 

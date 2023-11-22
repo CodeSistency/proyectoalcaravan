@@ -30,6 +30,10 @@ fun LineChart(viewModel: MainViewModel) {
             activity?.calificationRevision?.let { Entry((index + 1).toFloat(), it.toFloat()) }
         }
 
+
+
+
+
         val dataSet = LineDataSet(entries, "Calificaciones")
         dataSet.color = Color.BLUE
         dataSet.circleColors = listOf(Color.BLUE)

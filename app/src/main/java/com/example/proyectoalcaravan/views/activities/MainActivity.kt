@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         userDao = AppDatabase.getDatabase(applicationContext).userDao()
 
+        Log.e("activity", "activity")
         val repository = MainRepository(retrofitService, userDao)
         viewModel = ViewModelProvider(this, MyViewModelFactory(repository)).get(MainViewModel::class.java)
         viewModel.getUserDB(1)
