@@ -4,30 +4,18 @@ import android.graphics.Color
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.AxisBase
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
-import kotlin.math.log
 
 //@Composable
 //fun GenderPerformanceChart(viewModel: MainViewModel) {
@@ -118,39 +106,72 @@ fun GenderPerformanceChartByMateria(viewModel: MainViewModel) {
 
         currentMateriaStudents?.listStudent?.any { it.id == user.id } == true
     }
+    fun filterUsers(): List<User> {
+        return userListStudents.filter { user ->
+            currentMateriaStudents?.listStudent?.any { it.id == user.id } == true
+        }
+    }
+
+    LaunchedEffect(key1 = true){
+        filterUsers()
+    }
+    Log.e("new filtered List", filterUsers().toString())
+
+    Log.e("new filtered List", filteredUserListStudents.toString())
 
     if (userListStudents.isNotEmpty()) {
-        val femaleAverage = calculateAveragePerformance(userListStudents, "Femenino")
-        val maleAverage = calculateAveragePerformance(userListStudents, "Masculino")
+//        val femaleAverage = calculateAveragePerformance(filteredUserListStudents, "Femenino")
+//        val maleAverage = calculateAveragePerformance(filteredUserListStudents, "Masculino")
+
+        val femaleAverage =
+            currentMateriaStudents?.let {
+                calculateAveragePerformance(filterUsers(), "Femenino",
+                    it
+                )
+            }
+        val maleAverage =
+            currentMateriaStudents?.let {
+                calculateAveragePerformance(filterUsers(), "Masculino",
+                    it
+                )
+            }
 
         val entries = listOf(
-            BarEntry(0f, femaleAverage),
-            BarEntry(1f, maleAverage)
+            femaleAverage?.let { BarEntry(0f, it) },
+            maleAverage?.let { BarEntry(1f, it) }
         )
 
-        Column(modifier = Modifier.fillMaxWidth().height(500.dp)) {
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                BarCharts(
-                    entries,
-                    "Rendimiento por generos",
-                    Color.MAGENTA,
-                    Color.BLUE,
-                    femaleAverage,
-                    maleAverage
-                )
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .height(500.dp)) {
+            Box(modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()) {
+                if (femaleAverage != null && maleAverage != null) {
+                    BarCharts(
+                        entries,
+                        "Rendimiento por generos",
+                        Color.MAGENTA,
+                        Color.BLUE,
+                        femaleAverage,
+                        maleAverage
+                    )
+                }
             }
         }
     }
 }
 
 
-private fun calculateAveragePerformance(userListStudents: List<User>, gender: String): Float {
+private fun calculateAveragePerformance(userListStudents: List<User>, gender: String, materia: Materia): Float {
     val filteredUsers = userListStudents.filter { it.gender == gender }
     val totalUsersWithActivities = filteredUsers.count { it.listActivities?.isNotEmpty() == true }
 
     if (totalUsersWithActivities > 0) {
         val totalPerformance = filteredUsers.sumByDouble { user ->
-            val activities = user.listActivities ?: emptyList()
+            val activities = user.listActivities?.filter { it?.idClass == materia.id } ?: emptyList()
+
+//            val activities = user.listActivities ?: emptyList()
             activities.sumByDouble { it?.calificationRevision?.toDouble() ?: 0.0 }
         }.toFloat()
 

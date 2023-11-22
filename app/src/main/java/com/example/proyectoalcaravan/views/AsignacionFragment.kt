@@ -1524,7 +1524,8 @@ class AsignacionFragment : Fragment() {
                     verticalArrangement = Arrangement.Top
                 ) {
                     if(nota != null){
-                        Text(text = "Nota General: ${formattedNumber}%", fontSize = 20.sp)
+                        Text(text = "Nota General: ${formattedNumber}%", fontSize = 20.sp,
+                            modifier = Modifier.padding(horizontal = 5.dp))
                         Spacer(modifier = Modifier.height(5.dp))
                     }
                     ListContentAsignacion(user = user)
@@ -1534,7 +1535,8 @@ class AsignacionFragment : Fragment() {
                     verticalArrangement = Arrangement.Top
                 ) {
                     if(nota != null){
-                        Text(text = "Nota General: ${formattedNumber}%", fontSize = 20.sp)
+                        Text(text = "Nota General: ${formattedNumber}%", fontSize = 20.sp,
+                            modifier = Modifier.padding(horizontal = 5.dp))
                         Spacer(modifier = Modifier.height(5.dp))
                     }
                     ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
@@ -1569,14 +1571,13 @@ class AsignacionFragment : Fragment() {
 
             if (isOnline(requireContext())){
                 Row(
-                    modifier = Modifier.padding(4.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
+                    modifier = Modifier.padding(4.dp).fillMaxWidth(),
+verticalAlignment = Alignment.CenterVertically                ) {
 //                    TabsAsignacionWithPagerScreen()
 //                    ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
 
                 Button(
-                    modifier = Modifier.padding(horizontal = 10.dp),
+                    modifier = Modifier.padding(horizontal = 10.dp).weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)
@@ -1588,11 +1589,10 @@ class AsignacionFragment : Fragment() {
 
                     ) {
                     Text(text = "General", style = MaterialTheme.typography.subtitle1,
-                        color = colorResource(id = R.color.accent2)
                     )
                 }
                 Button(
-                    modifier = Modifier.padding(horizontal = 10.dp),
+                    modifier = Modifier.padding(horizontal = 10.dp).weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)

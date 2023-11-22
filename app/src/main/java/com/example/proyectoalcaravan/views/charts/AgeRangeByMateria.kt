@@ -1,35 +1,17 @@
 package com.example.proyectoalcaravan.views.charts
 
 import android.content.Context
-import android.graphics.Color
 //import android.graphics.Color
 import android.util.Log
-import android.view.ViewGroup
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
-import androidx.compose.ui.viewinterop.AndroidView
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 
 //@Composable
 //fun AgeRangePerformanceChart(viewModel: MainViewModel, context: Context) {
@@ -321,7 +303,7 @@ fun AgeRangePerformanceChartByMateria(viewModel: MainViewModel, context: Context
         val ageRanges = listOf("18-25", "26-35", "36-45", "46-55", "56-100")
 
         // Calculate average performance and store the result in a variable
-        val averagePerformanceByAgeRange = calculateAveragePerformanceByAgeRange(userListStudents, ageRanges)
+        val averagePerformanceByAgeRange = calculateAveragePerformanceByAgeRangeByMateria(filteredUserListStudents, ageRanges, viewModel)
         Log.e("Average Performance", averagePerformanceByAgeRange.toString())
 
         // Pass the averagePerformanceByAgeRange variable to the BarChart composable
@@ -378,6 +360,8 @@ private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRang
 
     userListStudents.forEach { user ->
         val age = user.edad ?: return@forEach
+
+
         val totalActivities = user.listActivities?.size ?: 0
 
         if (totalActivities > 0) {

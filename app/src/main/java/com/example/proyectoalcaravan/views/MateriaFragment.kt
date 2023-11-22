@@ -858,14 +858,13 @@ class MateriaFragment : Fragment() {
 
             }
             Row(
-                modifier = Modifier.padding(4.dp),
+                modifier = Modifier.padding(4.dp).fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
 //                    TabsAsignacionWithPagerScreen()
 //                    ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
 
                 Button(
-                    modifier = Modifier.padding(horizontal = 10.dp),
                     colors = ButtonDefaults.buttonColors(
                         contentColor = colorResource(id = R.color.blue_dark),
                         backgroundColor = colorResource(id = R.color.accent2)                    ),
@@ -878,6 +877,7 @@ class MateriaFragment : Fragment() {
 
                     ) {
                     Text(text = "Alumnos", style = MaterialTheme.typography.subtitle1,
+                        fontSize = 14.sp,
                     )
                 }
                 Button(
@@ -892,7 +892,7 @@ class MateriaFragment : Fragment() {
 
                     },
                 ) {
-                    Text(text = "Tareas", style = MaterialTheme.typography.subtitle1)
+                    Text(text = "Tareas", style = MaterialTheme.typography.subtitle1, fontSize = 14.sp)
                 }
                 Button(
                     colors = ButtonDefaults.buttonColors(
@@ -906,7 +906,7 @@ class MateriaFragment : Fragment() {
 
                     },
                 ) {
-                    Text(text = "Sexo", style = MaterialTheme.typography.subtitle1)
+                    Text(text = "Sexo", style = MaterialTheme.typography.subtitle1, fontSize = 14.sp)
                 }
                 Button(
                     colors = ButtonDefaults.buttonColors(
@@ -921,7 +921,7 @@ class MateriaFragment : Fragment() {
 
                     },
                 ) {
-                    Text(text = "Edad", style = MaterialTheme.typography.subtitle1)
+                    Text(text = "Edad", style = MaterialTheme.typography.subtitle1, fontSize = 14.sp)
                 }
 
             }

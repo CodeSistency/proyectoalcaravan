@@ -5,23 +5,15 @@ import android.graphics.Color
 //import android.graphics.Color
 import android.util.Log
 import android.view.ViewGroup
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.github.mikephil.charting.charts.BarChart
@@ -430,11 +422,55 @@ fun calculateAveragePerformanceAge(users: List<User>, minAge: Int, maxAge: Int):
     }
 }
 
+fun calculateAveragePerformanceAgeByMateria(users: List<User>, minAge: Int, maxAge: Int, materia: Materia?): Float {
+    var totalCalification = 0
+    var totalUsers = 0
+
+    for (user in users) {
+        val age = user.edad
+//        val activities = user.listActivities
+        val activities = user.listActivities?.filter { it?.idClass == materia?.id } ?: emptyList()
+
+
+        if (age in minAge..maxAge && !activities.isNullOrEmpty()) {
+            // Calculate the total calification for this user
+            val userCalification = activities.sumBy { it?.calificationRevision ?: 0 }
+            totalCalification += userCalification
+            totalUsers += activities.size * 100 // Add 100 for each activity
+
+            // Uncomment the next line if you want to consider the number of activities for each user
+            // totalUsers += activities.size
+        }
+    }
+
+    return if (totalUsers > 0) {
+        (totalCalification.toFloat() / totalUsers) * 100
+    } else {
+        0.0f
+    }
+}
+
 // Function to calculate average performance by age range
 fun calculateAveragePerformanceByAgeRange(users: List<User>, ageRanges: List<String>): List<Float> {
     return ageRanges.map { ageRange ->
         val (minAge, maxAge) = ageRange.split("-").map { it.trim().toInt() }
         val performance = calculateAveragePerformanceAge(users, minAge, maxAge)
+
+//        val performance = calculateAveragePerformanceAge(users.filter { it.edad in minAge..maxAge })
+        performance
+    }
+}
+
+fun calculateAveragePerformanceByAgeRangeByMateria(
+    users: List<User>,
+    ageRanges: List<String>,
+    viewModel: MainViewModel
+): List<Float> {
+
+
+    return ageRanges.map { ageRange ->
+        val (minAge, maxAge) = ageRange.split("-").map { it.trim().toInt() }
+        val performance = calculateAveragePerformanceAgeByMateria(users, minAge, maxAge, viewModel.currentMateria.value)
 
 //        val performance = calculateAveragePerformanceAge(users.filter { it.edad in minAge..maxAge })
         performance

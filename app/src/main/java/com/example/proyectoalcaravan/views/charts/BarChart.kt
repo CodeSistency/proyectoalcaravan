@@ -1,7 +1,6 @@
 package com.example.proyectoalcaravan.views.charts
 
 import android.graphics.Color
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,7 +26,6 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
-import kotlin.math.log
 
 //@Composable
 //fun GenderPerformanceChart(viewModel: MainViewModel) {
@@ -106,7 +104,7 @@ import kotlin.math.log
 
 @Composable
 fun BarCharts(
-    entries: List<BarEntry>,
+    entries: List<BarEntry?>,
     title: String,
     femaleColor: Int,
     maleColor: Int,
