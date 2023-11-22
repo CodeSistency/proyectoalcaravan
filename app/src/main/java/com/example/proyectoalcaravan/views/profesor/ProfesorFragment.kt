@@ -462,7 +462,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(
-                    shape =RoundedCornerShape(
+                    shape = RoundedCornerShape(
                         topStart = 0.dp, // No top border
                         topEnd = 0.dp,
                         bottomStart = 16.dp, // Rounded corners at the bottom
@@ -870,7 +870,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         }else{
             if (users.isNullOrEmpty()){
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
+                        .clickable {
+                                   viewModel.getUserStudents("Estudiante", requireContext())
+                        },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -1626,18 +1629,31 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         if (refresh.value == true){
             ShimmerCardList()
         }else{
-            Box(Modifier.pullRefresh(pullRefreshState)){
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 128.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    items(items) { item ->
-                        GridItemCard(item)
+            if(items.isEmpty()){
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.clickable {
+                        viewModel.getAllMaterias(requireContext())
                     }
+                ) {
+                    Text(text = "No hay materias")
                 }
-                PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
+            }else{
+                Box(Modifier.pullRefresh(pullRefreshState)){
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 128.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        items(items) { item ->
+                            GridItemCard(item)
+                        }
+                    }
+                    PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
 
+                }
             }
+         
         }
 
 

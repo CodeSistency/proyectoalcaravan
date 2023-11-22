@@ -259,10 +259,53 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 //    return -1
 //}
 
+//@Composable
+//fun AgeRangePerformanceChartByMateria(viewModel: MainViewModel, context: Context) {
+////    val userListStudents by viewModel.userStudentsList.observeAsState(emptyList())
+//    viewModel.getUserStudents("Estudiante", context)
+//
+//    val userListStudents by viewModel.userStudentsList.observeAsState(emptyList())
+//    val currentMateriaStudents by viewModel.currentMateria.observeAsState()
+//
+//    // Filter userListStudents based on common IDs with currentMateriaStudents
+//    val filteredUserListStudents = userListStudents.filter { user ->
+//
+//        currentMateriaStudents?.listStudent?.any { it.id == user.id } == true
+//    }
+//
+//    if (filteredUserListStudents.isNotEmpty()) {
+//        val ageRanges = listOf("18-25", "26-35", "36-45", "46-55", "56+")
+//        val performanceByAgeRange = calculatePerformanceByAgeRange(filteredUserListStudents, ageRanges)
+//        Log.e("Performance", performanceByAgeRange.toString())
+//
+//        val barEntries = performanceByAgeRange.mapIndexed { index, performance ->
+//            BarEntry(index.toFloat(), performance)
+//        }
+//
+//        val barDataSet = BarDataSet(barEntries, "Rendimiento por rango de edad").apply {
+//            setColors(Color.GREEN)
+//            data = barData,
+//            labels = ageRanges
+//            setDrawValues(true)
+//        }
+//
+//        val barData = BarData(barDataSet)
+//
+//        Column(modifier = Modifier.fillMaxWidth().height(500.dp)) {
+//            BarChart(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(300.dp),
+//           )
+//        }
+//    }
+
+
 @Composable
 fun AgeRangePerformanceChartByMateria(viewModel: MainViewModel, context: Context) {
-//    val userListStudents by viewModel.userStudentsList.observeAsState(emptyList())
-    viewModel.getUserStudents("Estudiante", context)
+
+
+        viewModel.getUserStudents("Estudiante", context)
 
     val userListStudents by viewModel.userStudentsList.observeAsState(emptyList())
     val currentMateriaStudents by viewModel.currentMateria.observeAsState()
@@ -273,31 +316,20 @@ fun AgeRangePerformanceChartByMateria(viewModel: MainViewModel, context: Context
         currentMateriaStudents?.listStudent?.any { it.id == user.id } == true
     }
 
+
     if (filteredUserListStudents.isNotEmpty()) {
-        val ageRanges = listOf("18-25", "26-35", "36-45", "46-55", "56+")
-        val performanceByAgeRange = calculatePerformanceByAgeRange(filteredUserListStudents, ageRanges)
-        Log.e("Performance", performanceByAgeRange.toString())
+        val ageRanges = listOf("18-25", "26-35", "36-45", "46-55", "56-100")
 
-        val barEntries = performanceByAgeRange.mapIndexed { index, performance ->
-            BarEntry(index.toFloat(), performance)
-        }
+        // Calculate average performance and store the result in a variable
+        val averagePerformanceByAgeRange = calculateAveragePerformanceByAgeRange(userListStudents, ageRanges)
+        Log.e("Average Performance", averagePerformanceByAgeRange.toString())
 
-        val barDataSet = BarDataSet(barEntries, "Rendimiento por rango de edad").apply {
-            setColors(Color.GREEN)
-            setDrawValues(true)
-        }
-
-        val barData = BarData(barDataSet)
-
-        Column(modifier = Modifier.fillMaxWidth().height(500.dp)) {
-            BarChart(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                data = barData,
-                labels = ageRanges
-            )
-        }
+        // Pass the averagePerformanceByAgeRange variable to the BarChart composable
+        BarChart(
+            modifier = Modifier.fillMaxWidth().height(500.dp),
+            data = averagePerformanceByAgeRange,
+            labels = ageRanges
+        )
     }
 }
 

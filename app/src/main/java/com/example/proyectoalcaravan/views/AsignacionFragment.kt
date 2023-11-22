@@ -28,6 +28,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -278,6 +279,16 @@ class AsignacionFragment : Fragment() {
                                     )
 
                                     Column {
+
+                                        if(!item.messageStudent.isNullOrBlank()){
+                                            Text(
+                                                text = "Mensaje adjunto: ${item.messageStudent}",
+                                                modifier = Modifier.padding(bottom = 2.dp, top = 7.dp),
+                                                fontSize = 20.sp
+                                            )
+                                            Spacer(modifier = Modifier.height(5.dp))
+                                        }
+
                                         Text(
                                             text = "Calificación: ",
                                             modifier = Modifier.padding(bottom = 2.dp, top = 7.dp),
@@ -1445,12 +1456,89 @@ class AsignacionFragment : Fragment() {
         var currentUserDB = viewModel.currentUserDB.observeAsState()
         var user = viewModel.updatedUser
 
+        viewModel.currentMateria.value?.id?.let { viewModel.listWithActivities() }
+        viewModel.listWithActivities()
+
+
+        LaunchedEffect(key1 = viewModel.currentMateria.observeAsState().value ){
+            viewModel.listWithActivities()
+
+        }
+
+        val nota = viewModel.listOfActivitiesFilteredCompose?.let {
+            viewModel.calculateOverallCalification(
+                it
+            )
+        }
+        Log.e("nota", nota.toString())
+
+//        var nota by remember { mutableStateOf(0.0) }
+//
+//        val actividades by viewModel.listOfActivitiesFiltered.observeAsState()
+//
+//        LaunchedEffect(key1 = true){
+//            viewModel.listWithActivities()
+//
+//            actividades?.let {
+//                viewModel.calculateOverallCalification(
+//                    it
+//                )
+//         }
+//        }
+//
+//        var nota4 = viewModel.listOfActivitiesFilteredCompose.let {
+//            if (it != null) {
+//                viewModel.calculateOverallCalification(
+//                    it
+//                )
+//            }
+//        }
+//
+//        LaunchedEffect(key1 = true){
+//
+//            nota = viewModel.listOfActivitiesFilteredCompose?.let {
+//                viewModel.calculateOverallCalification(
+//                    it
+//                )
+//            }!!
+//        }
+//
+//        var nota2 = viewModel.listOfActivitiesFilteredCompose?.let {
+//            viewModel.calculateOverallCalification(
+//                it
+//            )
+//        }
+
+        Log.e("nota", nota.toString())
+//        val formattedNumber2 = String.format("%.2f", viewModel.currentNota.observeAsState().value)
+
+        val formattedNumber = String.format("%.2f", nota)
+//        val formattedNumber3 = String.format("%.2f", nota2)
+
+//        Log.e("Nota 4", nota4.toString())
+
 
         if (user != null) {
             if (currentUser.value?.rol == "Profesor" || currentUserDB.value?.rol == "Profesor"){
-                ListContentAsignacion(user = user)
+                Column(
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    if(nota != null){
+                        Text(text = "Nota General: ${formattedNumber}%", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.height(5.dp))
+                    }
+                    ListContentAsignacion(user = user)
+                }
             }else{
-                ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
+                Column(
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    if(nota != null){
+                        Text(text = "Nota General: ${formattedNumber}%", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.height(5.dp))
+                    }
+                    ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
+                }
 //                user.value?.let { ListContentAsignacionGeneral(listOfActivities = viewModel.activitiesListById, user = it) }
 
             }
@@ -1461,6 +1549,8 @@ class AsignacionFragment : Fragment() {
     fun AsignacionContent(){
         var button1 by remember { mutableStateOf(true) }
         var button2 by remember { mutableStateOf(false) }
+       
+
         var currentUser = viewModel.currentUser.value
         var currentUserDB = viewModel.currentUserDB.value
 
@@ -1480,31 +1570,40 @@ class AsignacionFragment : Fragment() {
             if (isOnline(requireContext())){
                 Row(
                     modifier = Modifier.padding(4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    TabsAsignacionWithPagerScreen()
+//                    TabsAsignacionWithPagerScreen()
 //                    ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
 
-//                Button(
-//                    onClick = {
-//                        button1 = true
-//                        button2 = false
-//                    },
-//                    modifier = Modifier.weight(1F),
-//
-//                    ) {
-//                    Text(text = "General", style = MaterialTheme.typography.subtitle1)
-//                }
-//                Spacer(modifier = Modifier.width(10.dp))
-//                Button(
-//                    onClick = {
-//                        button2 = true
-//                        button1 = false
-//                    },
-//                    modifier = Modifier.weight(1F)
-//                ) {
-//                    Text(text = "Metricas", style = MaterialTheme.typography.subtitle1)
-//                }
+                Button(
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = colorResource(id = R.color.blue_dark),
+                        backgroundColor = colorResource(id = R.color.accent2)
+                    ),
+                    onClick = {
+                        button1 = true
+                        button2 = false
+                    },
+
+                    ) {
+                    Text(text = "General", style = MaterialTheme.typography.subtitle1,
+                        color = colorResource(id = R.color.accent2)
+                    )
+                }
+                Button(
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = colorResource(id = R.color.blue_dark),
+                        backgroundColor = colorResource(id = R.color.accent2)
+                    ),
+                    onClick = {
+                        button2 = true
+                        button1 = false
+                    },
+                ) {
+                    Text(text = "Metricas", style = MaterialTheme.typography.subtitle1)
+                }
 
                 }
             }else{
@@ -1524,6 +1623,12 @@ class AsignacionFragment : Fragment() {
 //            } else {
 ////                ListContentAsignacion(user = user)
 //            }
+            if(button1){
+                listsOfActivities()
+            }else{
+                LineChart(viewModel = viewModel)
+            }
+
 
         }
 

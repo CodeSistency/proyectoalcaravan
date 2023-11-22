@@ -28,6 +28,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
 import androidx.compose.material.ExperimentalMaterialApi
@@ -78,6 +79,7 @@ import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChart
+import com.example.proyectoalcaravan.views.charts.AgeRangePerformanceChartByMateria
 import com.example.proyectoalcaravan.views.charts.GenderPerformanceChartByMateria
 import com.example.proyectoalcaravan.views.charts.LineChart2
 import com.example.proyectoalcaravan.views.componentes.Header
@@ -797,6 +799,8 @@ class MateriaFragment : Fragment() {
         var button1 by remember { mutableStateOf(true) }
         var button2 by remember { mutableStateOf(false) }
         var button3 by remember { mutableStateOf(false) }
+        var button4 by remember { mutableStateOf(false) }
+
         var isModalVisible by remember { mutableStateOf(false) }
         var isModalAsignacionesVisible by remember { mutableStateOf(false) }
         var tituloAsignacion by remember { mutableStateOf(String()) }
@@ -853,8 +857,76 @@ class MateriaFragment : Fragment() {
 
 
             }
+            Row(
+                modifier = Modifier.padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+//                    TabsAsignacionWithPagerScreen()
+//                    ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
 
-            TabsAsignacionWithPagerScreen()
+                Button(
+                    modifier = Modifier.padding(horizontal = 10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = colorResource(id = R.color.blue_dark),
+                        backgroundColor = colorResource(id = R.color.accent2)                    ),
+                    onClick = {
+                        button1 = true
+                        button2 = false
+                        button3 = false
+                        button4 = false
+                    },
+
+                    ) {
+                    Text(text = "Alumnos", style = MaterialTheme.typography.subtitle1,
+                    )
+                }
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = colorResource(id = R.color.blue_dark),
+                        backgroundColor = colorResource(id = R.color.accent2)                    ),
+                    onClick = {
+                        button2 = true
+                        button1 = false
+                        button3 = false
+                        button4 = false
+
+                    },
+                ) {
+                    Text(text = "Tareas", style = MaterialTheme.typography.subtitle1)
+                }
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = colorResource(id = R.color.blue_dark),
+                        backgroundColor = colorResource(id = R.color.accent2)                    ),
+                    onClick = {
+                        button2 = false
+                        button1 = false
+                        button3 = true
+                        button4 = false
+
+                    },
+                ) {
+                    Text(text = "Sexo", style = MaterialTheme.typography.subtitle1)
+                }
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        contentColor = colorResource(id = R.color.blue_dark),
+                        backgroundColor = colorResource(id = R.color.accent2)
+                    ),
+                    onClick = {
+                        button2 = false
+                        button1 = false
+                        button3 = false
+                        button4 = true
+
+                    },
+                ) {
+                    Text(text = "Edad", style = MaterialTheme.typography.subtitle1)
+                }
+
+            }
+
+//            TabsAsignacionWithPagerScreen()
 
 
 //            Row(
@@ -905,13 +977,15 @@ class MateriaFragment : Fragment() {
 //
 //            }
 
-//            if (button1) {
-//                ListContentUsersSuscribed(userList = viewModel.currentMateria)
-//            } else if (button2) {
-//                ListContentAsignacion(listOfActivities = viewModel.activitiesListById)
-//            }else{
-//                GenderPerformanceChartByMateria(viewModel = viewModel)
-//            }
+            if (button1) {
+                ListContentUsersSuscribed(userList = viewModel.currentMateria)
+            } else if (button2) {
+                ListContentAsignacion(listOfActivities = viewModel.activitiesListById)
+            }else if(button3){
+                GenderPerformanceChartByMateria(viewModel = viewModel)
+            }else{
+                AgeRangePerformanceChartByMateria(viewModel = viewModel, context = requireContext())
+            }
 
 
             if (isModalVisible) {

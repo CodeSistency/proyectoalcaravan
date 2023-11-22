@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "449716632245",
+    "project_id": "login-android-e42b8",
+    "storage_bucket": "login-android-e42b8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449716632245:android:dbab87375258a6b2629cfc",
+        "android_client_info": {
+          "package_name": "com.example.proyectoalcaravan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdaCYgOrItP8GtwprO8CwgfZS_WvBFNqg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

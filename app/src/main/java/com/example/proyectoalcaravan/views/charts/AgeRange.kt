@@ -259,43 +259,106 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 //    return -1
 //}
 
+//@Composable
+//fun AgeRangePerformanceChart(viewModel: MainViewModel, context: Context) {
+//    val userListStudents by viewModel.userStudentsList.observeAsState(emptyList())
+//    viewModel.getUserStudents("Estudiante", context)
+//
+//    if (userListStudents.isNotEmpty()) {
+//        val ageRanges = listOf("18-25", "26-35", "36-45", "46-55", "56+")
+//        val performanceByAgeRange = calculatePerformanceByAgeRange(userListStudents, ageRanges)
+//        Log.e("Performance", performanceByAgeRange.toString())
+//
+//        val barEntries = performanceByAgeRange.mapIndexed { index, performance ->
+//            BarEntry(index.toFloat(), performance)
+//        }
+//
+//        val barDataSet = BarDataSet(barEntries, "Rendimiento por rango de edad").apply {
+//            setColors(Color.GREEN)
+//            setDrawValues(true)
+//        }
+//
+//        val barData = BarData(barDataSet)
+//
+//        Column(modifier = Modifier.fillMaxWidth().height(500.dp)) {
+//            BarChart(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(300.dp),
+//                data = barData,
+//                labels = ageRanges
+//            )
+//        }
+//    }
+//}
+//
+//@Composable
+//fun BarChartss(
+//    modifier: Modifier = Modifier,
+//    data: BarData,
+//    labels: List<String>
+//) {
+//    AndroidView(
+//        factory = { context ->
+//            BarChart(context).apply {
+//                layoutParams = ViewGroup.LayoutParams(
+//                    ViewGroup.LayoutParams.MATCH_PARENT,
+//                    ViewGroup.LayoutParams.MATCH_PARENT
+//                )
+//                description.isEnabled = false
+//                legend.isEnabled = false
+//                setTouchEnabled(false)
+//
+//                data.barWidth = 0.4f
+//
+//                xAxis.apply {
+//                    valueFormatter = IndexAxisValueFormatter(labels)
+//                    position = XAxis.XAxisPosition.BOTTOM
+//                    setDrawGridLines(false)
+//                }
+//
+//                axisLeft.apply {
+//                    axisMinimum = 0f
+//                    axisMaximum = 100f
+//                }
+//
+//                axisRight.isEnabled = false
+//
+//                setData(data)
+//                invalidate()
+//            }
+//        },
+//        modifier = modifier
+//    )
+//}
+
 @Composable
 fun AgeRangePerformanceChart(viewModel: MainViewModel, context: Context) {
     val userListStudents by viewModel.userStudentsList.observeAsState(emptyList())
     viewModel.getUserStudents("Estudiante", context)
 
     if (userListStudents.isNotEmpty()) {
-        val ageRanges = listOf("18-25", "26-35", "36-45", "46-55", "56+")
-        val performanceByAgeRange = calculatePerformanceByAgeRange(userListStudents, ageRanges)
-        Log.e("Performance", performanceByAgeRange.toString())
+        val ageRanges = listOf("18-25", "26-35", "36-45", "46-55", "56-100")
 
-        val barEntries = performanceByAgeRange.mapIndexed { index, performance ->
-            BarEntry(index.toFloat(), performance)
-        }
+        // Calculate average performance and store the result in a variable
+        val averagePerformanceByAgeRange = calculateAveragePerformanceByAgeRange(userListStudents, ageRanges)
+        Log.e("Average Performance", averagePerformanceByAgeRange.toString())
 
-        val barDataSet = BarDataSet(barEntries, "Rendimiento por rango de edad").apply {
-            setColors(Color.GREEN)
-            setDrawValues(true)
-        }
-
-        val barData = BarData(barDataSet)
-
-        Column(modifier = Modifier.fillMaxWidth().height(500.dp)) {
-            BarChart(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                data = barData,
-                labels = ageRanges
-            )
-        }
+        // Pass the averagePerformanceByAgeRange variable to the BarChart composable
+        BarChart(
+            modifier = Modifier.fillMaxWidth().height(500.dp),
+            data = averagePerformanceByAgeRange,
+            labels = ageRanges
+        )
     }
 }
+
+
 
 @Composable
 fun BarChart(
     modifier: Modifier = Modifier,
-    data: BarData,
+    data: List<Float>,
     labels: List<String>
 ) {
     AndroidView(
@@ -309,7 +372,7 @@ fun BarChart(
                 legend.isEnabled = false
                 setTouchEnabled(false)
 
-                data.barWidth = 0.4f
+//                data.barWidth = 0.4f
 
                 xAxis.apply {
                     valueFormatter = IndexAxisValueFormatter(labels)
@@ -319,64 +382,110 @@ fun BarChart(
 
                 axisLeft.apply {
                     axisMinimum = 0f
-                    axisMaximum = 1000f
+                    axisMaximum = 100f
                 }
 
                 axisRight.isEnabled = false
 
-                setData(data)
+                val barEntries = data.mapIndexed { index, performance ->
+                    BarEntry(index.toFloat(), performance)
+                }
+
+                val barDataSet = BarDataSet(barEntries, "Rendimiento promedio por rango de edad").apply {
+                    setColors(Color.GREEN)
+                    setDrawValues(true)
+                }
+
+                val barData = BarData(barDataSet)
+                setData(barData)
                 invalidate()
             }
         },
         modifier = modifier
     )
 }
+fun calculateAveragePerformanceAge(users: List<User>, minAge: Int, maxAge: Int): Float {
+    var totalCalification = 0
+    var totalUsers = 0
 
-private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRanges: List<String>): List<Float> {
-    val performanceByAgeRange = MutableList(ageRanges.size) { 0f }
-    val usersInAgeRange = MutableList(ageRanges.size) { 0 }
+    for (user in users) {
+        val age = user.edad
+        val activities = user.listActivities
 
-    userListStudents.forEach { user ->
-        val age = user.edad ?: return@forEach
-        val totalActivities = user.listActivities?.size ?: 0
+        if (age in minAge..maxAge && !activities.isNullOrEmpty()) {
+            // Calculate the total calification for this user
+            val userCalification = activities.sumBy { it?.calificationRevision ?: 0 }
+            totalCalification += userCalification
+            totalUsers += activities.size * 100 // Add 100 for each activity
 
-        if (totalActivities > 0) {
-            // Calculate the average calificationRevision for each user, based on a maximum of 100
-            val averagePerformance = (user.listActivities
-                ?.mapNotNull { it?.calificationRevision?.toDouble() }
-                ?.average()
-                ?.toFloat() ?: 0f) * 100 / totalActivities
-
-            val index = getAgeRangeIndex(age, ageRanges)
-
-            if (index != -1) {
-                // Add the average performance to the corresponding age range, normalized by the total users in that age range
-                performanceByAgeRange[index] += averagePerformance
-                usersInAgeRange[index]++
-            }
-        } else {
-            // Handle the case where the user has no activities
-            // You can choose to do something specific, like setting a default value
-            // For example, setting the default value to 0 for the corresponding age range
-            val index = getAgeRangeIndex(age, ageRanges)
-            if (index != -1) {
-                performanceByAgeRange[index] += 0f
-                usersInAgeRange[index]++
-            }
+            // Uncomment the next line if you want to consider the number of activities for each user
+            // totalUsers += activities.size
         }
     }
 
-    // Create a new list to store the normalized performance values
-    val normalizedPerformanceByAgeRange = performanceByAgeRange.mapIndexed { i, performance ->
-        if (usersInAgeRange[i] > 0) {
-            performance / usersInAgeRange[i]
-        } else {
-            0f // Avoid division by zero
-        }
+    return if (totalUsers > 0) {
+        (totalCalification.toFloat() / totalUsers) * 100
+    } else {
+        0.0f
     }
-
-    return normalizedPerformanceByAgeRange
 }
+
+// Function to calculate average performance by age range
+fun calculateAveragePerformanceByAgeRange(users: List<User>, ageRanges: List<String>): List<Float> {
+    return ageRanges.map { ageRange ->
+        val (minAge, maxAge) = ageRange.split("-").map { it.trim().toInt() }
+        val performance = calculateAveragePerformanceAge(users, minAge, maxAge)
+
+//        val performance = calculateAveragePerformanceAge(users.filter { it.edad in minAge..maxAge })
+        performance
+    }
+}
+
+//private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRanges: List<String>): List<Float> {
+//    val performanceByAgeRange = MutableList(ageRanges.size) { 0f }
+//    val usersInAgeRange = MutableList(ageRanges.size) { 0 }
+//
+//    userListStudents.forEach { user ->
+//        val age = user.edad ?: return@forEach
+//        val totalActivities = user.listActivities?.size ?: 0
+//
+//        if (totalActivities > 0) {
+//            // Calculate the average calificationRevision for each user, based on a maximum of 100
+//            val averagePerformance = (user.listActivities
+//                ?.mapNotNull { it?.calificationRevision?.toDouble() }
+//                ?.average()
+//                ?.toFloat() ?: 0f) * 100 / totalActivities
+//
+//            val index = getAgeRangeIndex(age, ageRanges)
+//
+//            if (index != -1) {
+//                // Add the average performance to the corresponding age range, normalized by the total users in that age range
+//                performanceByAgeRange[index] += averagePerformance
+//                usersInAgeRange[index]++
+//            }
+//        } else {
+//            // Handle the case where the user has no activities
+//            // You can choose to do something specific, like setting a default value
+//            // For example, setting the default value to 0 for the corresponding age range
+//            val index = getAgeRangeIndex(age, ageRanges)
+//            if (index != -1) {
+//                performanceByAgeRange[index] += 0f
+//                usersInAgeRange[index]++
+//            }
+//        }
+//    }
+//
+//    // Create a new list to store the normalized performance values
+//    val normalizedPerformanceByAgeRange = performanceByAgeRange.mapIndexed { i, performance ->
+//        if (usersInAgeRange[i] > 0) {
+//            performance / usersInAgeRange[i]
+//        } else {
+//            0f // Avoid division by zero
+//        }
+//    }
+//
+//    return normalizedPerformanceByAgeRange
+//}
 
 //private fun calculatePerformanceByAgeRange(userListStudents: List<User>, ageRanges: List<String>): List<Float> {
 //    val performanceByAgeRange = MutableList(ageRanges.size) { 0f }
