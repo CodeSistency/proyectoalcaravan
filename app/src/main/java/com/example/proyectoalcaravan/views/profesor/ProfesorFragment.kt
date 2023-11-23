@@ -39,6 +39,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ContentAlpha
@@ -126,10 +127,11 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
     private val viewModel by activityViewModels<MainViewModel>()
 
+
     //    val qrCode = viewModel.currentUser.value?.cedula
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Log.d("FragmentLifecycle", "Fragment created: ${javaClass.simpleName}")
     }
 
     override fun onCreateView(
@@ -881,16 +883,17 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun ListContent(userList: MutableLiveData<List<User>>) {
-//        Log.e("user profesor fragment", userList.value.toString())
-//        val users by viewModel.userStudentsList.observeAsState(initial = emptyList())
-//        Log.e("actividades", users.toString())
+
 
         val users by userList.observeAsState(initial = emptyList())
         val userStudents = viewModel.userStudentsList.observeAsState()
+//
+//        LaunchedEffect(key1 = true){
+//            viewModel.setSearchQuery("")
+//        }
 
-        LaunchedEffect(key1 = true){
-            viewModel.setSearchQuery("")
-        }
+
+//        viewModel.setSearchQuery("")
 
         val userListState = rememberUpdatedState(userList.value)
 
@@ -899,7 +902,8 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         var refresh = viewModel.refreshing.observeAsState()
 
         val pullRefreshState = rememberPullRefreshState(refreshing = refresh.value ?: false, { viewModel.getUserStudents("Estudiante", requireContext())
-        viewModel.resetFilters(requireContext())})
+        viewModel.resetFilters(requireContext())
+        })
 
         if (refresh.value == true){
             ShimmerCardList()
@@ -910,6 +914,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         .fillMaxSize()
                         .clickable {
                             viewModel.getUserStudents("Estudiante", requireContext())
+                            viewModel.setSearchQuery("")
                         },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -934,11 +939,6 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
             }
         }
-
-
-
-
-
     }
 
     @Composable
@@ -1429,10 +1429,7 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                  }
              }
             }
-//            Button(onClick = { /*TODO*/ }) {
-//                Text(text = "Aplicar")
-//
-//            }
+
         }
     }
 
@@ -1517,27 +1514,6 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 }
 
 
-//                Row(
-//                    modifier = Modifier.padding(3.dp),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//
-//                    IconButton(
-//                        onClick = { viewModel.sortByAge(true) },
-//                        modifier = Modifier
-//                            .size(38.dp)
-//                            .background(Color.LightGray, CircleShape)
-//                    ) {
-//                        Icon(
-//                            imageVector = Icons.Default.Delete,
-//                            contentDescription = null,
-//                            tint = Color.Gray
-//                        )
-//                    }
-//                    Spacer(modifier = Modifier.width(10.dp))
-//
-//                    Text(text = "Ordenar por edad")
-//                }
 
                 Row(
                     modifier = Modifier.padding(10.dp),
@@ -1578,17 +1554,13 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 .clip(RoundedCornerShape(16.dp))
 //                .background(colorResource(id = R.color.accent))
                 .border(1.5.dp, colorResource(id = R.color.blue_dark), RoundedCornerShape(16.dp))
-//                .background(generateRandomColor())
-//                .background(
-//                    brush = Brush.linearGradient(
-//                        colors = listOf(Color.Black, Color.Transparent),
-//                        start = Offset(0.5f, 1.0f),
-//                        end = Offset(0.5f, 0.5f)
-//                    )
-//                )
+
                 .clickable {
                     viewModel.currentMateria.postValue(item)
                     viewModel.getActivitiesById(item.id, requireContext())
+//                    view
+//                        ?.findNavController()
+//                        ?.navigate(R.id.action_profesorFragment_to_materiaFragment)
                     view
                         ?.findNavController()
                         ?.navigate(R.id.action_profesorFragment_to_materiaFragment)
@@ -1674,9 +1646,11 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.clickable {
-                        viewModel.getAllMaterias(requireContext())
-                    }
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            viewModel.getAllMaterias(requireContext())
+                        }
                 ) {
                     Text(text = "No hay materias")
                 }
@@ -1691,13 +1665,9 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                         }
                     }
                     PullRefreshIndicator(refreshing = refresh.value?: false, pullRefreshState, Modifier.align(Alignment.TopCenter))
-
                 }
             }
-         
         }
-
-
     }
 
 
@@ -1712,6 +1682,12 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         val pagerState = rememberPagerState(pageCount = {tabs.size})
         val coroutineScope = rememberCoroutineScope()
         val filteredUserList = viewModel.filteredUserList
+
+        LaunchedEffect(key1 = true){
+            viewModel.setSearchQuery("")
+
+        }
+
         // Observe the current page index and update the selectedTabIndex accordingly
         LaunchedEffect(pagerState.currentPage) {
             selectedTabIndex = pagerState.currentPage
@@ -1812,6 +1788,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
         val scope = rememberCoroutineScope()
         var isClickable by remember { mutableStateOf(true) }
 
+        var button1 by remember { mutableStateOf(true) }
+        var button2 by remember { mutableStateOf(false) }
+        var button3 by remember { mutableStateOf(false) }
+        var button4 by remember { mutableStateOf(false) }
 
         var isModalVisible by remember { mutableStateOf(false) }
         val filteredUserList = viewModel.filteredUserList
@@ -1821,8 +1801,6 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 
         var user = viewModel.currentUser.value
         var userDB = viewModel.currentUserDB.observeAsState()
-
-
 
         Scaffold(
             topBar = {
@@ -1867,7 +1845,10 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
                                         isClickable = true
                                     }
                                     view?.findNavController()
-                                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 3000))                                 }
+                                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(3000))
+//                                    view?.findNavController()
+//                                        ?.navigate(ProfesorFragmentDirections.actionProfesorFragmentToProfileFragment(user?.id ?: 3000))
+                                }
                                 }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
                                 Icon(
@@ -1896,6 +1877,108 @@ const val MY_PERMISSIONS_REQUEST_WRITE_CONTACTS = 123
 //                    ListContent(userList = filteredUserList)
 
                     TabsHomeWithPagerScreen()
+                Row(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+//                    TabsAsignacionWithPagerScreen()
+//                    ListContentAsignacionGeneralEstudiante(listOfActivities = viewModel.activitiesListById)
+
+                    Button(
+                        modifier = Modifier
+                            .padding(horizontal = 5.dp)
+                            .weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = colorResource(id = R.color.blue_dark),
+                            backgroundColor = colorResource(id = R.color.accent2)                    ),
+                        onClick = {
+                            button1 = true
+                            button2 = false
+                            button3 = false
+                            button4 = false
+                        },
+
+                        ) {
+                        Text(text = "Listado", style = MaterialTheme.typography.subtitle1,
+                            fontSize = 14.sp,
+                        )
+                    }
+                    Button(
+                        modifier = Modifier
+                            .padding(horizontal = 5.dp)
+                            .weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = colorResource(id = R.color.blue_dark),
+                            backgroundColor = colorResource(id = R.color.accent2)                    ),
+                        onClick = {
+                            button2 = true
+                            button1 = false
+                            button3 = false
+                            button4 = false
+
+                        },
+                    ) {
+                        Text(text = "Materias", style = MaterialTheme.typography.subtitle1, fontSize = 14.sp)
+                    }
+                    Button(
+                        modifier = Modifier
+                            .padding(horizontal = 5.dp)
+                            .weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = colorResource(id = R.color.blue_dark),
+                            backgroundColor = colorResource(id = R.color.accent2)                    ),
+                        onClick = {
+                            button2 = false
+                            button1 = false
+                            button3 = true
+                            button4 = false
+
+                        },
+                    ) {
+                        Text(text = "Sexo", style = MaterialTheme.typography.subtitle1, fontSize = 14.sp)
+                    }
+                    Button(
+                        modifier = Modifier
+                            .padding(horizontal = 5.dp)
+                            .weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            contentColor = colorResource(id = R.color.blue_dark),
+                            backgroundColor = colorResource(id = R.color.accent2)
+                        ),
+                        onClick = {
+                            button2 = false
+                            button1 = false
+                            button3 = false
+                            button4 = true
+
+                        },
+                    ) {
+                        Text(text = "Edad", style = MaterialTheme.typography.subtitle1, fontSize = 14.sp)
+                    }
+
+                }
+
+                if(button1){
+                    Column(
+                        modifier = Modifier.padding( start = 5.dp, end = 5.dp),
+                        verticalArrangement = Arrangement.Top) {
+                        ListContent(userList = filteredUserList )
+                    }
+                }else if(button2){
+                    Column(modifier = Modifier.padding(bottom = 30.dp)){
+                        Grid(gridItems = viewModel.materiasList)
+                    }
+                }else if(button3){
+                    Column(modifier = Modifier.padding(bottom = 30.dp, start = 10.dp, end = 10.dp)){
+                        GenderPerformanceChart(viewModel = viewModel)
+                    }
+                }else{
+                    Column(modifier = Modifier.padding( start = 10.dp, end = 10.dp)){
+                        AgeRangePerformanceChart(viewModel = viewModel, context = requireContext())
+                    }
+                }
 
 
 

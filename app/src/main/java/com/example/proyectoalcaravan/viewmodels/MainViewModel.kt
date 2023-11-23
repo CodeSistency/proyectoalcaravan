@@ -230,19 +230,21 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
 
     //Busqueda
     fun setSearchQuery(query: String) {
-        filteredUserList.value = if (query.isEmpty()) {
+        filteredUserList.value = if (query.isNullOrEmpty()) {
             userStudentsList.value // Show all users when the query is empty
         } else {
-            userList.value?.filter { user ->
+            userStudentsList.value?.filter { user ->
                 user.firstName?.contains(query, ignoreCase = true) == true
             }
         }
         Log.e("filter by search", filteredUserList.toString())
     }
 
+
+
     //Filtros
     fun setAgeFilter(minAge: Int, maxAge: Int) {
-        filteredUserList.value = userList.value?.filter { user ->
+        filteredUserList.value = filteredUserList.value?.filter { user ->
             user.edad in minAge..maxAge
         }
     }

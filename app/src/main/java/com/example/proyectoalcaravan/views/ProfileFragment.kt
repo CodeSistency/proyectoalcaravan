@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
@@ -38,8 +36,8 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -65,37 +63,21 @@ import androidx.compose.ui.window.Dialog
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
-import co.yml.charts.axis.AxisData
-import co.yml.charts.common.extensions.formatToSinglePrecision
 import co.yml.charts.common.extensions.isNotNull
-import co.yml.charts.common.model.Point
-import co.yml.charts.ui.linechart.LineChart
-import co.yml.charts.ui.linechart.model.GridLines
-import co.yml.charts.ui.linechart.model.IntersectionPoint
-import co.yml.charts.ui.linechart.model.Line
-import co.yml.charts.ui.linechart.model.LineChartData
-import co.yml.charts.ui.linechart.model.LinePlotData
-import co.yml.charts.ui.linechart.model.LineStyle
-import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
-import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
-import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.proyectoalcaravan.R
 import com.example.proyectoalcaravan.model.local.UserDB
 import com.example.proyectoalcaravan.model.remote.Materia
 import com.example.proyectoalcaravan.model.remote.User
-import com.example.proyectoalcaravan.utils.generateRandomColor
 import com.example.proyectoalcaravan.viewmodels.MainViewModel
 import com.example.proyectoalcaravan.views.componentes.ColorList
-import com.example.proyectoalcaravan.views.componentes.shimmer.ProfileShimmer
-import com.example.proyectoalcaravan.views.profesor.ProfesorFragmentDirections
-import com.example.proyectoalcaravan.views.student.StudentFragmentDirections
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -108,7 +90,7 @@ class ProfileFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Log.d("FragmentLifecycle", "Fragment created: ${javaClass.simpleName}")
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -167,10 +149,11 @@ class ProfileFragment : Fragment() {
 
     @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
-    fun ProfileCard(currentUser: User?, userDB: UserDB?) {
+    fun ProfileCard(currentUser: User?, userDB: UserDB?, refreshingUpdatedUser: State<Boolean?>) {
 
         var updatedUser = viewModel.updatedUser.observeAsState()
         var userDatabase = viewModel.currentUserDB.observeAsState()
+
 
         Column {
 
@@ -198,22 +181,33 @@ class ProfileFragment : Fragment() {
                     modifier = Modifier
                         .size(100.dp)
                         .clip(CircleShape)
-                        .background(Color.White),
+                        .background(Color.White)
+                        ,
 
                 ) {
                     if (args.profile != 3000){
-                        if(updatedUser.value != null){
+                        if (refreshingUpdatedUser.value == true){
+                            Log.e("Refreshing updated user", refreshingUpdatedUser.toString())
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .shimmer()
+                                ,
+
+                                )
+
+                        }else if(updatedUser.value != null){
                             Log.e("updated user test", updatedUser.toString())
+                            Log.e("Refreshing updated user", refreshingUpdatedUser.toString())
+
                             GlideImage(
                                 model = updatedUser.value?.imageProfile,
                                 contentDescription = "foto",
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .size(60.dp),
-                                contentScale = ContentScale.Fit
+                                contentScale = ContentScale.Crop
                             )
-                        }else{
-                            
                         }
                         
                     }else{
@@ -223,7 +217,7 @@ class ProfileFragment : Fragment() {
                             modifier = Modifier
                                 .fillMaxSize()
                                 .size(60.dp),
-                            contentScale = ContentScale.Fit
+                            contentScale = ContentScale.Crop
                         )
                     }
 
@@ -233,8 +227,10 @@ class ProfileFragment : Fragment() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (args.profile != 3000){
-                    
-                    if(updatedUser.value != null){
+
+                    if (refreshingUpdatedUser.value == true){
+                        null
+                    } else if(updatedUser.value != null){
                         Log.e("updated user test", updatedUser.toString())
 
                         Text(
@@ -302,40 +298,63 @@ class ProfileFragment : Fragment() {
                 mapView.onCreate(null)
                 mapView.onResume()
 
-                mapView.getMapAsync { googleMap ->
-                    // Customize the map as needed
-                    googleMap.uiSettings.isZoomControlsEnabled = true
+                if (args.profile != 3000){
+                    if (updatedUser.value != null){
+                        mapView.getMapAsync { googleMap ->
+                            // Customize the map as needed
+                            googleMap.uiSettings.isZoomControlsEnabled = true
 
-                    // Add a marker to the map (you can customize this part)
-                    val markerOptions = MarkerOptions()
-                        .position(LatLng(37.7749, -122.4194)) // Replace with your desired location
-                        .title("Marker Title")
-                    googleMap.addMarker(markerOptions)
+                            Log.e("latLgn", updatedUser.value!!.lat.toString() + updatedUser.value!!.lgn.toString())
+                            // Add a marker to the map (you can customize this part)
+                            val markerOptions =
+                                updatedUser.value?.lat?.let { LatLng(it, updatedUser.value?.lgn!!) }?.let {
+                                    MarkerOptions()
+                                        .position(it) // Replace with your desired location
+                                        .title("Marker Title")
+                                }
+                            if (markerOptions != null) {
+                                googleMap.addMarker(markerOptions)
+                            }
 
-                    // Move the camera to the desired location
-
-
-                    if (args.profile != 3000){
-
-
+                            // Move the camera to the desired location
                             var cameraPosition = CameraPosition.Builder()
-                                .target(LatLng(updatedUser.value?.lat ?: 10.0000, updatedUser.value?.lat ?: 10.0000)) // Replace with your desired location
+                                .target(LatLng(updatedUser.value?.lat ?: 10.0000, updatedUser.value?.lgn ?: 10.0000)) // Replace with your desired location
                                 .zoom(15f) // Zoom level
                                 .build()
                             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
 
+                        }
+                    }
 
-                    }else{
+
+                }else{
+                    mapView.getMapAsync { googleMap ->
+                        // Customize the map as needed
+                        googleMap.uiSettings.isZoomControlsEnabled = true
+
+                        // Add a marker to the map (you can customize this part)
+                        val markerOptions = MarkerOptions()
+                                                .position(LatLng(currentUser?.lat ?: userDB?.lat ?: 1.00000, currentUser?.lgn ?: userDB?.lgn ?: 1.000000))
+
+//                        val markerOptions =
+//                            currentUser?.lat?.let { LatLng(it, currentUser?.lgn!!) }?.let {
+//                                MarkerOptions()
+//                                    .position(it) // Replace with your desired location
+//                                    .title("Marker Title")
+//                            }
+                        if (markerOptions != null) {
+                            googleMap.addMarker(markerOptions)
+                        }
+
+                        // Move the camera to the desired location
                         var cameraPosition = CameraPosition.Builder()
-                            .target(LatLng(userDB?.lat ?:currentUser?.lat ?: 0.078867, userDB?.lgn ?: currentUser?.lgn ?: 0.078867)) // Replace with your desired location
+                            .target(LatLng(currentUser?.lat ?: userDB?.lat ?: 1.00000, currentUser?.lgn ?: userDB?.lgn ?: 1.000000)) // Replace with your desired location
                             .zoom(15f) // Zoom level
                             .build()
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
                     }
-
-
-
                 }
+
             }
 
         // Create a MapView composable
@@ -448,7 +467,7 @@ class ProfileFragment : Fragment() {
 
         var isClickable by remember { mutableStateOf(true) }
         val coroutineScope = rememberCoroutineScope()
-
+        var refreshingUpdatedUser = viewModel.refreshingUpdatedUser.observeAsState()
 
 
 
@@ -461,7 +480,11 @@ class ProfileFragment : Fragment() {
                         IconButton(onClick = {
                             if(isClickable){
                                 isClickable = false
+//                                view?.findNavController()?.popBackStack()
                                 view?.findNavController()?.popBackStack()
+
+
+
 
                                 // Launch a coroutine to re-enable clickable after a delay
                                 coroutineScope.launch {
@@ -517,7 +540,7 @@ class ProfileFragment : Fragment() {
            
             LazyColumn{
                 item {
-                    ProfileCard(currentUser, userDB.value)
+                    ProfileCard(currentUser, userDB.value, refreshingUpdatedUser)
 
                 }
                 item {
@@ -525,7 +548,31 @@ class ProfileFragment : Fragment() {
                         Spacer(modifier = Modifier.height(10.dp))
 
                         if (args.profile != 3000){
-                            if(updatedUser.value != null){
+                            if (refreshingUpdatedUser.value == true){
+                                Column {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(40.dp)
+                                            .padding(10.dp)
+                                            .shimmer()
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(40.dp)
+                                            .padding(10.dp)
+                                            .shimmer()
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(40.dp)
+                                            .padding(10.dp)
+                                            .shimmer()
+                                    )
+                                }
+                            }else if(updatedUser.value != null){
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -533,7 +580,7 @@ class ProfileFragment : Fragment() {
                                     Text(text = "Email:",
                                         style = MaterialTheme.typography.h3,
                                         color = Color.Gray,
-                                        modifier = Modifier.padding(start = 20.dp),
+                                        modifier = Modifier.padding(start = 25.dp),
                                         fontSize = 23.sp
 
                                     )
@@ -556,7 +603,7 @@ class ProfileFragment : Fragment() {
                                     Text(text = "Cedula:",
                                         style = MaterialTheme.typography.h3,
                                         color = Color.Gray,
-                                        modifier = Modifier.padding(start = 20.dp),
+                                        modifier = Modifier.padding(start = 25.dp),
                                         fontSize = 23.sp
 
                                     )
@@ -580,7 +627,7 @@ class ProfileFragment : Fragment() {
                                     Text(text = "Telefono:",
                                         style = MaterialTheme.typography.h3,
                                         color = Color.Gray,
-                                        modifier = Modifier.padding(start = 20.dp),
+                                        modifier = Modifier.padding(start = 25.dp),
                                         fontSize = 23.sp
 
                                     )
@@ -618,7 +665,7 @@ class ProfileFragment : Fragment() {
                                 Text(text = "Email:",
                                     style = MaterialTheme.typography.h3,
                                     color = Color.Gray,
-                                    modifier = Modifier.padding(start = 20.dp),
+                                    modifier = Modifier.padding(start = 25.dp),
                                     fontSize = 23.sp
 
                                 )
@@ -642,7 +689,7 @@ class ProfileFragment : Fragment() {
                                 Text(text = "Cedula:",
                                     style = MaterialTheme.typography.h3,
                                     color = Color.Gray,
-                                    modifier = Modifier.padding(start = 20.dp),
+                                    modifier = Modifier.padding(start = 25.dp),
                                     fontSize = 23.sp
 
                                 )
@@ -666,7 +713,7 @@ class ProfileFragment : Fragment() {
                                 Text(text = "Telefono:",
                                     style = MaterialTheme.typography.h3,
                                     color = Color.Gray,
-                                    modifier = Modifier.padding(start = 20.dp),
+                                    modifier = Modifier.padding(start = 25.dp),
                                     fontSize = 23.sp
 
                                 )
@@ -702,7 +749,6 @@ class ProfileFragment : Fragment() {
 
                     }else{
                         HorizontalList(gridItems = viewModel.currentUser.observeAsState().value?.listOfMaterias)
-
                     }
 
 
@@ -715,17 +761,17 @@ class ProfileFragment : Fragment() {
                             )
                        Icon(painterResource(id = R.drawable.ic_location), contentDescription = null)
                     }
-                    SmallMap(currentUser, userDB.value)
-//                    if (args.profile != 3000){
-//                        if (updatedUser != null){
-//                            SmallMap(currentUser, userDB.value)
-//                        }else{
-//                            Text(text = "Ubicación no encontrada")
-//                        }
-//
-//                    }else if(currentUser != null){
-//                        SmallMap(currentUser, userDB.value)
-//                    }
+                    if (args.profile != 3000){
+
+                        if (refreshingUpdatedUser.value == true){
+                        }else if (updatedUser != null){
+                            SmallMap(currentUser, userDB.value)
+                        }else{
+                            Text(text = "Ubicación no encontrada")
+                        }
+                    }else{
+                        SmallMap(currentUser, userDB.value)
+                    }
                 }
 
             }
@@ -780,4 +826,8 @@ class ProfileFragment : Fragment() {
     }
 
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.updatedUser.postValue(null)
+    }
 }

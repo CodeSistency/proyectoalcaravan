@@ -58,6 +58,7 @@ class LoginFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+            Log.d("FragmentLifecycle", "Fragment created: ${javaClass.simpleName}")
 
 ////        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 ////        viewModel = ViewModelProvider(requireActivity(), MyViewModelFactory(repository)).get(MainViewModel::class.java)
@@ -210,7 +211,9 @@ class LoginFragment : Fragment() {
                             binding.loginBtn.isEnabled = true
 
                             if(view.findNavController().isNotNull()){
-                                view.findNavController().navigate(R.id.studentFragment)
+//                                view.findNavController().navigate(R.id.studentFragment)
+                                view.findNavController().navigate(R.id.composeNavigationFragment)
+
                                 viewModel.getUserDB(1)
                                 binding.loginBtn.isEnabled = true
 
@@ -219,17 +222,45 @@ class LoginFragment : Fragment() {
                             binding.loginBtn.isEnabled = true
 
                             if (view.findNavController().isNotNull())
-                        view.findNavController().navigate(R.id.profesorFragment)
+//                        view.findNavController().navigate(R.id.profesorFragment)
+                                view.findNavController().navigate(R.id.composeNavigationFragment)
                             viewModel.getUserDB(1)
                             binding.loginBtn.isEnabled = true
-
-
-
                         }
                     }
 //                    view.findNavController().navigate(R.id.action_login_to_studentFragment)
                 }
             }
+
+//            viewModel.loggedIn.observe(viewLifecycleOwner) { isLoggedIn ->
+//                binding.loginBtn.isEnabled = true
+//
+//                if (isLoggedIn) {
+//                    // Remove the observer to prevent multiple triggers
+//                    viewModel.loggedIn.removeObservers(viewLifecycleOwner)
+//
+//                    viewModel.currentUser.observe(viewLifecycleOwner) { user ->
+//                        if (user != null) {
+//                            if (user.rol == "Estudiante") {
+//                                // Navigate only if the current destination is not the target destination
+//                                val currentDestination = view.findNavController().currentDestination?.id
+//                                if (currentDestination != R.id.composeNavigationFragment) {
+//                                    view.findNavController().navigate(R.id.composeNavigationFragment)
+//                                    viewModel.getUserDB(1)
+//                                }
+//                            } else if(user.rol == "Profesor"){
+//                                val currentDestination = view.findNavController().currentDestination?.id
+//                                if (currentDestination != R.id.composeNavigationFragment) {
+//                                    view.findNavController().navigate(R.id.composeNavigationFragment)
+//                                    viewModel.getUserDB(1)
+//                                }
+//                                // Handle navigation for other roles
+//                                // view.findNavController().navigate(R.id.action_login_to_anotherFragment)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
 
 
 

@@ -97,8 +97,7 @@ class MateriaFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//
+        Log.d("FragmentLifecycle", "Fragment created: ${javaClass.simpleName}")
     }
 
 
@@ -869,9 +868,10 @@ class MateriaFragment : Fragment() {
         var tituloAsignacion by remember { mutableStateOf(String()) }
         var descripcionAsignacion by remember { mutableStateOf(String()) }
         var isButtonEnabled by remember { mutableStateOf(true) }
+        var isProgressModalLoading by remember {
+            mutableStateOf(false)
+        }
 
-
-//        val selectedUsers = remember { mutableStateListOf<User>() } // Track selected users
         val selectedUsers = viewModel.currentMateria.observeAsState().value?.listStudent?.toMutableList()
         var materiaId = viewModel.currentMateria.value?.id
 
@@ -894,13 +894,20 @@ class MateriaFragment : Fragment() {
                         style = MaterialTheme.typography.body2,
                         fontSize = 30.sp,
                     )
-                    IconButton(onClick = { isModalVisible = true }) {
-//                    val iconPainter: Painter = painterResource(R.drawable.qr_scan_svgrepo_com)
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "QR Code",
-                            modifier = Modifier.size(40.dp)
-                        )
+
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = colorResource(id = R.color.blue_dark),
+                            contentColor = Color.White
+                        ),
+                        onClick = { isModalVisible = true  }) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                            Text(text = "Agregar", modifier = Modifier.padding(horizontal = 2.dp))
+                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                        }
                     }
                 }else{
                     Text(
@@ -910,13 +917,14 @@ class MateriaFragment : Fragment() {
                     )
                     Button(
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = colorResource(id = R.color.blue_dark)
+                            backgroundColor = colorResource(id = R.color.blue_dark),
+                            contentColor = Color.White
                         ),
                         onClick = { isModalAsignacionesVisible = true  }) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+
                         ) {
                             Text(text = "Agregar", modifier = Modifier.padding(horizontal = 2.dp))
                             Icon(painterResource(id = R.drawable.ic_person_add), contentDescription = null)
@@ -1078,6 +1086,25 @@ class MateriaFragment : Fragment() {
                 AgeRangePerformanceChartByMateria(viewModel = viewModel, context = requireContext())
             }
 
+            if (isProgressModalLoading) {
+                Dialog(
+                    onDismissRequest = { isProgressModalLoading = false },
+                    content = {
+
+                        Column(
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(64.dp),
+                                color = colorResource(id = R.color.blue_dark),
+
+
+                                )
+                        }
+                    }
+                )
+            }
+
 
             if (isModalVisible) {
                 Dialog(
@@ -1135,6 +1162,7 @@ class MateriaFragment : Fragment() {
                                     enabled = isButtonEnabled,
                                     onClick = {
                                         if(isButtonEnabled){
+                                            isProgressModalLoading = true
                                             isButtonEnabled = false
                                             val currentMateria = viewModel.currentMateria.value
                                             if (currentMateria != null) {
@@ -1189,9 +1217,13 @@ class MateriaFragment : Fragment() {
                                                         viewModel.updateUser(user?.id ?: 110, modifiedUser, requireContext()).observe(viewLifecycleOwner){
                                                             if(it){
                                                                 isButtonEnabled = true
+                                                                isProgressModalLoading = false
+
 
                                                             }else{
                                                                 isButtonEnabled = true
+                                                                isProgressModalLoading = false
+
 
                                                             }
                                                         }
@@ -1202,7 +1234,7 @@ class MateriaFragment : Fragment() {
 
                                                 viewModel.updateMateria(materiaId, Materia(materiaId, teacherId, selectedUsers, materiaName), requireContext())
                                                 isButtonEnabled = true
-
+                                                isProgressModalLoading = false
                                                 isModalVisible = false
                                             }
                                         }
@@ -1295,6 +1327,7 @@ class MateriaFragment : Fragment() {
                                     onClick = {
 
                                         if (!tituloAsignacion.isNullOrEmpty() && !descripcionAsignacion.isNullOrEmpty() && !viewModel?.birthday?.value.isNullOrEmpty()){
+                                            isProgressModalLoading = true
 
                                             val dateFormat = SimpleDateFormat("yyyy/MM/dd", Locale("es", "ES"))
                                             var isDateFormatValid = true
@@ -1303,6 +1336,8 @@ class MateriaFragment : Fragment() {
                                                 dateFormat.parse(viewModel.birthday.value)
                                             } catch (e: ParseException) {
                                                 isDateFormatValid = false
+                                                isProgressModalLoading = false
+
                                             }
 
                                             if (isDateFormatValid){
@@ -1317,8 +1352,15 @@ class MateriaFragment : Fragment() {
                                                     requireContext()
                                                 )
                                                 isModalAsignacionesVisible = false
+                                                isProgressModalLoading = false
+
+                                                tituloAsignacion = ""
+                                                tituloAsignacion = ""
+                                                viewModel.birthday.postValue("Fecha")
+
                                             }else{
                                                 viewModel.showToast("Coloca una fecha", requireContext())
+                                                isProgressModalLoading = false
 
                                             }
 
@@ -1328,6 +1370,8 @@ class MateriaFragment : Fragment() {
 
                                         }else{
                                             viewModel.showToast("Rellene todos los campos", requireContext())
+                                            isProgressModalLoading = false
+
                                         }
                                        },
                                     modifier = Modifier

@@ -94,7 +94,6 @@ import kotlinx.coroutines.launch
 
 class StudentFragment : Fragment() {
 
-
     private val viewModel by activityViewModels<MainViewModel>()
 
 //    private var textResult = mutableStateOf("")
@@ -128,6 +127,11 @@ class StudentFragment : Fragment() {
 //            showCamera()
 //        }
 //    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d("FragmentLifecycle", "Fragment created: ${javaClass.simpleName}")
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -724,7 +728,7 @@ class StudentFragment : Fragment() {
                                         isClickable = true
                                     }
                                     view?.findNavController()
-                                        ?.navigate(StudentFragmentDirections.actionStudentFragmentToProfileFragment(user?.value?.id ?: 3000))
+                                        ?.navigate(StudentFragmentDirections.actionStudentFragmentToProfileFragment(3000))
                                 }
                                }) {
 //                    IconButton(onClick = { scope.launch { state.show() }}) {
@@ -779,7 +783,10 @@ class StudentFragment : Fragment() {
                 }
 //                HorizontalList(gridItems = viewModel.materiasList)
 
-                if(userDB.value?.listActivities?.isNullOrEmpty() == true && user.value?.listActivities?.isNullOrEmpty() == true){
+//                if(userDB.value?.listActivities?.isNotEmpty() == true && user.value?.listActivities?.isNotEmpty() == true){
+                if(userDB.value?.listActivities?.isNotEmpty() == true && user.value?.listActivities?.isNotEmpty() == true){
+
+                    Log.e("activities empty or not", userDB.value?.listActivities?.toString() + user.value?.listActivities)
                         //Tengo que hacer progress bar
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -801,8 +808,6 @@ class StudentFragment : Fragment() {
                         }
 
                     }
-
-//
 
                 if (isModalVisible) {
                     Dialog(

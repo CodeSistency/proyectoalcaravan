@@ -121,6 +121,9 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:2.5.3")
 
+    //Navigation compose
+    implementation("androidx.navigation:navigation-compose:2.5.3")
+
 
     //Image Picker
     implementation ("com.github.dhaval2404:imagepicker:2.1")

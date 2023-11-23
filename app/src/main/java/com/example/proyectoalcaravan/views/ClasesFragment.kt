@@ -1,6 +1,7 @@
 package com.example.proyectoalcaravan.views
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -77,8 +78,9 @@ class ClasesFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Log.d("FragmentLifecycle", "Fragment created: ${javaClass.simpleName}")
         viewModel.getAllMaterias(requireContext())
+
     }
 
     override fun onCreateView(
