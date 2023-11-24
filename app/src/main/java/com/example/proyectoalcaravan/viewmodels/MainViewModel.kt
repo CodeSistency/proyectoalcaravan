@@ -451,6 +451,8 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                         } else {
                             liveData.postValue(false)
                             showToast("Este correo ya existe", context)
+                            showToast("email o clave invalida", context)
+
 
                         }
                     } else {
@@ -461,6 +463,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                 override fun onFailure(call: Call<List<User>>, t: Throwable) {
                     errorMessage.postValue(t.message)
                     showToast("Ha ocurrido un error, vuelva a intentarlo", context)
+                    liveData.postValue(false)
 
                 }
             })
@@ -680,7 +683,7 @@ class MainViewModel(private val repository: MainRepository): ViewModel() {
                 override fun onFailure(call: Call<List<User>>, t: Throwable) {
                     errorMessage.postValue(t.message)
                     Log.e("Logged in fallo", "${t.message}")
-                    showToast("Ha ocurrido un error, ${t.message}", context)
+                    showToast("Ha ocurrido un error, inténtelo más tarde", context)
 
 
                 }

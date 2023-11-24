@@ -54,8 +54,8 @@ class MainActivity : AppCompatActivity() {
                 Log.e("something", "algo")
                 navController = findNavController(R.id.nav_host_fragment)
 //                navController.navigate(R.id.studentFragment)
-//                navController.navigate(R.id.studentFragment)
-                navController.navigate(R.id.composeNavigationFragment)
+                navController.navigate(R.id.studentFragment)
+//                navController.navigate(R.id.composeNavigationFragment)
 
 
 //                    Log.e("nav", navController.graph.toString())
@@ -64,8 +64,8 @@ class MainActivity : AppCompatActivity() {
                 // Navigate to the ProfessorFragment
                 navController = findNavController(R.id.nav_host_fragment)
 //                navController.navigate(R.id.profesorFragment)
-//                navController.navigate(R.id.profesorFragment)
-                navController.navigate(R.id.composeNavigationFragment)
+                navController.navigate(R.id.profesorFragment)
+//                navController.navigate(R.id.composeNavigationFragment)
 
 
 
@@ -89,8 +89,8 @@ class MainActivity : AppCompatActivity() {
                     // Navigate to the StudentFragment
                     Log.e("something", "algo")
                     navController = findNavController(R.id.nav_host_fragment)
-//                    navController.navigate(R.id.studentFragment)
-                    navController.navigate(R.id.composeNavigationFragment)
+                    navController.navigate(R.id.studentFragment)
+//                    navController.navigate(R.id.composeNavigationFragment)
 
 
 //                    startActivity(Intent(this, MainActivity::class.java))
@@ -99,8 +99,8 @@ class MainActivity : AppCompatActivity() {
 
                     // Navigate to the ProfessorFragment
                     navController = findNavController(R.id.nav_host_fragment)
-//                    navController.navigate(R.id.profesorFragment)
-                    navController.navigate(R.id.composeNavigationFragment)
+                    navController.navigate(R.id.profesorFragment)
+//                    navController.navigate(R.id.composeNavigationFragment)
 
 
                     Log.e("nav", navController.graph.toString())

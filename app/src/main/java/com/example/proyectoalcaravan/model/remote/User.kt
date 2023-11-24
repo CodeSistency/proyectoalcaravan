@@ -8,7 +8,7 @@ data class User(
     val edad: Int? = null,
     val email: String? = "",
     val firstName: String? = "",
-    val gender: String? = "masculino",
+    val gender: String? = "Masculino",
     val id: Int? = null,
     var imageProfile: String? = "",
     val lastName: String? = "",

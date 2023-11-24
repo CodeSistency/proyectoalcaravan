@@ -108,7 +108,7 @@ class ProfileFragment : Fragment() {
                 var userDB = viewModel.currentUserDB.observeAsState()
                 var updatedUser = viewModel.updatedUser.observeAsState()
 
-                viewModel.prueba()
+//                viewModel.prueba()
 //                if(args.profile != 3000){
 //                    Log.e("profile", args.profile.toString())
 //                        Log.e("profile test", args.profile.toString())
@@ -507,6 +507,29 @@ class ProfileFragment : Fragment() {
                             if (args.profile != 3000){
                                 null
                             }else{
+                                IconButton(onClick = {
+                                    if(isClickable){
+                                        isClickable = false
+
+                                            view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,currentUser?.id?: userDB.value?.userId ?: 1000))
+
+//                                            view?.findNavController()?.navigate(ProfileFragmentDirections.actionProfileFragmentToRegisterStepTwo2(true,10000))
+
+                                        // Launch a coroutine to re-enable clickable after a delay
+                                        coroutineScope.launch {
+                                            delay(2000) // Adjust the delay duration as needed (in milliseconds)
+                                            isClickable = true
+                                        }
+                                    }
+
+
+                                })
+                                {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_editar),
+                                        contentDescription = "Settings"
+                                    )
+                                }
                                 IconButton(onClick = {
                                     if(isClickable){
                                         isClickable = false

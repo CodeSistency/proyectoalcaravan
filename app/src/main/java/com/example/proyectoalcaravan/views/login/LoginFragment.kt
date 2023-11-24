@@ -146,7 +146,6 @@ class LoginFragment : Fragment() {
             if (isGranted) {
                 // FCM SDK (and your app) can post notifications.
             } else {
-                // TODO: Inform user that that your app will not show notifications.
             }
         }
 
@@ -158,10 +157,7 @@ class LoginFragment : Fragment() {
                 ) {
                     // FCM SDK (and your app) can post notifications.
                 } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                    // TODO: display an educational UI explaining to the user the features that will be enabled
-                    //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
-                    //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
-                    //       If the user selects "No thanks," allow the user to continue without notifications.
+
                 } else {
                     // Directly ask for the permission
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -200,19 +196,25 @@ class LoginFragment : Fragment() {
             val password = binding.password.text.toString()
 
             viewModel.getLoggedIn(email, password, requireContext())
+            binding.simpleProgressBarLogin.visibility = View.VISIBLE
 
             viewModel.loggedIn.observe(viewLifecycleOwner){ it ->
                 binding.loginBtn.isEnabled = true
 
                 if (it){
                     binding.loginBtn.isEnabled = true
+                    binding.simpleProgressBarLogin.visibility = View.GONE
+
                     viewModel.currentUser.observe(viewLifecycleOwner){
                         if (it.rol == "Estudiante"){
                             binding.loginBtn.isEnabled = true
+                            binding.simpleProgressBarLogin.visibility = View.GONE
+
 
                             if(view.findNavController().isNotNull()){
-//                                view.findNavController().navigate(R.id.studentFragment)
-                                view.findNavController().navigate(R.id.composeNavigationFragment)
+                                view.findNavController().navigate(R.id.studentFragment)
+//                                view.findNavController().navigate(R.id.composeNavigationFragment)
+                                binding.simpleProgressBarLogin.visibility = View.GONE
 
                                 viewModel.getUserDB(1)
                                 binding.loginBtn.isEnabled = true
@@ -220,15 +222,22 @@ class LoginFragment : Fragment() {
                             }
                     } else {
                             binding.loginBtn.isEnabled = true
+                            binding.simpleProgressBarLogin.visibility = View.GONE
 
                             if (view.findNavController().isNotNull())
-//                        view.findNavController().navigate(R.id.profesorFragment)
-                                view.findNavController().navigate(R.id.composeNavigationFragment)
+                        view.findNavController().navigate(R.id.profesorFragment)
+                            binding.simpleProgressBarLogin.visibility = View.GONE
+
+//                                view.findNavController().navigate(R.id.composeNavigationFragment)
                             viewModel.getUserDB(1)
                             binding.loginBtn.isEnabled = true
                         }
                     }
 //                    view.findNavController().navigate(R.id.action_login_to_studentFragment)
+                }else{
+                    binding.simpleProgressBarLogin.visibility = View.GONE
+                    binding.loginBtn.isEnabled = true
+
                 }
             }
 

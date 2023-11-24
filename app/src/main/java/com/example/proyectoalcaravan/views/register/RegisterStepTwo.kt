@@ -415,7 +415,7 @@ class RegisterStepTwo : Fragment() {
                 dialogFragment.show(parentFragmentManager, dialogFragment.tag)
             }
             Log.e("checking", args.profile.toString())
-//            viewModel.getUserById(args.profile, requireContext())
+            viewModel.getUserById(args.profile, requireContext())
             binding.tvRegistroTitulo.text = "Actualizar"
 
             binding.Registrar.text = "Actualizar"
@@ -764,12 +764,12 @@ class RegisterStepTwo : Fragment() {
 
             }
         }else{
-            val email = viewModel.email.value
-            val password = viewModel.password.value
-            if(email == null || password == null){
-                Log.e("this is the error", "error")
-                view.findNavController().navigate(R.id.registerStepOne2)
-            }
+//            val email = viewModel.email.value
+//            val password = viewModel.password.value
+//            if(email == null || password == null){
+//                Log.e("this is the error", "error")
+//                view.findNavController().navigate(R.id.registerStepOne2)
+//            }
             binding.Registrar.setOnClickListener {
 
                 binding.Registrar.isEnabled = false

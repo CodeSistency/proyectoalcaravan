@@ -906,7 +906,7 @@ class MateriaFragment : Fragment() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                             Text(text = "Agregar", modifier = Modifier.padding(horizontal = 2.dp))
-                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                            Icon(painterResource(id = R.drawable.ic_person_add), contentDescription = null)
                         }
                     }
                 }else{
@@ -927,7 +927,7 @@ class MateriaFragment : Fragment() {
 
                         ) {
                             Text(text = "Agregar", modifier = Modifier.padding(horizontal = 2.dp))
-                            Icon(painterResource(id = R.drawable.ic_person_add), contentDescription = null)
+                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
                         }
                     }
 //                    IconButton(onClick = { isModalAsignacionesVisible = true }) {
@@ -1152,13 +1152,17 @@ class MateriaFragment : Fragment() {
                                         .fillMaxWidth()
                                 ) {
 
-                                    ListContentUsers(userList = viewModel.userList,
+                                    ListContentUsers(userList = viewModel.userStudentsList,
                                         selectedUsers = selectedUsers?: mutableListOf(),
                                         userListSuscribed = viewModel.currentMateria
                                     )
 
                                 }
                                 Button(
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = colorResource(id = R.color.blue_dark),
+                                        contentColor = Color.White,
+                                    ),
                                     enabled = isButtonEnabled,
                                     onClick = {
                                         if(isButtonEnabled){
@@ -1314,7 +1318,12 @@ class MateriaFragment : Fragment() {
                                             }
                                         )
 
-                                        Button(onClick = {
+                                        Button(
+                                            colors = ButtonDefaults.buttonColors(
+                                                backgroundColor = colorResource(id = R.color.blue_dark),
+                                                contentColor = Color.White,
+                                            ),
+                                            onClick = {
                                             val newFragment = DatePickerFragment()
                                             newFragment.show(childFragmentManager, "datePicker")
                                         }) {
@@ -1324,6 +1333,10 @@ class MateriaFragment : Fragment() {
 
 
                                 Button(
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = colorResource(id = R.color.blue_dark),
+                                        contentColor = Color.White,
+                                    ),
                                     onClick = {
 
                                         if (!tituloAsignacion.isNullOrEmpty() && !descripcionAsignacion.isNullOrEmpty() && !viewModel?.birthday?.value.isNullOrEmpty()){
@@ -1355,7 +1368,7 @@ class MateriaFragment : Fragment() {
                                                 isProgressModalLoading = false
 
                                                 tituloAsignacion = ""
-                                                tituloAsignacion = ""
+                                                descripcionAsignacion = ""
                                                 viewModel.birthday.postValue("Fecha")
 
                                             }else{
